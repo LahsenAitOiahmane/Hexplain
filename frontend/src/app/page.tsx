@@ -9,7 +9,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-1.5 font-bold text-lg text-slate-900">
             <Shield className="w-5 h-5 text-indigo-600" />
-            <span>Malw<span className="text-indigo-600">AI</span>re</span>
+            <span>Hexplain</span>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-1.5 transition-colors" style={{borderRadius:'4px'}}>
@@ -38,7 +38,7 @@ export default function LandingPage() {
             <span className="text-indigo-600">Instantly.</span>
           </h1>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-10">
-            MalwAIre is a next-generation static analysis platform that combines automated reverse engineering with AI to detect threats, extract capabilities, and explain malware behavior — without ever running the file.
+            Hexplain is a next-generation static analysis platform that combines automated reverse engineering with AI to detect threats, extract capabilities, and explain malware behavior — without ever running the file.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link href="/register" className="flex items-center justify-center gap-2 px-8 py-3.5 text-base font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md hover:shadow-lg transition-all" style={{borderRadius:'4px'}}>
@@ -180,7 +180,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 text-slate-500 text-sm">
             <Shield className="w-4 h-4 text-indigo-500" />
-            <span>MalwAIre — AI-powered static analysis</span>
+            <span>Hexplain — AI-powered static analysis</span>
           </div>
           <div className="text-slate-400 text-xs">Reports retained for 7 days. Files never executed.</div>
         </div>

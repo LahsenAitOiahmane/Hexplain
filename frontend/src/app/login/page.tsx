@@ -93,7 +93,7 @@ function AuthForm() {
           {/* Logo */}
           <Link href="/" className="inline-flex items-center gap-2 font-black text-xl text-slate-900 mb-10 group animate-slide-up" style={{ animationDelay: '0.05s', animationFillMode: 'both' }}>
             <Shield className="w-6 h-6 text-indigo-600 group-hover:rotate-12 transition-transform duration-300" />
-            Malw<span className="text-indigo-600">AI</span>re
+            Hexplain
           </Link>
 
           <div className="mb-8 animate-slide-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
@@ -179,7 +179,7 @@ function AuthForm() {
         <div className="w-full max-w-sm">
           <Link href="/" className="inline-flex items-center gap-2 font-black text-xl text-slate-900 mb-10 group">
             <Shield className="w-6 h-6 text-indigo-600 group-hover:rotate-12 transition-transform duration-300" />
-            Malw<span className="text-indigo-600">AI</span>re
+            Hexplain
           </Link>
 
           <div className="mb-6">
@@ -337,7 +337,7 @@ function AuthForm() {
               <div className="w-14 h-14 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center mb-6 mx-auto animate-float-slow" style={{ animationDelay: '2s' }}>
                 <Zap className="w-7 h-7 text-white" />
               </div>
-              <h2 className="text-2xl font-black mb-3 leading-tight">New to MalwAIre?</h2>
+              <h2 className="text-2xl font-black mb-3 leading-tight">New to Hexplain?</h2>
               <p className="text-indigo-200 text-sm leading-relaxed mb-6 max-w-xs">
                 Create a free account and start analyzing PE, ELF, and .NET binaries with AI-powered insights.
               </p>

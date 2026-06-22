@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MalwAIre — Static Analysis",
+  title: "Hexplain — Static Analysis",
   description: "AI-powered static analysis for PE/ELF/.NET binaries.",
 };
 

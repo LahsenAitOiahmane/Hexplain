@@ -25,7 +25,7 @@ export default function Navbar() {
         <div className="flex items-center gap-6 shrink-0">
           <Link href="/jobs" className="flex items-center gap-1.5 font-bold text-lg tracking-tight text-slate-900 group">
             <Shield className="w-5 h-5 text-indigo-600 group-hover:text-indigo-500 transition-colors animate-float" style={{ animationDuration: '6s' }} />
-            <span>Malw<span className="text-indigo-600">AI</span>re</span>
+            <span>Hexplain</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-0.5">
