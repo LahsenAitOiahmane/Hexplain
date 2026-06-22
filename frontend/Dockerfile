@@ -9,6 +9,9 @@ RUN npm ci
 # Copy all source code
 COPY . .
 
+ARG API_URL=http://api:8000
+ENV API_URL=$API_URL
+
 # Build the Next.js app for production
 RUN npm run build
 
