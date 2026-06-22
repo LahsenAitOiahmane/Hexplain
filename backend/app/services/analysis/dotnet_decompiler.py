@@ -90,6 +90,33 @@ def analyze_dotnet(file_path: str, timeout_seconds: int = 120) -> dict:
         lines.append(f"// ... truncated (exceeded {max_lines} line limit)")
         
     formatted_code = "\n".join(lines)
+    # Also extract IL code
+    il_code = []
+    try:
+        il_cmd = [ilspy_bin, "--ilcode", file_path]
+        il_result = subprocess.run(
+            il_cmd,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+        if il_result.returncode == 0 and il_result.stdout:
+            il_lines = il_result.stdout.split("\n")
+            if len(il_lines) > max_lines:
+                il_lines = il_lines[:max_lines]
+                il_lines.append(f"// ... IL truncated (exceeded {max_lines} line limit)")
+            
+            # Format as pseudo-assembly instructions
+            for i, line in enumerate(il_lines):
+                if not line.strip():
+                    continue
+                il_code.append({
+                    "address": f"L{i}",
+                    "mnemonic": "IL",
+                    "operands": line
+                })
+    except Exception as e:
+        logger.warning("dotnet_ilcode_failed", error=str(e))
     
     decompiled_result = {
         "functions": [{
@@ -98,7 +125,9 @@ def analyze_dotnet(file_path: str, timeout_seconds: int = 120) -> dict:
             "decompiled": formatted_code,
             "line_count": len(lines),
             "truncated": truncated,
-            "xrefs": {"calls": [], "strings": []}
+            "xrefs": {"calls": [], "strings": []},
+            "assembly": il_code,
+            "pipeline": "dotnet",
         }],
         "total_functions_decompiled": 1,
         "total_functions_in_binary": 1,

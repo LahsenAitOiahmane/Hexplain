@@ -163,6 +163,22 @@ User Question: {question}
     provider = get_llm_provider()
     try:
         raw_resp = provider.generate(prompt)
+    except Exception as e:
+        logger.warning("rag_primary_llm_failed", error=str(e))
+        # Attempt fallback to Groq if Gemini fails
+        if settings.GROQ_API_KEY and type(provider).__name__ != "GroqProvider":
+            logger.info("rag_falling_back_to_groq")
+            from app.services.llm_explanation import GroqProvider
+            provider = GroqProvider()
+            try:
+                raw_resp = provider.generate(prompt)
+            except Exception as e2:
+                logger.error("rag_fallback_llm_failed", error=str(e2))
+                return "Sorry, I encountered an error while trying to answer your question."
+        else:
+            return "Sorry, I encountered an error while trying to answer your question."
+
+    try:
         clean_resp = raw_resp.strip()
         if clean_resp.startswith("```json"):
             clean_resp = clean_resp[7:]
@@ -172,5 +188,5 @@ User Question: {question}
         parsed = json.loads(clean_resp.strip())
         return parsed.get("answer", "Error: could not extract answer.")
     except Exception as e:
-        logger.error("rag_llm_failed", error=str(e))
-        return "Sorry, I encountered an error while trying to answer your question."
+        logger.error("rag_llm_parse_failed", error=str(e))
+        return "Sorry, I encountered an error parsing the answer."

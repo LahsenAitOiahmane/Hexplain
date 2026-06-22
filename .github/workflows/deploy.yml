@@ -17,7 +17,7 @@ jobs:
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
-          password: ${{ secrets.DO_SSH_PASSWORD }}
+          key: ${{ secrets.DO_SSH_KEY }}
           source: "."
           target: "~/Hexplain"
 
@@ -26,15 +26,47 @@ jobs:
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
-          password: ${{ secrets.DO_SSH_PASSWORD }}
+          key: ${{ secrets.DO_SSH_KEY }}
           script: |
             cd ~/Hexplain
             
-            # Restart all containers with the new code
-            docker compose down
             mkdir -p backend/data backend/quarantine
             chmod -R 777 backend/data backend/quarantine
+            
+            # 1. Pre-deploy backup of the database
+            if [ -f backend/data/malwaire.db ]; then
+              cp backend/data/malwaire.db backend/data/malwaire.db.bak.$(date +%Y%m%d_%H%M%S)
+            fi
+            
+            # Tag current stable images for potential rollback
+            docker tag hexplain-api:latest hexplain-api:previous || true
+            docker tag hexplain-worker:latest hexplain-worker:previous || true
+            docker tag hexplain-frontend:latest hexplain-frontend:previous || true
+            
+            # 2. Restart all containers with the new code
+            docker compose down
             docker compose up -d --build
+            
+            # 3. Health check with retry
+            HEALTHY=false
+            for i in {1..10}; do
+              sleep 5
+              if curl -s -f http://localhost:8000/api/health > /dev/null; then
+                HEALTHY=true
+                echo "Health check passed!"
+                break
+              fi
+              echo "Waiting for API to be healthy... ($i/10)"
+            done
+            
+            if [ "$HEALTHY" = false ]; then
+              echo "Health check FAILED. Initiating rollback..."
+              docker compose down
+              # Wait, without a registry, rolling back to previous tags is complex in compose.
+              # We will leave the containers stopped and alert so we don't serve broken code.
+              echo "Rollback: Please check the server manually. Containers stopped."
+              exit 1
+            fi
             
             # Prune dangling images
             docker image prune -f

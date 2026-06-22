@@ -177,6 +177,35 @@ def decompile_functions(program, functions, monitor):
                     xrefs["strings"] = list(strings)[:50]
                 except Exception as e:
                     xrefs["error"] = str(e)
+                    
+                # Extract disassembly instructions
+                assembly = []
+                try:
+                    listing = program.getListing()
+                    instructions = listing.getInstructions(func.getBody(), True)
+                    
+                    # Cap at 500 instructions to keep JSON size reasonable
+                    max_instructions = 500
+                    count = 0
+                    
+                    for instr in instructions:
+                        if count >= max_instructions:
+                            assembly.append({
+                                "address": "...",
+                                "mnemonic": "...",
+                                "operands": "[truncated]"
+                            })
+                            break
+                            
+                        # Extract basic info
+                        assembly.append({
+                            "address": str(instr.getAddress()),
+                            "mnemonic": str(instr.getMnemonicString()),
+                            "operands": str(instr.getDefaultOperandRepresentation()) or ""
+                        })
+                        count += 1
+                except Exception as e:
+                    assembly.append({"address": "error", "mnemonic": "error", "operands": str(e)})
 
                 results.append({
                     "name": func.getName(),
@@ -185,6 +214,8 @@ def decompile_functions(program, functions, monitor):
                     "line_count": min(len(code.split("\n")), MAX_LINES_PER_FUNCTION),
                     "truncated": truncated,
                     "xrefs": xrefs,
+                    "assembly": assembly,
+                    "pipeline": "native",
                 })
             else:
                 error_msg = ""
@@ -197,6 +228,8 @@ def decompile_functions(program, functions, monitor):
                     "line_count": 0,
                     "error": error_msg or "Decompilation returned no result",
                     "xrefs": {"calls": [], "strings": []},
+                    "assembly": [],
+                    "pipeline": "native",
                 })
 
         except Exception as e:
@@ -207,6 +240,8 @@ def decompile_functions(program, functions, monitor):
                 "line_count": 0,
                 "error": str(e),
                 "xrefs": {"calls": [], "strings": []},
+                "assembly": [],
+                "pipeline": "native",
             })
 
     decomp.dispose()

@@ -153,11 +153,11 @@ export default function ReportPage() {
             <Cpu className="w-4 h-4 text-teal-500" />
             Capabilities (Capa)
           </h3>
-          {repData.capa?.matches?.length ? (
+          {(repData.capa?.capabilities?.length || repData.capa?.matches?.length) ? (
             <ul className="space-y-1.5 max-h-64 overflow-y-auto custom-scroll pr-1">
-              {repData.capa.matches.map((m: any, i: number) => (
+              {(repData.capa?.capabilities || repData.capa?.matches || []).map((m: any, i: number) => (
                 <li key={i} className="p-2.5 bg-slate-50 border border-slate-100 hover:border-teal-200 transition-colors text-xs" style={{borderRadius:'4px'}}>
-                  <span className="font-bold text-slate-900 block">{m.rule}</span>
+                  <span className="font-bold text-slate-900 block">{m.name || m.rule}</span>
                   {m.description && <span className="text-slate-500 mt-0.5 block">{m.description}</span>}
                 </li>
               ))}
@@ -167,13 +167,38 @@ export default function ReportPage() {
           )}
         </div>
 
-        {/* Suspicious Strings */}
+        {/* Suspicious Strings & IOCs */}
         <div className="glass-panel p-6 animate-slide-up" style={{animationDelay:'0.3s', animationFillMode:'both'}}>
           <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
             <FileText className="w-4 h-4 text-amber-500" />
-            Suspicious Strings
+            Indicators of Compromise
           </h3>
-          {repData.strings_iocs?.suspicious_strings?.length ? (
+          
+          {/* Real pipeline output: repData.strings_iocs?.iocs */}
+          {repData.strings_iocs?.iocs ? (
+            <div className="space-y-4 max-h-64 overflow-y-auto custom-scroll pr-1">
+              {['ipv4', 'domains', 'urls'].map((iocType) => {
+                const items = repData.strings_iocs.iocs[iocType];
+                if (!items || items.length === 0) return null;
+                return (
+                  <div key={iocType}>
+                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">{iocType}</div>
+                    <ul className="space-y-1">
+                      {items.map((s: string, i: number) => (
+                        <li key={i} className="font-mono text-[11px] text-slate-600 bg-slate-50 border border-slate-100 px-2 py-1 break-all leading-relaxed" style={{borderRadius:'3px'}}>
+                          {s}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+              {(!repData.strings_iocs.iocs.ipv4?.length && !repData.strings_iocs.iocs.domains?.length && !repData.strings_iocs.iocs.urls?.length) && (
+                <div className="text-xs text-slate-400 italic p-3 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>No network IOCs found.</div>
+              )}
+            </div>
+          ) : repData.strings_iocs?.suspicious_strings?.length ? (
+            /* Fallback for seed data */
             <ul className="space-y-1 max-h-64 overflow-y-auto custom-scroll pr-1">
               {repData.strings_iocs.suspicious_strings.slice(0, 60).map((s: string, i: number) => (
                 <li key={i} className="font-mono text-[11px] text-slate-600 bg-slate-50 border border-slate-100 px-2 py-1 break-all leading-relaxed" style={{borderRadius:'3px'}}>
@@ -187,42 +212,68 @@ export default function ReportPage() {
               )}
             </ul>
           ) : (
-            <div className="text-xs text-slate-400 italic p-3 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>No suspicious strings found.</div>
+            <div className="text-xs text-slate-400 italic p-3 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>No indicators found.</div>
           )}
         </div>
 
-        {/* File Sections */}
-        <div className="glass-panel p-6 animate-slide-up" style={{animationDelay:'0.35s', animationFillMode:'both'}}>
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
-            <Layout className="w-4 h-4 text-violet-500" />
-            File Sections
-          </h3>
-          {repData.structural?.sections ? (
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                    <th className="py-2 text-left">Section</th>
-                    <th className="py-2 text-left pl-3">Size</th>
-                    <th className="py-2 text-left pl-3">Entropy</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-50 font-mono">
-                  {repData.structural.sections.map((s: any, i: number) => (
-                    <tr key={i} className="hover:bg-slate-50 transition-colors">
-                      <td className="py-2 font-semibold text-slate-900">{s.name}</td>
-                      <td className="py-2 pl-3 text-slate-500">{s.size}</td>
-                      <td className={cn("py-2 pl-3 font-bold", s.entropy > 7.0 ? "text-red-600" : "text-slate-500")}>
-                        {s.entropy?.toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-xs text-slate-400 italic p-3 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>Structural data unavailable.</div>
-          )}
+        {/* Decompiled Functions & Risk Breakdown */}
+        <div className="md:col-span-3 grid md:grid-cols-2 gap-4">
+          
+          {/* Decompiled Functions */}
+          <div className="glass-panel p-6 animate-slide-up" style={{animationDelay:'0.4s', animationFillMode:'both'}}>
+            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Cpu className="w-4 h-4 text-blue-500" />
+              Decompiled Functions
+            </h3>
+            {repData.decompilation?.functions?.length ? (
+              <div className="space-y-2">
+                {repData.decompilation.functions.map((f: any, i: number) => (
+                  <Link 
+                    key={i} 
+                    href={`/jobs/${id}/report/function/${encodeURIComponent(f.address || f.name)}`}
+                    className="flex justify-between items-center p-3 bg-slate-50 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 transition-colors group"
+                    style={{borderRadius:'4px'}}
+                  >
+                    <div className="font-mono text-xs font-bold text-slate-900 group-hover:text-indigo-700">{f.name}</div>
+                    <div className="text-xs text-slate-400 flex items-center gap-2">
+                      <span>{f.line_count} lines</span>
+                      <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-500" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-slate-400 italic p-3 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>
+                {repData.decompilation?.error ? `Decompilation failed: ${repData.decompilation.error}` : 'No functions decompiled.'}
+              </div>
+            )}
+          </div>
+
+          {/* Risk Score Breakdown */}
+          <div className="glass-panel p-6 animate-slide-up" style={{animationDelay:'0.45s', animationFillMode:'both'}}>
+            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Zap className="w-4 h-4 text-amber-500" />
+              Risk Score Breakdown
+            </h3>
+            {repData.risk_assessment?.breakdown?.length ? (
+              <div className="space-y-2 max-h-64 overflow-y-auto custom-scroll pr-1">
+                {repData.risk_assessment.breakdown.map((item: any, i: number) => (
+                  <div key={i} className="flex justify-between items-start p-2.5 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>
+                    <div>
+                      <div className="font-bold text-xs text-slate-800">{item.signal.replace(/_/g, ' ')}</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">{item.detail}</div>
+                    </div>
+                    <div className={cn("text-xs font-bold shrink-0 ml-2", item.points > 0 ? "text-amber-600" : "text-slate-400")}>
+                      +{item.points} pt
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-slate-400 italic p-3 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>Score breakdown unavailable.</div>
+            )}
+          </div>
+
         </div>
 
         {/* Coming soon: Export */}
