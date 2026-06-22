@@ -265,7 +265,7 @@ export default function ChatPage() {
           </form>
           <p className="text-center text-[11px] text-slate-400 mt-2">AI can make mistakes. Verify critical findings manually.</p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
