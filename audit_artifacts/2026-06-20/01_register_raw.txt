@@ -1,0 +1,13 @@
+HTTP/1.1 422 Unprocessable Entity
+date: Sat, 20 Jun 2026 15:16:54 GMT
+server: uvicorn
+content-length: 345
+content-type: application/json
+x-request-id: 3db0365f-1a17-4377-a001-8711868a3d45
+x-content-type-options: nosniff
+x-frame-options: DENY
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()
+referrer-policy: strict-origin-when-cross-origin
+
+{"detail":[{"type":"value_error","loc":["body","email"],"msg":"value is not a valid email address: The part after the @-sign is a special-use or reserved name that cannot be used with email.","input":"audit_1781968614@example.test","ctx":{"reason":"The part after the @-sign is a special-use or reserved name that cannot be used with email."}}]}

@@ -1,0 +1,273 @@
+{
+  "job_id": "dada74d8-8850-411b-8412-f82ad91c7659",
+  "risk_score": 5.0,
+  "risk_level": "clean",
+  "family": "ELF",
+  "metadata": {
+    "entropy": 2.223,
+    "file_size_bytes": 18304,
+    "architecture": "x86_64 (64-bit)",
+    "elf_type": "shared object / PIE",
+    "compilation_timestamp": null,
+    "is_signed": false,
+    "signature_info": {
+      "note": "ELF binaries have no standard signing mechanism"
+    },
+    "_elapsed_seconds": 0.0
+  },
+  "structural": {
+    "sections": 37,
+    "imports": [
+      "getenv",
+      "__libc_start_main",
+      "opendir",
+      "printf",
+      "closedir",
+      "readdir",
+      "gethostname",
+      "__cxa_finalize",
+      "getenv@GLIBC_2.2.5",
+      "__libc_start_main@GLIBC_2.34",
+      "opendir@GLIBC_2.2.5",
+      "printf@GLIBC_2.2.5",
+      "closedir@GLIBC_2.2.5",
+      "readdir@GLIBC_2.2.5",
+      "gethostname@GLIBC_2.2.5",
+      "__cxa_finalize@GLIBC_2.2.5"
+    ],
+    "import_count": 16,
+    "exports": 7,
+    "libraries": [
+      "libc.so.6"
+    ]
+  },
+  "suspicious": {
+    "total_suspicious": 0,
+    "categories": {},
+    "filtered_categories": [],
+    "analysis_status": "completed",
+    "structural_status": "succeeded",
+    "import_count": 16,
+    "_elapsed_seconds": 0.0
+  },
+  "strings": {
+    "total_strings": 120,
+    "ioc_counts": {
+      "urls": 0,
+      "ipv4": 0,
+      "file_paths": 3,
+      "registry_paths": 0,
+      "emails": 0,
+      "domains": 0
+    },
+    "iocs": {
+      "urls": [],
+      "ipv4": [],
+      "file_paths": [
+        "/usr/include/x86_64-linux-gnu/bits",
+        "/usr/lib/gcc/x86_64-linux-gnu/15/include",
+        "/usr/include"
+      ],
+      "registry_paths": [],
+      "emails": [],
+      "domains": []
+    }
+  },
+  "yara": {
+    "matches": [],
+    "total_matches": 0,
+    "scan_time_seconds": 0.03,
+    "rules": {
+      "requested_files": 428,
+      "compiled_files": 428,
+      "skipped_files": 0,
+      "skips": []
+    },
+    "_elapsed_seconds": 0.03
+  },
+  "capa": {
+    "total": 3,
+    "mitre": {
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1082",
+        "T1083"
+      ]
+    },
+    "caps": [
+      {
+        "name": "get hostname",
+        "namespace": "host-interaction/os/hostname",
+        "description": "",
+        "attack": [
+          {
+            "tactic": "Discovery",
+            "technique": "T1082",
+            "name": "System Information Discovery",
+            "subtechnique": ""
+          }
+        ],
+        "scope": "function"
+      },
+      {
+        "name": "enumerate files on Linux",
+        "namespace": "host-interaction/file-system/files/list",
+        "description": "",
+        "attack": [
+          {
+            "tactic": "Discovery",
+            "technique": "T1083",
+            "name": "File and Directory Discovery",
+            "subtechnique": ""
+          }
+        ],
+        "scope": "function"
+      },
+      {
+        "name": "query environment variable",
+        "namespace": "host-interaction/environment-variable",
+        "description": "",
+        "attack": [
+          {
+            "tactic": "Discovery",
+            "technique": "T1082",
+            "name": "System Information Discovery",
+            "subtechnique": ""
+          }
+        ],
+        "scope": "function"
+      }
+    ]
+  },
+  "ghidra": {
+    "total_decompiled": 10,
+    "total_binary": 27,
+    "timeout": false,
+    "error": null,
+    "first_function": {
+      "decompiled": "\nint _init(EVP_PKEY_CTX *ctx)\n\n{\n  int iVar1;\n  \n  iVar1 = __gmon_start__();\n  return iVar1;\n}\n\n",
+      "address": "00101000",
+      "line_count": 11,
+      "truncated": false,
+      "name": "_init"
+    }
+  },
+  "threat_intel": {
+    "virustotal": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in VirusTotal"
+    },
+    "malwarebazaar": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in MalwareBazaar"
+    },
+    "threatfox": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in ThreatFox"
+    },
+    "otx": {
+      "found": true,
+      "skipped": false,
+      "pulse_info": {
+        "count": 0,
+        "pulses": [],
+        "references": [],
+        "related": {
+          "alienvault": {
+            "adversary": [],
+            "malware_families": [],
+            "industries": []
+          },
+          "other": {
+            "adversary": [],
+            "malware_families": [],
+            "industries": []
+          }
+        }
+      }
+    },
+    "hybrid_analysis": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in Hybrid Analysis"
+    },
+    "malshare": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in MalShare"
+    },
+    "elapsed_seconds": 5.24
+  },
+  "risk": {
+    "score": 5,
+    "level": "clean",
+    "breakdown": [
+      {
+        "signal": "high_entropy_sections",
+        "points": 0,
+        "max": 15,
+        "detail": "0 sections with entropy > 7.0"
+      },
+      {
+        "signal": "packing",
+        "points": 0,
+        "max": 10,
+        "detail": "No packing indicators"
+      },
+      {
+        "signal": "suspicious_apis",
+        "points": 0,
+        "max": 20,
+        "detail": "No suspicious APIs detected across 16 imported APIs/symbols"
+      },
+      {
+        "signal": "missing_signature",
+        "points": 5,
+        "max": 5,
+        "detail": "No digital signature found"
+      },
+      {
+        "signal": "network_iocs",
+        "points": 0,
+        "max": 10,
+        "detail": "No network IOCs"
+      },
+      {
+        "signal": "yara_matches",
+        "points": 0,
+        "max": 15,
+        "detail": "No YARA malware rule matches"
+      },
+      {
+        "signal": "virustotal",
+        "points": 0,
+        "max": 15,
+        "detail": "Not found in VirusTotal"
+      },
+      {
+        "signal": "malwarebazaar",
+        "points": 0,
+        "max": 10,
+        "detail": "Not found in MalwareBazaar"
+      },
+      {
+        "signal": "otx",
+        "points": 0,
+        "max": 10,
+        "detail": "No AV or Yara detections in OTX analysis"
+      },
+      {
+        "signal": "capa_suspicious",
+        "points": 0,
+        "max": 5,
+        "detail": "No suspicious capa namespaces"
+      }
+    ],
+    "_elapsed_seconds": 0.0
+  }
+}

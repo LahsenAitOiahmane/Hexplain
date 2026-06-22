@@ -1,0 +1,1 @@
+{"status":"healthy","version":"0.1.0","checks":{"database":"healthy","redis":"healthy","quarantine":"healthy"},"timestamp":"2026-06-20T15:21:50.667901Z"}

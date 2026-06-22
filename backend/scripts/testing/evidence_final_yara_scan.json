@@ -1,0 +1,121 @@
+{
+  "matches": [
+    {
+      "rule": "Big_Numbers1",
+      "tags": [],
+      "meta": {
+        "author": "_pusher_",
+        "description": "Looks for big numbers 32:sized",
+        "date": "2016-07"
+      },
+      "namespace": "rule_0"
+    },
+    {
+      "rule": "CRC32b_poly_Constant",
+      "tags": [],
+      "meta": {
+        "author": "_pusher_",
+        "description": "Look for CRC32b [poly]",
+        "date": "2016-04"
+      },
+      "namespace": "rule_0"
+    },
+    {
+      "rule": "NETexecutableMicrosoft",
+      "tags": [],
+      "meta": {
+        "author": "malware-lu"
+      },
+      "namespace": "rule_3"
+    },
+    {
+      "rule": "IsPE32",
+      "tags": [
+        "PECheck"
+      ],
+      "meta": {},
+      "namespace": "rule_4"
+    },
+    {
+      "rule": "IsNET_EXE",
+      "tags": [
+        "PECheck"
+      ],
+      "meta": {},
+      "namespace": "rule_4"
+    },
+    {
+      "rule": "IsWindowsGUI",
+      "tags": [
+        "PECheck"
+      ],
+      "meta": {},
+      "namespace": "rule_4"
+    },
+    {
+      "rule": "Microsoft_Visual_Studio_NET",
+      "tags": [
+        "PEiD"
+      ],
+      "meta": {},
+      "namespace": "rule_5"
+    },
+    {
+      "rule": "Microsoft_Visual_C_v70_Basic_NET_additional",
+      "tags": [
+        "PEiD"
+      ],
+      "meta": {},
+      "namespace": "rule_5"
+    },
+    {
+      "rule": "Microsoft_Visual_C_Basic_NET",
+      "tags": [
+        "PEiD"
+      ],
+      "meta": {},
+      "namespace": "rule_5"
+    },
+    {
+      "rule": "Microsoft_Visual_Studio_NET_additional",
+      "tags": [
+        "PEiD"
+      ],
+      "meta": {},
+      "namespace": "rule_5"
+    },
+    {
+      "rule": "Microsoft_Visual_C_v70_Basic_NET",
+      "tags": [
+        "PEiD"
+      ],
+      "meta": {},
+      "namespace": "rule_5"
+    },
+    {
+      "rule": "NET_executable_",
+      "tags": [
+        "PEiD"
+      ],
+      "meta": {},
+      "namespace": "rule_5"
+    },
+    {
+      "rule": "NET_executable",
+      "tags": [
+        "PEiD"
+      ],
+      "meta": {},
+      "namespace": "rule_5"
+    }
+  ],
+  "total_matches": 13,
+  "scan_time_seconds": 0.12,
+  "rules": {
+    "requested_files": 428,
+    "compiled_files": 428,
+    "skipped_files": 0,
+    "skips": []
+  },
+  "_elapsed_seconds": 2.87
+}

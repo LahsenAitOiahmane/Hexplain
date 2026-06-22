@@ -1,0 +1,15 @@
+HTTP/1.1 202 Accepted
+date: Sat, 20 Jun 2026 15:17:14 GMT
+server: uvicorn
+content-length: 331
+content-type: application/json
+x-request-id: ec5ae09e-0f8d-4d98-b420-77f685a75ca8
+x-content-type-options: nosniff
+x-frame-options: DENY
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()
+referrer-policy: strict-origin-when-cross-origin
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+
+{"job_id":"ce1fd13a-bba9-4a6d-baf6-9af9907fedde","status":"pending","message":"File accepted for analysis","duplicate":false,"file_name":"wildfire-test-elf-file","file_type":"ELF 64-bit LSB executable, x86-64, version 1 (SYSV)","file_size":8608,"file_hash_sha256":"f72b49912403cfbf62d89e487b04bb965a2a836002dcfee3c62e8862d18fd05d"}

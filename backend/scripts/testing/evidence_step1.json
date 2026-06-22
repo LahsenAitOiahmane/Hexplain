@@ -1,0 +1,12 @@
+{
+  "_elapsed_seconds": 0.0,
+  "categories": {
+    "process_injection": {
+      "apis": [
+        "VirtualProtect"
+      ],
+      "count": 1
+    }
+  },
+  "total_suspicious": 1
+}

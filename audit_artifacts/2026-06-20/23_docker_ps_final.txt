@@ -1,0 +1,4 @@
+NAMES             IMAGE             STATUS                    PORTS
+malwaire-api      hexplain-api      Up 31 seconds (healthy)   127.0.0.1:8000->8000/tcp
+malwaire-worker   hexplain-worker   Up 31 seconds (healthy)   8000/tcp
+malwaire-redis    redis:7-alpine    Up 2 hours (healthy)      6379/tcp

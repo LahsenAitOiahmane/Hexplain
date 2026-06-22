@@ -1,0 +1,15 @@
+HTTP/1.1 202 Accepted
+date: Sat, 20 Jun 2026 15:22:18 GMT
+server: uvicorn
+content-length: 327
+content-type: application/json
+x-request-id: eb96dd2d-e3e7-4192-b837-63feecdd9858
+x-content-type-options: nosniff
+x-frame-options: DENY
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()
+referrer-policy: strict-origin-when-cross-origin
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+
+{"job_id":"d3d260c7-1081-41d2-8400-2b6e2d34a76b","status":"pending","message":"File accepted for analysis","duplicate":false,"file_name":"elf_caps_final","file_type":"ELF 64-bit LSB shared object, x86-64, version 1 (SYSV)","file_size":18312,"file_hash_sha256":"a60154e597bdb8f68051bf4f4e88e06884b76da3c5106076b8b3784a95f716a9"}

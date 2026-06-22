@@ -1,0 +1,330 @@
+{
+  "job_id": "56ac7118-7936-4dab-8553-0cfa0f8dde24",
+  "risk_score": 20.0,
+  "risk_level": "low",
+  "family": "PE",
+  "metadata": {
+    "entropy": 5.3254,
+    "file_size_bytes": 119596,
+    "architecture": "x86_64 (64-bit)",
+    "compilation_timestamp": "2026-06-20T15:16:09+00:00",
+    "is_signed": false,
+    "signature_info": null,
+    "pe_type": "PIE executable",
+    "_elapsed_seconds": 0.67
+  },
+  "structural": {
+    "sections": 18,
+    "import_count": 34,
+    "exports": 0,
+    "libraries": null,
+    "high_entropy": [],
+    "imports_sample": {
+      "KERNEL32.dll": [
+        "DeleteCriticalSection",
+        "EnterCriticalSection",
+        "GetLastError",
+        "InitializeCriticalSection",
+        "LeaveCriticalSection",
+        "SetUnhandledExceptionFilter",
+        "Sleep",
+        "TlsGetValue",
+        "VirtualProtect",
+        "VirtualQuery"
+      ],
+      "msvcrt.dll": [
+        "__C_specific_handler",
+        "__getmainargs",
+        "__initenv",
+        "__iob_func",
+        "__set_app_type",
+        "__setusermatherr",
+        "_amsg_exit",
+        "_cexit",
+        "_commode",
+        "_fmode",
+        "_initterm",
+        "abort",
+        "atexit",
+        "calloc",
+        "exit",
+        "fprintf",
+        "free",
+        "malloc",
+        "memcpy",
+        "puts",
+        "signal",
+        "strlen",
+        "strncmp",
+        "vfprintf"
+      ]
+    }
+  },
+  "suspicious": {
+    "total_suspicious": 0,
+    "categories": {},
+    "filtered_categories": [
+      {
+        "category": "process_injection",
+        "apis": [
+          "VirtualProtect"
+        ],
+        "count": 1,
+        "reason": "insufficient_co_occurrence: VirtualProtect/VirtualAlloc without remote process memory/thread APIs",
+        "required_co_occurrence": [
+          "WriteProcessMemory",
+          "CreateRemoteThread",
+          "OpenProcess",
+          "VirtualAllocEx",
+          "VirtualProtectEx",
+          "SetThreadContext",
+          "QueueUserAPC"
+        ]
+      }
+    ],
+    "analysis_status": "completed",
+    "structural_status": "succeeded",
+    "import_count": 34,
+    "_elapsed_seconds": 0.0
+  },
+  "strings": {
+    "total_strings": 1078,
+    "ioc_counts": {
+      "urls": 0,
+      "ipv4": 0,
+      "file_paths": 3,
+      "registry_paths": 0,
+      "emails": 0,
+      "domains": 0
+    },
+    "iocs": {
+      "urls": [],
+      "ipv4": [],
+      "file_paths": [
+        "/usr/x86_64-w64-mingw32/include",
+        "/usr/x86_64-w64-mingw32/include/psdk_inc",
+        "/usr/share/mingw-w64/include"
+      ],
+      "registry_paths": [],
+      "emails": [],
+      "domains": []
+    }
+  },
+  "yara": {
+    "matches": [
+      {
+        "rule": "IsPE64",
+        "tags": [
+          "PECheck"
+        ],
+        "meta": {},
+        "namespace": "rule_4"
+      },
+      {
+        "rule": "IsConsole",
+        "tags": [
+          "PECheck"
+        ],
+        "meta": {},
+        "namespace": "rule_4"
+      },
+      {
+        "rule": "HasOverlay",
+        "tags": [
+          "PECheck"
+        ],
+        "meta": {
+          "author": "_pusher_",
+          "description": "Overlay Check"
+        },
+        "namespace": "rule_4"
+      }
+    ],
+    "total_matches": 3,
+    "scan_time_seconds": 0.09,
+    "rules": {
+      "requested_files": 428,
+      "compiled_files": 428,
+      "skipped_files": 0,
+      "skips": []
+    },
+    "_elapsed_seconds": 2.17
+  },
+  "capa": {
+    "total": 11,
+    "mitre": {
+      "tactics": [
+        "Execution"
+      ],
+      "techniques": [
+        "T1129"
+      ]
+    },
+    "first_caps": [
+      {
+        "name": "delay execution",
+        "namespace": "",
+        "description": "",
+        "attack": [],
+        "scope": "basic block"
+      },
+      {
+        "name": "change memory protection",
+        "namespace": "",
+        "description": "",
+        "attack": [],
+        "scope": "basic block"
+      },
+      {
+        "name": "allocate or change RWX memory",
+        "namespace": "host-interaction/process/inject",
+        "description": "",
+        "attack": [],
+        "scope": "basic block"
+      },
+      {
+        "name": "allocate or change RW memory",
+        "namespace": "",
+        "description": "",
+        "attack": [],
+        "scope": "basic block"
+      },
+      {
+        "name": "contain loop",
+        "namespace": "",
+        "description": "",
+        "attack": [],
+        "scope": "function"
+      }
+    ]
+  },
+  "ghidra": {
+    "total_decompiled": 10,
+    "total_binary": 76,
+    "timeout": false,
+    "error": null,
+    "first_function": {
+      "decompiled": "\nint __cdecl main(int _Argc,char **_Argv,char **_Env)\n\n{\n  DWORD oldProtect;\n  \n  __main();\n  VirtualProtect((LPVOID)0x0,0,0x40,&oldProtect);\n  puts(\"VirtualProtect called\");\n  return 0;\n}\n\n",
+      "address": "140001450",
+      "line_count": 13,
+      "truncated": false,
+      "name": "main"
+    }
+  },
+  "threat_intel": {
+    "virustotal": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in VirusTotal"
+    },
+    "malwarebazaar": {
+      "found": false,
+      "skipped": true,
+      "reason": "MalwareBazaar HTTP 500"
+    },
+    "threatfox": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in ThreatFox"
+    },
+    "otx": {
+      "found": true,
+      "skipped": false,
+      "pulse_info": {
+        "count": 0,
+        "pulses": [],
+        "references": [],
+        "related": {
+          "alienvault": {
+            "adversary": [],
+            "malware_families": [],
+            "industries": []
+          },
+          "other": {
+            "adversary": [],
+            "malware_families": [],
+            "industries": []
+          }
+        }
+      }
+    },
+    "hybrid_analysis": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in Hybrid Analysis"
+    },
+    "malshare": {
+      "found": false,
+      "skipped": false,
+      "reason": "Not found in MalShare"
+    },
+    "elapsed_seconds": 10.36
+  },
+  "risk": {
+    "score": 20,
+    "level": "low",
+    "breakdown": [
+      {
+        "signal": "high_entropy_sections",
+        "points": 0,
+        "max": 15,
+        "detail": "0 sections with entropy > 7.0"
+      },
+      {
+        "signal": "packing",
+        "points": 0,
+        "max": 10,
+        "detail": "No packing indicators"
+      },
+      {
+        "signal": "suspicious_apis",
+        "points": 0,
+        "max": 20,
+        "detail": "No suspicious APIs counted; not counted: process_injection filtered: VirtualProtect (insufficient_co_occurrence: VirtualProtect/VirtualAlloc without remote process memory/thread APIs)"
+      },
+      {
+        "signal": "missing_signature",
+        "points": 5,
+        "max": 5,
+        "detail": "No digital signature found"
+      },
+      {
+        "signal": "network_iocs",
+        "points": 0,
+        "max": 10,
+        "detail": "No network IOCs"
+      },
+      {
+        "signal": "yara_matches",
+        "points": 15,
+        "max": 15,
+        "detail": "3 matches: IsPE64, IsConsole, HasOverlay"
+      },
+      {
+        "signal": "virustotal",
+        "points": 0,
+        "max": 15,
+        "detail": "Not found in VirusTotal"
+      },
+      {
+        "signal": "malwarebazaar",
+        "points": 0,
+        "max": 10,
+        "detail": "Skipped: MalwareBazaar HTTP 500"
+      },
+      {
+        "signal": "otx",
+        "points": 0,
+        "max": 10,
+        "detail": "No AV or Yara detections in OTX analysis"
+      },
+      {
+        "signal": "capa_suspicious",
+        "points": 0,
+        "max": 5,
+        "detail": "No suspicious capa namespaces"
+      }
+    ],
+    "_elapsed_seconds": 0.0
+  }
+}

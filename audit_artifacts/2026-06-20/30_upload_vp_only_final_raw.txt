@@ -1,0 +1,15 @@
+HTTP/1.1 202 Accepted
+date: Sat, 20 Jun 2026 15:22:18 GMT
+server: uvicorn
+content-length: 344
+content-type: application/json
+x-request-id: 5eb09b71-4144-4f82-9c7b-678888fa5aa7
+x-content-type-options: nosniff
+x-frame-options: DENY
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()
+referrer-policy: strict-origin-when-cross-origin
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+
+{"job_id":"84ce4af1-a031-4f34-9bd6-1089ebdf4070","status":"pending","message":"File accepted for analysis","duplicate":false,"file_name":"vp_only_final.exe","file_type":"PE32+ executable for MS Windows 5.02 (console), x86-64, 18 sections","file_size":119596,"file_hash_sha256":"318cd9cbd83531028aea6cc2e819b35711d0a6f5a6ef5e79b5edb5ced9a7dff8"}

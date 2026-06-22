@@ -1,0 +1,140 @@
+# =============================================================================
+# MalwAIre — Docker Compose Orchestration
+#
+# Services:
+#   api    — FastAPI REST server (port 8000, localhost only)
+#   worker — Celery worker for async analysis jobs
+#   redis  — Message broker + result backend (internal only)
+#
+# Volumes:
+#   malwaire_quarantine — Uploaded files (noexec, never served)
+#   malwaire_data       — SQLite database
+#
+# Security:
+#   - API bound to 127.0.0.1 (not 0.0.0.0 on host)
+#   - Redis not exposed to host (internal network only)
+#   - Quarantine volume is NOT web-accessible
+#   - Worker has no exposed ports
+# =============================================================================
+
+services:
+
+  # --- Frontend ---
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hexplain-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://api:8000
+    networks:
+      - malwaire_net
+    depends_on:
+      - api
+
+  # --- FastAPI REST API ---
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: malwaire-api
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "127.0.0.1:8000:8000"  # Localhost only — never 0.0.0.0 on host
+    volumes:
+      - ./backend/quarantine:/app/quarantine
+      - ./backend/data:/app/data
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:///./data/malwaire.db
+      - QUARANTINE_DIR=/app/quarantine
+      - DATA_DIR=/app/data
+      # Sprint 2: Analysis settings (passed through from .env)
+      - GHIDRA_INSTALL_DIR=/opt/ghidra
+      - YARA_RULES_DIR=/app/yara-rules
+      - CAPA_RULES_DIR=/app/capa-rules
+      - JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - malwaire_net
+
+  # --- Celery Worker ---
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: malwaire-worker
+    # Concurrency=1: analysis tasks are heavyweight (Ghidra uses ~1GB RAM)
+    command: celery -A app.workers.celery_app:celery_app worker --loglevel=info --concurrency=1
+    volumes:
+      - ./backend/quarantine:/app/quarantine
+      - ./backend/data:/app/data
+    env_file:
+      - .env
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=sqlite:///./data/malwaire.db
+      - QUARANTINE_DIR=/app/quarantine
+      - DATA_DIR=/app/data
+      # Sprint 2: Analysis settings (passed through from .env)
+      - GHIDRA_INSTALL_DIR=/opt/ghidra
+      - GHIDRA_TIMEOUT_SECONDS=${GHIDRA_TIMEOUT_SECONDS:-120}
+      - GHIDRA_MAX_FUNCTIONS=${GHIDRA_MAX_FUNCTIONS:-10}
+      - YARA_RULES_DIR=/app/yara-rules
+      - CAPA_RULES_DIR=/app/capa-rules
+      - JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - malwaire_net
+    extra_hosts:
+      - "www.virustotal.com:34.54.88.138"
+      - "mb-api.abuse.ch:34.111.17.235"
+      - "threatfox-api.abuse.ch:34.36.95.252"
+      - "otx.alienvault.com:3.174.180.29"
+      - "www.hybrid-analysis.com:172.64.153.73"
+      - "hybrid-analysis.com:172.64.153.73"
+      - "malshare.com:188.114.97.6"
+    healthcheck:
+      test: ["CMD", "celery", "-A", "app.workers.celery_app", "inspect", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    # No ports exposed — worker communicates only via Redis and shared volumes
+
+  # --- Redis (broker + result backend) ---
+  redis:
+    image: redis:7-alpine
+    container_name: malwaire-redis
+    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
+    # No ports exposed to host — internal network only
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - malwaire_net
+    volumes:
+      - malwaire_redis:/data
+
+# --- Named Volumes ---
+volumes:
+  malwaire_redis:
+    driver: local
+
+# --- Network ---
+networks:
+  malwaire_net:
+    driver: bridge

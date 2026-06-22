@@ -1,0 +1,4 @@
+CSRF length: 64
+Cookie names:
+	len=0
+csrf_token	len=64

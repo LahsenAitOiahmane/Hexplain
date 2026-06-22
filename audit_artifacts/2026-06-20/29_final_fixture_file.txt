@@ -1,0 +1,6 @@
+audit_artifacts/2026-06-20/vp_only_final.exe: PE32+ executable for MS Windows 5.02 (console), x86-64, 18 sections
+audit_artifacts/2026-06-20/vp_wpm_final.exe:  PE32+ executable for MS Windows 5.02 (console), x86-64, 18 sections
+audit_artifacts/2026-06-20/elf_caps_final:    ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=3da88d8259739c7431e578d4a205787c92ef5e14, for GNU/Linux 3.2.0, with debug_info, not stripped
+318cd9cbd83531028aea6cc2e819b35711d0a6f5a6ef5e79b5edb5ced9a7dff8  audit_artifacts/2026-06-20/vp_only_final.exe
+f0adf19334fab986880a02571bf44438df730acb6967b9c0c9b08d035f6bd0c4  audit_artifacts/2026-06-20/vp_wpm_final.exe
+a60154e597bdb8f68051bf4f4e88e06884b76da3c5106076b8b3784a95f716a9  audit_artifacts/2026-06-20/elf_caps_final

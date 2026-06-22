@@ -1,0 +1,13 @@
+HTTP/1.1 201 Created
+date: Sat, 20 Jun 2026 15:17:14 GMT
+server: uvicorn
+content-length: 42
+content-type: application/json
+x-request-id: 82e27782-124f-47c6-84c1-d847ffc12e29
+x-content-type-options: nosniff
+x-frame-options: DENY
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()
+referrer-policy: strict-origin-when-cross-origin
+
+{"message":"Account created successfully"}

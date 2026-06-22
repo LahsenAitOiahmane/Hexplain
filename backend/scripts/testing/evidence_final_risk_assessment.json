@@ -1,0 +1,6 @@
+{
+  "heuristic_score": 45,
+  "llm_score": 50,
+  "combined_score": 48,
+  "reasoning": "The binary has a high heuristic risk score due to its suspicious API calls and multiple detections on VirusTotal. The LLM score is also high due to the binary's capabilities for reading and writing files and suspending threads."
+}

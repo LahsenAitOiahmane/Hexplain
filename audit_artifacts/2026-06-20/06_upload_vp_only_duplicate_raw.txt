@@ -1,0 +1,13 @@
+HTTP/1.1 401 Unauthorized
+date: Sat, 20 Jun 2026 15:16:54 GMT
+server: uvicorn
+content-length: 36
+content-type: application/json
+x-request-id: 5421631c-42ef-4dea-a321-4693e2629641
+x-content-type-options: nosniff
+x-frame-options: DENY
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()
+referrer-policy: strict-origin-when-cross-origin
+
+{"detail":"Authentication required"}

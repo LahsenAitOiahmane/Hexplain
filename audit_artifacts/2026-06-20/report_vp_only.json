@@ -1,0 +1,635 @@
+{
+  "job_id": "56ac7118-7936-4dab-8553-0cfa0f8dde24",
+  "risk_score": 20.0,
+  "risk_level": "low",
+  "summary": "Analysis Summary for vp_only.exe\nFile Type: PE32+ executable for MS Windows 5.02 (console), x86-64, 18 sections\nSHA-256: ef44404d65339e050e209328f856ce24cbbb2bf1e90b11a4362dbd08df992d83\nRisk Score: 20.0/100 (low)\n\nArchitecture: x86_64 (64-bit)\nFile Entropy: 5.3254\nSigned: No\n\nSections: 18\nIOCs found: file_paths: 3\nYARA matches: IsPE64, IsConsole, HasOverlay\nCapa capabilities: 11\nMITRE ATT&CK techniques: T1129",
+  "report_data": {
+    "file_type_family": "PE",
+    "metadata": {
+      "entropy": 5.3254,
+      "file_size_bytes": 119596,
+      "architecture": "x86_64 (64-bit)",
+      "compilation_timestamp": "2026-06-20T15:16:09+00:00",
+      "is_signed": false,
+      "signature_info": null,
+      "pe_type": "PIE executable",
+      "_elapsed_seconds": 0.67
+    },
+    "structural": {
+      "sections": [
+        {
+          "name": ".text",
+          "virtual_size": 6016,
+          "raw_size": 6144,
+          "entropy": 5.9039,
+          "flags": [
+            "CODE",
+            "EXECUTE",
+            "READ"
+          ]
+        },
+        {
+          "name": ".data",
+          "virtual_size": 192,
+          "raw_size": 512,
+          "entropy": 0.7911,
+          "flags": [
+            "READ",
+            "WRITE",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": ".rdata",
+          "virtual_size": 2472,
+          "raw_size": 2560,
+          "entropy": 4.0603,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": ".pdata",
+          "virtual_size": 540,
+          "raw_size": 1024,
+          "entropy": 2.3222,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": ".xdata",
+          "virtual_size": 396,
+          "raw_size": 512,
+          "entropy": 3.0382,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": ".bss",
+          "virtual_size": 384,
+          "raw_size": 0,
+          "entropy": 0.0,
+          "flags": [
+            "READ",
+            "WRITE",
+            "UNINITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": ".idata",
+          "virtual_size": 1292,
+          "raw_size": 1536,
+          "entropy": 3.3672,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": ".tls",
+          "virtual_size": 16,
+          "raw_size": 512,
+          "entropy": 0.0,
+          "flags": [
+            "READ",
+            "WRITE",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": ".reloc",
+          "virtual_size": 108,
+          "raw_size": 512,
+          "entropy": 1.3793,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/4",
+          "virtual_size": 1264,
+          "raw_size": 1536,
+          "entropy": 1.4517,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/19",
+          "virtual_size": 42308,
+          "raw_size": 42496,
+          "entropy": 5.8781,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/31",
+          "virtual_size": 7949,
+          "raw_size": 8192,
+          "entropy": 4.7969,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/45",
+          "virtual_size": 7629,
+          "raw_size": 7680,
+          "entropy": 4.8787,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/57",
+          "virtual_size": 2080,
+          "raw_size": 2560,
+          "entropy": 3.4633,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/70",
+          "virtual_size": 707,
+          "raw_size": 1024,
+          "entropy": 3.9924,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/81",
+          "virtual_size": 4312,
+          "raw_size": 4608,
+          "entropy": 4.611,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/97",
+          "virtual_size": 4537,
+          "raw_size": 4608,
+          "entropy": 5.1017,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        },
+        {
+          "name": "/113",
+          "virtual_size": 396,
+          "raw_size": 512,
+          "entropy": 4.0324,
+          "flags": [
+            "READ",
+            "INITIALIZED_DATA"
+          ]
+        }
+      ],
+      "imports": {
+        "KERNEL32.dll": [
+          "DeleteCriticalSection",
+          "EnterCriticalSection",
+          "GetLastError",
+          "InitializeCriticalSection",
+          "LeaveCriticalSection",
+          "SetUnhandledExceptionFilter",
+          "Sleep",
+          "TlsGetValue",
+          "VirtualProtect",
+          "VirtualQuery"
+        ],
+        "msvcrt.dll": [
+          "__C_specific_handler",
+          "__getmainargs",
+          "__initenv",
+          "__iob_func",
+          "__set_app_type",
+          "__setusermatherr",
+          "_amsg_exit",
+          "_cexit",
+          "_commode",
+          "_fmode",
+          "_initterm",
+          "abort",
+          "atexit",
+          "calloc",
+          "exit",
+          "fprintf",
+          "free",
+          "malloc",
+          "memcpy",
+          "puts",
+          "signal",
+          "strlen",
+          "strncmp",
+          "vfprintf"
+        ]
+      },
+      "exports": [],
+      "high_entropy_sections": [],
+      "_elapsed_seconds": 0.09
+    },
+    "suspicious_apis": {
+      "total_suspicious": 0,
+      "categories": {},
+      "filtered_categories": [
+        {
+          "category": "process_injection",
+          "apis": [
+            "VirtualProtect"
+          ],
+          "count": 1,
+          "reason": "insufficient_co_occurrence: VirtualProtect/VirtualAlloc without remote process memory/thread APIs",
+          "required_co_occurrence": [
+            "WriteProcessMemory",
+            "CreateRemoteThread",
+            "OpenProcess",
+            "VirtualAllocEx",
+            "VirtualProtectEx",
+            "SetThreadContext",
+            "QueueUserAPC"
+          ]
+        }
+      ],
+      "analysis_status": "completed",
+      "structural_status": "succeeded",
+      "import_count": 34,
+      "_elapsed_seconds": 0.0
+    },
+    "strings_iocs": {
+      "total_strings": 1078,
+      "iocs": {
+        "urls": [],
+        "ipv4": [],
+        "file_paths": [
+          "/usr/x86_64-w64-mingw32/include",
+          "/usr/x86_64-w64-mingw32/include/psdk_inc",
+          "/usr/share/mingw-w64/include"
+        ],
+        "registry_paths": [],
+        "emails": [],
+        "domains": []
+      },
+      "ioc_counts": {
+        "urls": 0,
+        "ipv4": 0,
+        "file_paths": 3,
+        "registry_paths": 0,
+        "emails": 0,
+        "domains": 0
+      },
+      "_elapsed_seconds": 0.01
+    },
+    "yara_scan": {
+      "matches": [
+        {
+          "rule": "IsPE64",
+          "tags": [
+            "PECheck"
+          ],
+          "meta": {},
+          "namespace": "rule_4"
+        },
+        {
+          "rule": "IsConsole",
+          "tags": [
+            "PECheck"
+          ],
+          "meta": {},
+          "namespace": "rule_4"
+        },
+        {
+          "rule": "HasOverlay",
+          "tags": [
+            "PECheck"
+          ],
+          "meta": {
+            "author": "_pusher_",
+            "description": "Overlay Check"
+          },
+          "namespace": "rule_4"
+        }
+      ],
+      "total_matches": 3,
+      "scan_time_seconds": 0.09,
+      "rules": {
+        "requested_files": 428,
+        "compiled_files": 428,
+        "skipped_files": 0,
+        "skips": []
+      },
+      "_elapsed_seconds": 2.17
+    },
+    "capa": {
+      "capabilities": [
+        {
+          "name": "delay execution",
+          "namespace": "",
+          "description": "",
+          "attack": [],
+          "scope": "basic block"
+        },
+        {
+          "name": "change memory protection",
+          "namespace": "",
+          "description": "",
+          "attack": [],
+          "scope": "basic block"
+        },
+        {
+          "name": "allocate or change RWX memory",
+          "namespace": "host-interaction/process/inject",
+          "description": "",
+          "attack": [],
+          "scope": "basic block"
+        },
+        {
+          "name": "allocate or change RW memory",
+          "namespace": "",
+          "description": "",
+          "attack": [],
+          "scope": "basic block"
+        },
+        {
+          "name": "contain loop",
+          "namespace": "",
+          "description": "",
+          "attack": [],
+          "scope": "function"
+        },
+        {
+          "name": "parse PE header",
+          "namespace": "load-code/pe",
+          "description": "",
+          "attack": [
+            {
+              "tactic": "Execution",
+              "technique": "T1129",
+              "name": "Shared Modules",
+              "subtechnique": ""
+            }
+          ],
+          "scope": "function"
+        },
+        {
+          "name": "terminate process",
+          "namespace": "host-interaction/process/terminate",
+          "description": "",
+          "attack": [],
+          "scope": "function"
+        },
+        {
+          "name": "execute shellcode via indirect call",
+          "namespace": "load-code/shellcode",
+          "description": "",
+          "attack": [],
+          "scope": "function"
+        },
+        {
+          "name": "get thread local storage value",
+          "namespace": "host-interaction/process",
+          "description": "",
+          "attack": [],
+          "scope": "function"
+        },
+        {
+          "name": "enumerate PE sections",
+          "namespace": "load-code/pe",
+          "description": "",
+          "attack": [],
+          "scope": "function"
+        },
+        {
+          "name": "contain a thread local storage (.tls) section",
+          "namespace": "executable/pe/section/tls",
+          "description": "",
+          "attack": [],
+          "scope": "file"
+        }
+      ],
+      "mitre_attack_summary": {
+        "tactics": [
+          "Execution"
+        ],
+        "techniques": [
+          "T1129"
+        ]
+      },
+      "total_capabilities": 11,
+      "elapsed_seconds": 22.27
+    },
+    "decompilation": {
+      "total_functions_in_binary": 76,
+      "functions": [
+        {
+          "decompiled": "\nint __cdecl main(int _Argc,char **_Argv,char **_Env)\n\n{\n  DWORD oldProtect;\n  \n  __main();\n  VirtualProtect((LPVOID)0x0,0,0x40,&oldProtect);\n  puts(\"VirtualProtect called\");\n  return 0;\n}\n\n",
+          "address": "140001450",
+          "line_count": 13,
+          "truncated": false,
+          "name": "main"
+        },
+        {
+          "decompiled": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid __main(void)\n\n{\n  if (initialized != 0) {\n    return;\n  }\n  initialized = 1;\n  __do_global_ctors();\n  return;\n}\n\n",
+          "address": "140001570",
+          "line_count": 15,
+          "truncated": false,
+          "name": "__main"
+        },
+        {
+          "decompiled": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid signal(int param_1)\n\n{\n                    /* WARNING: Could not recover jumptable at 0x0001400026f8. Too many branches */\n                    /* WARNING: Treating indirect jump as call */\n  signal(param_1);\n  return;\n}\n\n",
+          "address": "1400026f8",
+          "line_count": 13,
+          "truncated": false,
+          "name": "signal"
+        },
+        {
+          "decompiled": "\n/* WARNING: Unknown calling convention */\n\nvoid __report_error(char *msg,...)\n\n{\n  FILE *pFVar1;\n  undefined8 in_RDX;\n  undefined8 in_R8;\n  undefined8 in_R9;\n  undefined8 local_res10;\n  undefined8 local_res18;\n  undefined8 local_res20;\n  va_list argp;\n  \n  local_res10 = in_RDX;\n  local_res18 = in_R8;\n  local_res20 = in_R9;\n  pFVar1 = __acrt_iob_func(2);\n  fprintf((FILE *)pFVar1,\"Mingw-w64 runtime failure:\\n\");\n  pFVar1 = __acrt_iob_func(2);\n  vfprintf((FILE *)pFVar1,msg,(va_list)&local_res10);\n                    /* WARNING: Subroutine does not return */\n  abort();\n}\n\n",
+          "address": "140001750",
+          "line_count": 27,
+          "truncated": false,
+          "name": "__report_error"
+        },
+        {
+          "decompiled": "\n/* WARNING: Unknown calling convention */\n\nvoid mark_section_writable(LPVOID addr)\n\n{\n  uint uVar1;\n  BOOL BVar2;\n  DWORD DVar3;\n  PBYTE *ppBVar4;\n  PIMAGE_SECTION_HEADER p_Var5;\n  sSecInfo *psVar6;\n  PBYTE pBVar7;\n  SIZE_T SVar8;\n  longlong lVar9;\n  int iVar10;\n  MEMORY_BASIC_INFORMATION b;\n  \n  lVar9 = (longlong)maxSections;\n  if (maxSections < 1) {\n    lVar9 = 0;\n  }\n  else {\n    iVar10 = 0;\n    ppBVar4 = &the_secs->sec_start;\n    do {\n      if ((*ppBVar4 <= addr) &&\n         (addr < *ppBVar4 + (((PIMAGE_SECTION_HEADER)ppBVar4[1])->Misc).PhysicalAddress)) {\n        return;\n      }\n      iVar10 = iVar10 + 1;\n      ppBVar4 = ppBVar4 + 5;\n    } while (iVar10 != maxSections);\n  }\n  p_Var5 = __mingw_GetSectionForAddress(addr);\n  if (p_Var5 == (PIMAGE_SECTION_HEADER)0x0) {\n                    /* WARNING: Subroutine does not return */\n    __report_error(\"Address %p has no image-section\",addr);\n  }\n  psVar6 = the_secs + lVar9;\n  psVar6->hash = p_Var5;\n  psVar6->old_protect = 0;\n  pBVar7 = _GetPEImageBase();\n  uVar1 = p_Var5->VirtualAddress;\n  the_secs[lVar9].sec_start = pBVar7 + uVar1;\n  SVar8 = VirtualQuery(pBVar7 + uVar1,(PMEMORY_BASIC_INFORMATION)&b,0x30);\n  if (SVar8 != 0) {\n    if (((b.Protect - 4 & 0xfffffffb) != 0) && ((b.Protect - 0x40 & 0xffffffbf) != 0)) {\n      DVar3 = 0x40;\n      if (b.Protect == 2) {\n        DVar3 = 4;\n      }\n      psVar6 = the_secs + lVar9;\n      psVar6->base_address = b.BaseAddress;\n      psVar6->region_size = b.RegionSize;\n      BVar2 = VirtualProtect(b.BaseAddress,b.RegionSize,DVar3,&psVar6->old_protect);\n      if (BVar2 == 0) {\n        DVar3 = GetLastError();\n                    /* WARNING: Subroutine does not return */\n        __report_error(\"  VirtualProtect failed with code 0x%x\",(ulonglong)DVar3);\n      }\n    }\n    maxSections = maxSections + 1;\n    return;\n  }\n                    /* WARNING: Subroutine does not return */\n  __report_error(\"  VirtualQuery failed for %d bytes at address %p\",\n                 (ulonglong)(p_Var5->Misc).PhysicalAddress,the_secs[lVar9].sec_start);\n}\n\n",
+          "address": "1400017b0",
+          "line_count": 71,
+          "truncated": false,
+          "name": "mark_section_writable"
+        },
+        {
+          "decompiled": "\n/* WARNING: Unknown calling convention */\n\nFILE * __acrt_iob_func(uint index)\n\n{\n  FILE *pFVar1;\n  \n  pFVar1 = __iob_func();\n  return (FILE *)(pFVar1 + index);\n}\n\n",
+          "address": "140002650",
+          "line_count": 13,
+          "truncated": false,
+          "name": "__acrt_iob_func"
+        },
+        {
+          "decompiled": "\nvoid * __cdecl memcpy(void *_Dst,void *_Src,size_t _Size)\n\n{\n  void *pvVar1;\n  \n                    /* WARNING: Could not recover jumptable at 0x0001400026e8. Too many branches */\n                    /* WARNING: Treating indirect jump as call */\n  pvVar1 = memcpy(_Dst,_Src,_Size);\n  return pvVar1;\n}\n\n",
+          "address": "1400026e8",
+          "line_count": 13,
+          "truncated": false,
+          "name": "memcpy"
+        },
+        {
+          "decompiled": "\n/* WARNING: Removing unreachable block (ram,0x000140001605) */\n/* WARNING: Removing unreachable block (ram,0x000140001610) */\n/* WARNING: Removing unreachable block (ram,0x000140001618) */\n/* WARNING: Removing unreachable block (ram,0x00014000161a) */\n/* WARNING: Removing unreachable block (ram,0x000140001623) */\n/* WARNING: Unknown calling convention */\n\nvoid __dyn_tls_init(HANDLE hDllHandle,DWORD dwReason,LPVOID lpreserved)\n\n{\n  if (_CRT_MT != 2) {\n    _CRT_MT = 2;\n  }\n  if ((dwReason != 2) && (dwReason == 1)) {\n    __mingw_TLScallback(hDllHandle,1,lpreserved);\n    return;\n  }\n  return;\n}\n\n",
+          "address": "1400015c0",
+          "line_count": 22,
+          "truncated": false,
+          "name": "__dyn_tls_init"
+        },
+        {
+          "decompiled": "\n/* WARNING: Unknown calling convention */\n\nint * __p__fmode(void)\n\n{\n  return (int *)_fmode_exref;\n}\n\n",
+          "address": "1400025e0",
+          "line_count": 10,
+          "truncated": false,
+          "name": "__p__fmode"
+        },
+        {
+          "decompiled": "\nint __cdecl atexit(_func_5014 *param_1)\n\n{\n  int iVar1;\n  \n                    /* WARNING: Could not recover jumptable at 0x0001400026b8. Too many branches */\n                    /* WARNING: Treating indirect jump as call */\n  iVar1 = atexit(param_1);\n  return iVar1;\n}\n\n",
+          "address": "140001420",
+          "line_count": 13,
+          "truncated": false,
+          "name": "atexit"
+        }
+      ],
+      "total_functions_decompiled": 10,
+      "timeout": false,
+      "elapsed_seconds": 33.64
+    },
+    "threat_intel": {
+      "virustotal": {
+        "found": false,
+        "skipped": false,
+        "reason": "Not found in VirusTotal"
+      },
+      "malwarebazaar": {
+        "found": false,
+        "skipped": true,
+        "reason": "MalwareBazaar HTTP 500"
+      },
+      "threatfox": {
+        "found": false,
+        "skipped": false,
+        "reason": "Not found in ThreatFox"
+      },
+      "otx": {
+        "found": true,
+        "skipped": false,
+        "pulse_info": {
+          "count": 0,
+          "pulses": [],
+          "references": [],
+          "related": {
+            "alienvault": {
+              "adversary": [],
+              "malware_families": [],
+              "industries": []
+            },
+            "other": {
+              "adversary": [],
+              "malware_families": [],
+              "industries": []
+            }
+          }
+        }
+      },
+      "hybrid_analysis": {
+        "found": false,
+        "skipped": false,
+        "reason": "Not found in Hybrid Analysis"
+      },
+      "malshare": {
+        "found": false,
+        "skipped": false,
+        "reason": "Not found in MalShare"
+      },
+      "elapsed_seconds": 10.36
+    },
+    "risk_assessment": {
+      "score": 20,
+      "level": "low",
+      "breakdown": [
+        {
+          "signal": "high_entropy_sections",
+          "points": 0,
+          "max": 15,
+          "detail": "0 sections with entropy > 7.0"
+        },
+        {
+          "signal": "packing",
+          "points": 0,
+          "max": 10,
+          "detail": "No packing indicators"
+        },
+        {
+          "signal": "suspicious_apis",
+          "points": 0,
+          "max": 20,
+          "detail": "No suspicious APIs counted; not counted: process_injection filtered: VirtualProtect (insufficient_co_occurrence: VirtualProtect/VirtualAlloc without remote process memory/thread APIs)"
+        },
+        {
+          "signal": "missing_signature",
+          "points": 5,
+          "max": 5,
+          "detail": "No digital signature found"
+        },
+        {
+          "signal": "network_iocs",
+          "points": 0,
+          "max": 10,
+          "detail": "No network IOCs"
+        },
+        {
+          "signal": "yara_matches",
+          "points": 15,
+          "max": 15,
+          "detail": "3 matches: IsPE64, IsConsole, HasOverlay"
+        },
+        {
+          "signal": "virustotal",
+          "points": 0,
+          "max": 15,
+          "detail": "Not found in VirusTotal"
+        },
+        {
+          "signal": "malwarebazaar",
+          "points": 0,
+          "max": 10,
+          "detail": "Skipped: MalwareBazaar HTTP 500"
+        },
+        {
+          "signal": "otx",
+          "points": 0,
+          "max": 10,
+          "detail": "No AV or Yara detections in OTX analysis"
+        },
+        {
+          "signal": "capa_suspicious",
+          "points": 0,
+          "max": 5,
+          "detail": "No suspicious capa namespaces"
+        }
+      ],
+      "_elapsed_seconds": 0.0
+    },
+    "pipeline_elapsed_seconds": 69.34
+  },
+  "created_at": "2026-06-20T15:18:25.368390"
+}

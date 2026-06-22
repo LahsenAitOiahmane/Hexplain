@@ -1,0 +1,24 @@
+{
+  "out_of_context": {
+    "question": "Does this binary communicate with the domain badactor.com?",
+    "retrieved_chunks": [
+      "Executive Summary: This binary appears to be a possible injection-capable binary with capabilities for reading and writing files, suspending threads, and accessing .NET resources. It has a high heuristic risk score and multiple detections on VirusTotal.",
+      "MITRE Technique T1059.001: Command and Scripting Interpreter: This binary has the capability to run PowerShell expressions, which could be used to execute malicious code or to gather information about the system.",
+      "Key Behavior: Suspicious API calls for accessing .NET resources. Evidence: capa capability: access .NET resource",
+      "Classification: This binary is classified as possible injection-capable binary with medium confidence.",
+      "MITRE Technique T1083: File and Directory Discovery: This binary has the capability to read data from the file system, which could be used to gather information about the system or to identify potential targets for further exploitation."
+    ],
+    "llm_response_raw": "{\n  \"answer\": \"I don't know based on this report.\"\n}"
+  },
+  "in_context": {
+    "question": "What is the overall risk score and why?",
+    "retrieved_chunks": [
+      "Key Behavior: Multiple detections on VirusTotal. Evidence: VirusTotal detections: 61/70",
+      "Executive Summary: This binary appears to be a possible injection-capable binary with capabilities for reading and writing files, suspending threads, and accessing .NET resources. It has a high heuristic risk score and multiple detections on VirusTotal.",
+      "Classification: This binary is classified as possible injection-capable binary with medium confidence.",
+      "Key Behavior: Suspicious API calls for reading and writing files. Evidence: capa capability: read file in .NET, write file in .NET",
+      "Key Behavior: Suspicious API calls for accessing .NET resources. Evidence: capa capability: access .NET resource"
+    ],
+    "llm_response_raw": "{\n  \"answer\": \"The binary has a high heuristic risk score due to its suspicious behavior and multiple detections on VirusTotal (61/70).\"\n}"
+  }
+}

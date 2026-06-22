@@ -1,0 +1,619 @@
+{
+  "capa": {
+    "capabilities": [
+      {
+        "attack": [],
+        "description": "",
+        "name": "delay execution",
+        "namespace": "",
+        "scope": "basic block"
+      },
+      {
+        "attack": [],
+        "description": "",
+        "name": "change memory protection",
+        "namespace": "",
+        "scope": "basic block"
+      },
+      {
+        "attack": [],
+        "description": "",
+        "name": "allocate or change RW memory",
+        "namespace": "",
+        "scope": "basic block"
+      },
+      {
+        "attack": [],
+        "description": "",
+        "name": "allocate or change RWX memory",
+        "namespace": "host-interaction/process/inject",
+        "scope": "basic block"
+      },
+      {
+        "attack": [],
+        "description": "",
+        "name": "contain loop",
+        "namespace": "",
+        "scope": "function"
+      },
+      {
+        "attack": [],
+        "description": "",
+        "name": "terminate process",
+        "namespace": "host-interaction/process/terminate",
+        "scope": "function"
+      },
+      {
+        "attack": [
+          {
+            "name": "Shared Modules",
+            "subtechnique": "",
+            "tactic": "Execution",
+            "technique": "T1129"
+          }
+        ],
+        "description": "",
+        "name": "parse PE header",
+        "namespace": "load-code/pe",
+        "scope": "function"
+      },
+      {
+        "attack": [],
+        "description": "",
+        "name": "get thread local storage value",
+        "namespace": "host-interaction/process",
+        "scope": "function"
+      },
+      {
+        "attack": [],
+        "description": "",
+        "name": "enumerate PE sections",
+        "namespace": "load-code/pe",
+        "scope": "function"
+      },
+      {
+        "attack": [],
+        "description": "",
+        "name": "contain a thread local storage (.tls) section",
+        "namespace": "executable/pe/section/tls",
+        "scope": "file"
+      }
+    ],
+    "elapsed_seconds": 12.58,
+    "mitre_attack_summary": {
+      "tactics": [
+        "Execution"
+      ],
+      "techniques": [
+        "T1129"
+      ]
+    },
+    "total_capabilities": 10
+  },
+  "decompilation": {
+    "elapsed_seconds": 37.76,
+    "functions": [
+      {
+        "address": "140001450",
+        "decompiled": "\nint __cdecl main(int _Argc,char **_Argv,char **_Env)\n\n{\n  __main();\n  puts(\"Hello World!\");\n  return 0;\n}\n\n",
+        "line_count": 10,
+        "name": "main",
+        "truncated": false
+      },
+      {
+        "address": "140001550",
+        "decompiled": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid __main(void)\n\n{\n  if (initialized != 0) {\n    return;\n  }\n  initialized = 1;\n  __do_global_ctors();\n  return;\n}\n\n",
+        "line_count": 15,
+        "name": "__main",
+        "truncated": false
+      },
+      {
+        "address": "1400026d8",
+        "decompiled": "\n/* WARNING: Unknown calling convention -- yet parameter storage is locked */\n\nvoid signal(int param_1)\n\n{\n                    /* WARNING: Could not recover jumptable at 0x0001400026d8. Too many branches */\n                    /* WARNING: Treating indirect jump as call */\n  signal(param_1);\n  return;\n}\n\n",
+        "line_count": 13,
+        "name": "signal",
+        "truncated": false
+      },
+      {
+        "address": "140001730",
+        "decompiled": "\n/* WARNING: Unknown calling convention */\n\nvoid __report_error(char *msg,...)\n\n{\n  FILE *pFVar1;\n  undefined8 in_RDX;\n  undefined8 in_R8;\n  undefined8 in_R9;\n  undefined8 local_res10;\n  undefined8 local_res18;\n  undefined8 local_res20;\n  va_list argp;\n  \n  local_res10 = in_RDX;\n  local_res18 = in_R8;\n  local_res20 = in_R9;\n  pFVar1 = __acrt_iob_func(2);\n  fprintf((FILE *)pFVar1,\"Mingw-w64 runtime failure:\\n\");\n  pFVar1 = __acrt_iob_func(2);\n  vfprintf((FILE *)pFVar1,msg,(va_list)&local_res10);\n                    /* WARNING: Subroutine does not return */\n  abort();\n}\n\n",
+        "line_count": 27,
+        "name": "__report_error",
+        "truncated": false
+      },
+      {
+        "address": "140001790",
+        "decompiled": "\n/* WARNING: Unknown calling convention */\n\nvoid mark_section_writable(LPVOID addr)\n\n{\n  uint uVar1;\n  BOOL BVar2;\n  DWORD DVar3;\n  PBYTE *ppBVar4;\n  PIMAGE_SECTION_HEADER p_Var5;\n  sSecInfo *psVar6;\n  PBYTE pBVar7;\n  SIZE_T SVar8;\n  longlong lVar9;\n  int iVar10;\n  MEMORY_BASIC_INFORMATION b;\n  \n  lVar9 = (longlong)maxSections;\n  if (maxSections < 1) {\n    lVar9 = 0;\n  }\n  else {\n    iVar10 = 0;\n    ppBVar4 = &the_secs->sec_start;\n    do {\n      if ((*ppBVar4 <= addr) &&\n         (addr < *ppBVar4 + (((PIMAGE_SECTION_HEADER)ppBVar4[1])->Misc).PhysicalAddress)) {\n        return;\n      }\n      iVar10 = iVar10 + 1;\n      ppBVar4 = ppBVar4 + 5;\n    } while (iVar10 != maxSections);\n  }\n  p_Var5 = __mingw_GetSectionForAddress(addr);\n  if (p_Var5 == (PIMAGE_SECTION_HEADER)0x0) {\n                    /* WARNING: Subroutine does not return */\n    __report_error(\"Address %p has no image-section\",addr);\n  }\n  psVar6 = the_secs + lVar9;\n  psVar6->hash = p_Var5;\n  psVar6->old_protect = 0;\n  pBVar7 = _GetPEImageBase();\n  uVar1 = p_Var5->VirtualAddress;\n  the_secs[lVar9].sec_start = pBVar7 + uVar1;\n  SVar8 = VirtualQuery(pBVar7 + uVar1,(PMEMORY_BASIC_INFORMATION)&b,0x30);\n  if (SVar8 != 0) {\n    if (((b.Protect - 4 & 0xfffffffb) != 0) && ((b.Protect - 0x40 & 0xffffffbf) != 0)) {\n      DVar3 = 0x40;\n      if (b.Protect == 2) {\n        DVar3 = 4;\n      }\n      psVar6 = the_secs + lVar9;\n      psVar6->base_address = b.BaseAddress;\n      psVar6->region_size = b.RegionSize;\n      BVar2 = VirtualProtect(b.BaseAddress,b.RegionSize,DVar3,&psVar6->old_protect);\n      if (BVar2 == 0) {\n        DVar3 = GetLastError();\n                    /* WARNING: Subroutine does not return */\n        __report_error(\"  VirtualProtect failed with code 0x%x\",(ulonglong)DVar3);\n      }\n    }\n    maxSections = maxSections + 1;\n    return;\n  }\n                    /* WARNING: Subroutine does not return */\n  __report_error(\"  VirtualQuery failed for %d bytes at address %p\",\n                 (ulonglong)(p_Var5->Misc).PhysicalAddress,the_secs[lVar9].sec_start);\n}\n\n",
+        "line_count": 71,
+        "name": "mark_section_writable",
+        "truncated": false
+      },
+      {
+        "address": "140002630",
+        "decompiled": "\n/* WARNING: Unknown calling convention */\n\nFILE * __acrt_iob_func(uint index)\n\n{\n  FILE *pFVar1;\n  \n  pFVar1 = __iob_func();\n  return (FILE *)(pFVar1 + index);\n}\n\n",
+        "line_count": 13,
+        "name": "__acrt_iob_func",
+        "truncated": false
+      },
+      {
+        "address": "1400026c8",
+        "decompiled": "\nvoid * __cdecl memcpy(void *_Dst,void *_Src,size_t _Size)\n\n{\n  void *pvVar1;\n  \n                    /* WARNING: Could not recover jumptable at 0x0001400026c8. Too many branches */\n                    /* WARNING: Treating indirect jump as call */\n  pvVar1 = memcpy(_Dst,_Src,_Size);\n  return pvVar1;\n}\n\n",
+        "line_count": 13,
+        "name": "memcpy",
+        "truncated": false
+      },
+      {
+        "address": "1400015a0",
+        "decompiled": "\n/* WARNING: Removing unreachable block (ram,0x0001400015e5) */\n/* WARNING: Removing unreachable block (ram,0x0001400015f0) */\n/* WARNING: Removing unreachable block (ram,0x0001400015f8) */\n/* WARNING: Removing unreachable block (ram,0x0001400015fa) */\n/* WARNING: Removing unreachable block (ram,0x000140001603) */\n/* WARNING: Unknown calling convention */\n\nvoid __dyn_tls_init(HANDLE hDllHandle,DWORD dwReason,LPVOID lpreserved)\n\n{\n  if (_CRT_MT != 2) {\n    _CRT_MT = 2;\n  }\n  if ((dwReason != 2) && (dwReason == 1)) {\n    __mingw_TLScallback(hDllHandle,1,lpreserved);\n    return;\n  }\n  return;\n}\n\n",
+        "line_count": 22,
+        "name": "__dyn_tls_init",
+        "truncated": false
+      },
+      {
+        "address": "1400025c0",
+        "decompiled": "\n/* WARNING: Unknown calling convention */\n\nint * __p__fmode(void)\n\n{\n  return (int *)_fmode_exref;\n}\n\n",
+        "line_count": 10,
+        "name": "__p__fmode",
+        "truncated": false
+      },
+      {
+        "address": "140001420",
+        "decompiled": "\nint __cdecl atexit(_func_5014 *param_1)\n\n{\n  int iVar1;\n  \n                    /* WARNING: Could not recover jumptable at 0x000140002698. Too many branches */\n                    /* WARNING: Treating indirect jump as call */\n  iVar1 = atexit(param_1);\n  return iVar1;\n}\n\n",
+        "line_count": 13,
+        "name": "atexit",
+        "truncated": false
+      }
+    ],
+    "timeout": false,
+    "total_functions_decompiled": 10,
+    "total_functions_in_binary": 76
+  },
+  "file_type_family": "PE",
+  "metadata": {
+    "_elapsed_seconds": 0.59,
+    "architecture": "x86_64 (64-bit)",
+    "compilation_timestamp": "2026-06-20T13:43:52+00:00",
+    "entropy": 5.3212,
+    "file_size_bytes": 118356,
+    "is_signed": false,
+    "pe_type": "PIE executable",
+    "signature_info": null
+  },
+  "pipeline_elapsed_seconds": 60.88,
+  "risk_assessment": {
+    "_elapsed_seconds": 0.0,
+    "breakdown": [
+      {
+        "detail": "0 sections with entropy > 7.0",
+        "max": 15,
+        "points": 0,
+        "signal": "high_entropy_sections"
+      },
+      {
+        "detail": "No packing indicators",
+        "max": 10,
+        "points": 0,
+        "signal": "packing"
+      },
+      {
+        "detail": "1 categories: process_injection (1)",
+        "max": 20,
+        "points": 5,
+        "signal": "suspicious_apis"
+      },
+      {
+        "detail": "No digital signature found",
+        "max": 5,
+        "points": 5,
+        "signal": "missing_signature"
+      },
+      {
+        "detail": "No network IOCs",
+        "max": 10,
+        "points": 0,
+        "signal": "network_iocs"
+      },
+      {
+        "detail": "5 matches: IsPE64, IsConsole, HasOverlay, Microsoft_Visual_Cpp_80_DLL, spyeye",
+        "max": 15,
+        "points": 15,
+        "signal": "yara_matches"
+      },
+      {
+        "detail": "Not found in VirusTotal",
+        "max": 15,
+        "points": 0,
+        "signal": "virustotal"
+      },
+      {
+        "detail": "Not found in MalwareBazaar",
+        "max": 10,
+        "points": 0,
+        "signal": "malwarebazaar"
+      },
+      {
+        "detail": "No AV or Yara detections in OTX analysis",
+        "max": 10,
+        "points": 0,
+        "signal": "otx"
+      },
+      {
+        "detail": "No suspicious capa namespaces",
+        "max": 5,
+        "points": 0,
+        "signal": "capa_suspicious"
+      }
+    ],
+    "level": "low",
+    "score": 25
+  },
+  "strings_iocs": {
+    "_elapsed_seconds": 0.02,
+    "ioc_counts": {
+      "domains": 0,
+      "emails": 0,
+      "file_paths": 2,
+      "ipv4": 0,
+      "registry_paths": 0,
+      "urls": 0
+    },
+    "iocs": {
+      "domains": [],
+      "emails": [],
+      "file_paths": [
+        "/usr/x86_64-w64-mingw32/include",
+        "/usr/x86_64-w64-mingw32/include/psdk_inc"
+      ],
+      "ipv4": [],
+      "registry_paths": [],
+      "urls": []
+    },
+    "total_strings": 1074
+  },
+  "structural": {
+    "_elapsed_seconds": 0.09,
+    "exports": [],
+    "high_entropy_sections": [],
+    "imports": {
+      "KERNEL32.dll": [
+        "DeleteCriticalSection",
+        "EnterCriticalSection",
+        "GetLastError",
+        "InitializeCriticalSection",
+        "LeaveCriticalSection",
+        "SetUnhandledExceptionFilter",
+        "Sleep",
+        "TlsGetValue",
+        "VirtualProtect",
+        "VirtualQuery"
+      ],
+      "msvcrt.dll": [
+        "__C_specific_handler",
+        "__getmainargs",
+        "__initenv",
+        "__iob_func",
+        "__set_app_type",
+        "__setusermatherr",
+        "_amsg_exit",
+        "_cexit",
+        "_commode",
+        "_fmode",
+        "_initterm",
+        "abort",
+        "atexit",
+        "calloc",
+        "exit",
+        "fprintf",
+        "free",
+        "malloc",
+        "memcpy",
+        "puts",
+        "signal",
+        "strlen",
+        "strncmp",
+        "vfprintf"
+      ]
+    },
+    "sections": [
+      {
+        "entropy": 5.8833,
+        "flags": [
+          "CODE",
+          "EXECUTE",
+          "READ"
+        ],
+        "name": ".text",
+        "raw_size": 6144,
+        "virtual_size": 5984
+      },
+      {
+        "entropy": 0.795,
+        "flags": [
+          "READ",
+          "WRITE",
+          "INITIALIZED_DATA"
+        ],
+        "name": ".data",
+        "raw_size": 512,
+        "virtual_size": 192
+      },
+      {
+        "entropy": 4.049,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": ".rdata",
+        "raw_size": 2560,
+        "virtual_size": 2472
+      },
+      {
+        "entropy": 2.3118,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": ".pdata",
+        "raw_size": 1024,
+        "virtual_size": 540
+      },
+      {
+        "entropy": 3.0583,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": ".xdata",
+        "raw_size": 512,
+        "virtual_size": 396
+      },
+      {
+        "entropy": 0.0,
+        "flags": [
+          "READ",
+          "WRITE",
+          "UNINITIALIZED_DATA"
+        ],
+        "name": ".bss",
+        "raw_size": 0,
+        "virtual_size": 384
+      },
+      {
+        "entropy": 3.3672,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": ".idata",
+        "raw_size": 1536,
+        "virtual_size": 1292
+      },
+      {
+        "entropy": 0.0,
+        "flags": [
+          "READ",
+          "WRITE",
+          "INITIALIZED_DATA"
+        ],
+        "name": ".tls",
+        "raw_size": 512,
+        "virtual_size": 16
+      },
+      {
+        "entropy": 1.3793,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": ".reloc",
+        "raw_size": 512,
+        "virtual_size": 108
+      },
+      {
+        "entropy": 1.3957,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/4",
+        "raw_size": 1536,
+        "virtual_size": 1216
+      },
+      {
+        "entropy": 5.8759,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/19",
+        "raw_size": 41984,
+        "virtual_size": 41742
+      },
+      {
+        "entropy": 4.7522,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/31",
+        "raw_size": 8192,
+        "virtual_size": 7798
+      },
+      {
+        "entropy": 4.8472,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/45",
+        "raw_size": 7680,
+        "virtual_size": 7525
+      },
+      {
+        "entropy": 3.9713,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/57",
+        "raw_size": 2048,
+        "virtual_size": 2016
+      },
+      {
+        "entropy": 3.9924,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/70",
+        "raw_size": 1024,
+        "virtual_size": 707
+      },
+      {
+        "entropy": 4.5219,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/81",
+        "raw_size": 4608,
+        "virtual_size": 4143
+      },
+      {
+        "entropy": 5.1017,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/97",
+        "raw_size": 4608,
+        "virtual_size": 4537
+      },
+      {
+        "entropy": 4.0324,
+        "flags": [
+          "READ",
+          "INITIALIZED_DATA"
+        ],
+        "name": "/113",
+        "raw_size": 512,
+        "virtual_size": 396
+      }
+    ]
+  },
+  "suspicious_apis": {
+    "_elapsed_seconds": 0.0,
+    "categories": {
+      "process_injection": {
+        "apis": [
+          "VirtualProtect"
+        ],
+        "count": 1
+      }
+    },
+    "total_suspicious": 1
+  },
+  "threat_intel": {
+    "elapsed_seconds": 5.76,
+    "hybrid_analysis": {
+      "found": false,
+      "reason": "Not found in Hybrid Analysis",
+      "skipped": false
+    },
+    "malshare": {
+      "found": false,
+      "reason": "Not found in MalShare",
+      "skipped": false
+    },
+    "malwarebazaar": {
+      "found": false,
+      "reason": "Not found in MalwareBazaar",
+      "skipped": false
+    },
+    "otx": {
+      "found": true,
+      "pulse_info": {
+        "count": 0,
+        "pulses": [],
+        "references": [],
+        "related": {
+          "alienvault": {
+            "adversary": [],
+            "industries": [],
+            "malware_families": []
+          },
+          "other": {
+            "adversary": [],
+            "industries": [],
+            "malware_families": []
+          }
+        }
+      },
+      "skipped": false
+    },
+    "threatfox": {
+      "found": false,
+      "reason": "Not found in ThreatFox",
+      "skipped": false
+    },
+    "virustotal": {
+      "found": false,
+      "reason": "Not found in VirusTotal",
+      "skipped": false
+    }
+  },
+  "yara_scan": {
+    "_elapsed_seconds": 3.88,
+    "matches": [
+      {
+        "meta": {},
+        "namespace": "rule_4",
+        "rule": "IsPE64",
+        "tags": [
+          "PECheck"
+        ]
+      },
+      {
+        "meta": {},
+        "namespace": "rule_4",
+        "rule": "IsConsole",
+        "tags": [
+          "PECheck"
+        ]
+      },
+      {
+        "meta": {
+          "author": "_pusher_",
+          "description": "Overlay Check"
+        },
+        "namespace": "rule_4",
+        "rule": "HasOverlay",
+        "tags": [
+          "PECheck"
+        ]
+      },
+      {
+        "meta": {},
+        "namespace": "rule_5",
+        "rule": "Microsoft_Visual_Cpp_80_DLL",
+        "tags": [
+          "PEiD"
+        ]
+      },
+      {
+        "meta": {
+          "author": "Jean-Philippe Teissier / @Jipe_",
+          "date": "2012-05-23",
+          "description": "SpyEye X.Y memory"
+        },
+        "namespace": "rule_199",
+        "rule": "spyeye",
+        "tags": [
+          "banker"
+        ]
+      }
+    ],
+    "scan_time_seconds": 0.11,
+    "total_matches": 5
+  }
+}

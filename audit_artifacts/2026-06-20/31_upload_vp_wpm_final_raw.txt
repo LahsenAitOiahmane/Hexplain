@@ -1,0 +1,15 @@
+HTTP/1.1 202 Accepted
+date: Sat, 20 Jun 2026 15:22:18 GMT
+server: uvicorn
+content-length: 343
+content-type: application/json
+x-request-id: a66d4c8c-136d-4e75-ade6-8aada5804298
+x-content-type-options: nosniff
+x-frame-options: DENY
+content-security-policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'
+permissions-policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=()
+referrer-policy: strict-origin-when-cross-origin
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+
+{"job_id":"876a2922-943a-4c90-9e97-2f3bfc2f87eb","status":"pending","message":"File accepted for analysis","duplicate":false,"file_name":"vp_wpm_final.exe","file_type":"PE32+ executable for MS Windows 5.02 (console), x86-64, 18 sections","file_size":120006,"file_hash_sha256":"f0adf19334fab986880a02571bf44438df730acb6967b9c0c9b08d035f6bd0c4"}

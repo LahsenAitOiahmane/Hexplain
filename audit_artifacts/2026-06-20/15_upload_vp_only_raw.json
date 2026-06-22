@@ -1,0 +1,10 @@
+{
+  "job_id": "56ac7118-7936-4dab-8553-0cfa0f8dde24",
+  "status": "pending",
+  "message": "File accepted for analysis",
+  "duplicate": false,
+  "file_name": "vp_only.exe",
+  "file_type": "PE32+ executable for MS Windows 5.02 (console), x86-64, 18 sections",
+  "file_size": 119596,
+  "file_hash_sha256": "ef44404d65339e050e209328f856ce24cbbb2bf1e90b11a4362dbd08df992d83"
+}
