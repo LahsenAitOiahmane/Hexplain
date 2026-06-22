@@ -44,11 +44,13 @@
 
 @layer utilities {
   .glass {
-    @apply bg-white/70 backdrop-blur-md border border-white/60 shadow-[0_4px_24px_rgba(0,_0,_0,_0.02)];
+    @apply bg-white/70 backdrop-blur-md border border-white/60;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
   }
 
   .glass-panel {
-    @apply bg-white/80 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgba(0,_0,_0,_0.04)] rounded-2xl;
+    @apply bg-white/80 backdrop-blur-xl border border-white rounded-2xl;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
   }
 
   .glass-card {
