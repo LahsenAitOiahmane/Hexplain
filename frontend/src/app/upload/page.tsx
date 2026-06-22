@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { UploadCloud, ShieldAlert, FileSearch, CheckCircle } from "lucide-react";
+import { UploadCloud, ShieldAlert, FileSearch, CheckCircle, ArrowRight, Zap, Lock, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function UploadPage() {
@@ -56,7 +56,6 @@ export default function UploadPage() {
       const detail = err.response?.data?.detail || "Upload failed.";
       
       if (status === 415) {
-        // Magic byte validation failure
         setError({
           message: detail,
           isSecurityRejection: true,
@@ -70,151 +69,157 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-16">
-      <div className="mb-12 text-center">
-        <h1 className="text-3xl font-bold mb-3 text-gray-900">Static Analysis Pipeline</h1>
-        <p className="text-gray-500 max-w-2xl mx-auto text-sm">
-          Upload a binary for AI-powered static analysis. Files are never executed.
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
-          <div 
-            className={cn(
-              "bg-white rounded-xl p-12 flex flex-col items-center justify-center border-2 border-dashed transition-all duration-300 relative overflow-hidden shadow-sm",
-              isDragging ? "border-indigo-500 bg-indigo-50 scale-[1.02]" : "border-gray-300 hover:border-indigo-400 hover:bg-gray-50",
-              uploading && "opacity-50 pointer-events-none"
-            )}
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onDrop={onDrop}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {uploading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-10">
-                <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4" />
-                <span className="font-medium text-indigo-700 animate-pulse">Uploading & Quarantining...</span>
-              </div>
-            )}
-            
-            <input 
-              type="file" 
-              className="hidden" 
-              ref={fileInputRef}
-              onChange={handleFileChange}
-            />
-            
-            <UploadCloud className={cn("w-14 h-14 mb-4 transition-colors", file ? "text-indigo-500" : "text-gray-400")} />
-            
-            <h3 className="text-lg font-medium text-gray-900 mb-1">
-              {file ? file.name : "Drag & drop your binary here"}
-            </h3>
-            
-            <p className="text-sm text-gray-500 mb-6 text-center">
-              {file 
-                ? `${(file.size / 1024 / 1024).toFixed(2)} MB` 
-                : "or click to browse from your computer"}
-            </p>
-            
-            <button 
-              className={cn(
-                "px-6 py-2 rounded-md font-medium text-sm transition-all",
-                file 
-                  ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm" 
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              )}
-              onClick={(e) => {
-                if (file) {
-                  e.stopPropagation();
-                  handleUpload();
-                }
-              }}
-            >
-              {file ? "Analyze Binary" : "Select File"}
-            </button>
+    <div className="max-w-7xl mx-auto px-4 py-12 md:py-20">
+      <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+        
+        {/* Left Column - Information */}
+        <div className="order-2 lg:order-1">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-sm font-medium mb-6">
+            <Zap className="w-4 h-4" />
+            <span>AI-Powered Engine</span>
           </div>
-
-          {/* Security Rejection Error State */}
-          {error && (
-            <div className={cn(
-              "p-5 rounded-lg border transition-all duration-300 shadow-sm",
-              error.isSecurityRejection 
-                ? "bg-red-50 border-red-200" 
-                : "bg-orange-50 border-orange-200"
-            )}>
-              <div className="flex items-start gap-4">
-                {error.isSecurityRejection ? (
-                  <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5 animate-pulse" />
-                ) : (
-                  <ShieldAlert className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
-                )}
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-6">
+            Secure Static Analysis Pipeline
+          </h1>
+          <p className="text-lg text-gray-600 mb-8 leading-relaxed max-w-xl">
+            Instantly decompile, analyze, and assess the risk of any PE, ELF, or .NET binary. Our isolated pipeline extracts capabilities using AI without ever executing the file.
+          </p>
+          
+          <div className="space-y-6">
+            {[
+              { icon: Cpu, title: "Deep Decompilation", desc: "Automated reverse engineering via Ghidra headless integration." },
+              { icon: FileSearch, title: "Capability Extraction", desc: "Maps suspicious behavior to MITRE ATT&CK framework." },
+              { icon: Lock, title: "Isolated & Secure", desc: "Files are stored temporarily and never executed on our servers." },
+            ].map((feature, idx) => (
+              <div key={idx} className="flex gap-4 items-start">
+                <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0">
+                  <feature.icon className="w-6 h-6 text-indigo-600" />
+                </div>
                 <div>
-                  <h4 className={cn(
-                    "font-semibold text-sm mb-1",
-                    error.isSecurityRejection ? "text-red-800" : "text-orange-800"
-                  )}>
-                    {error.isSecurityRejection ? "Security Policy Violation" : "Upload Failed"}
-                  </h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    {error.message}
-                  </p>
-                  {error.isSecurityRejection && (
-                    <div className="mt-3 text-xs bg-white p-3 rounded-md border border-red-100 font-mono text-gray-600">
-                      &gt; Magic Byte Validation: FAILED<br/>
-                      &gt; Action Taken: File Rejected<br/>
-                      &gt; Note: Extension spoofing detected. Only authentic PE/ELF/.NET binaries are permitted.
+                  <h3 className="text-gray-900 font-semibold mb-1">{feature.title}</h3>
+                  <p className="text-gray-500 text-sm">{feature.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column - Upload Zone */}
+        <div className="order-1 lg:order-2">
+          <div className="glass-panel p-2 sm:p-4 animate-float" style={{ animationDuration: '8s' }}>
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 sm:p-12 relative overflow-hidden">
+              
+              {/* Decorative background elements inside the upload box */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
+              
+              <div className="relative z-10">
+                <div className="text-center mb-8">
+                  <h2 className="text-2xl font-bold text-gray-900">Upload Binary</h2>
+                  <p className="text-gray-500 mt-2 text-sm">Supported: Windows PE, Linux ELF, .NET</p>
+                </div>
+
+                <div 
+                  className={cn(
+                    "border-2 border-dashed rounded-2xl p-10 flex flex-col items-center justify-center transition-all duration-300 relative group cursor-pointer",
+                    isDragging 
+                      ? "border-indigo-500 bg-indigo-50/50 scale-[1.02]" 
+                      : "border-gray-200 hover:border-indigo-400 hover:bg-gray-50/50",
+                    uploading && "opacity-50 pointer-events-none",
+                    file && !uploading && "border-indigo-200 bg-indigo-50/30"
+                  )}
+                  onDragOver={onDragOver}
+                  onDragLeave={onDragLeave}
+                  onDrop={onDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {uploading && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm z-20 rounded-2xl">
+                      <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4" />
+                      <span className="font-semibold text-indigo-700 animate-pulse">Uploading & Analyzing...</span>
                     </div>
                   )}
+                  
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                  />
+                  
+                  <div className={cn(
+                    "w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-transform duration-300",
+                    file ? "bg-indigo-100 scale-110" : "bg-gray-100 group-hover:scale-110 group-hover:bg-indigo-50"
+                  )}>
+                    <UploadCloud className={cn("w-10 h-10 transition-colors", file ? "text-indigo-600" : "text-gray-400 group-hover:text-indigo-500")} />
+                  </div>
+                  
+                  <h3 className="text-lg font-medium text-gray-900 mb-2 text-center">
+                    {file ? file.name : "Drag & drop your file here"}
+                  </h3>
+                  
+                  <p className="text-sm text-gray-500 mb-8 text-center">
+                    {file 
+                      ? `${(file.size / 1024 / 1024).toFixed(2)} MB` 
+                      : "or click to browse from your computer"}
+                  </p>
+                  
+                  <button 
+                    className={cn(
+                      "flex items-center gap-2 px-8 py-3 rounded-xl font-medium transition-all shadow-sm",
+                      file 
+                        ? "bg-indigo-600 text-white hover:bg-indigo-700 hover:shadow-md hover:-translate-y-0.5" 
+                        : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300"
+                    )}
+                    onClick={(e) => {
+                      if (file) {
+                        e.stopPropagation();
+                        handleUpload();
+                      }
+                    }}
+                  >
+                    {file ? "Start Analysis" : "Select File"}
+                    {file && <ArrowRight className="w-4 h-4" />}
+                  </button>
+                </div>
+
+                {/* Error State */}
+                {error && (
+                  <div className={cn(
+                    "mt-6 p-4 rounded-xl border transition-all duration-300 shadow-sm animate-in fade-in slide-in-from-bottom-2",
+                    error.isSecurityRejection 
+                      ? "bg-red-50 border-red-200" 
+                      : "bg-orange-50 border-orange-200"
+                  )}>
+                    <div className="flex items-start gap-3">
+                      {error.isSecurityRejection ? (
+                        <ShieldAlert className="w-5 h-5 text-red-600 shrink-0 mt-0.5 animate-pulse" />
+                      ) : (
+                        <ShieldAlert className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
+                      )}
+                      <div>
+                        <h4 className={cn(
+                          "font-semibold text-sm mb-1",
+                          error.isSecurityRejection ? "text-red-800" : "text-orange-800"
+                        )}>
+                          {error.isSecurityRejection ? "Security Policy Violation" : "Upload Failed"}
+                        </h4>
+                        <p className="text-sm text-gray-700">
+                          {error.message}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="mt-8 flex items-center justify-center gap-6 text-sm text-gray-500">
+                  <div className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> Max 50MB</div>
+                  <div className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> No Archives</div>
                 </div>
               </div>
             </div>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="font-semibold text-sm text-gray-900 flex items-center gap-2 mb-4 pb-3 border-b border-gray-100">
-              <FileSearch className="w-4 h-4 text-indigo-600" />
-              Supported Targets
-            </h3>
-            <ul className="space-y-3 text-sm text-gray-600">
-              <li className="flex items-center gap-3">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Windows PE32/PE32+ (.exe, .dll)</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>Linux ELF (x86/x64/ARM)</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <CheckCircle className="w-4 h-4 text-green-500" />
-                <span>.NET Assemblies</span>
-              </li>
-            </ul>
-          </div>
-          
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-            <h3 className="font-semibold text-sm text-gray-900 flex items-center gap-2 mb-3 pb-3 border-b border-gray-100">
-              <ShieldAlert className="w-4 h-4 text-gray-500" />
-              Constraints
-            </h3>
-            <ul className="space-y-2 text-sm text-gray-600">
-              <li className="flex items-start gap-2">
-                <span className="text-gray-400 mt-0.5">•</span>
-                <span>Max file size: 50MB</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-gray-400 mt-0.5">•</span>
-                <span>No archives (.zip, .rar)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-gray-400 mt-0.5">•</span>
-                <span>Reports retained for 7 days</span>
-              </li>
-            </ul>
           </div>
         </div>
+        
       </div>
     </div>
   );
