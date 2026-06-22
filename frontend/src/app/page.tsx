@@ -70,7 +70,7 @@ export default function LandingPage() {
       {/* How it works */}
       <section className="py-20 px-4 bg-white border-y border-slate-200">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-14 animate-slide-up" style={{animationFillMode:'both'}}>
             <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-3">How It Works</h2>
             <p className="text-slate-500 max-w-xl mx-auto">From upload to AI-generated threat report in seconds.</p>
           </div>
@@ -80,7 +80,7 @@ export default function LandingPage() {
               { step: "02", icon: <Cpu className="w-6 h-6 text-teal-600" />, title: "Pipeline Runs", desc: "10 parallel stages: metadata, strings, YARA, Ghidra decompilation, CAPA, threat intel, and more." },
               { step: "03", icon: <MessageSquare className="w-6 h-6 text-violet-600" />, title: "AI Explains", desc: "Receive an executive summary and chat with our RAG assistant about any finding." },
             ].map((item, i) => (
-              <div key={i} className="relative bg-slate-50 border border-slate-200 p-6 group hover:border-indigo-200 hover:bg-white transition-all" style={{borderRadius:'6px'}}>
+              <div key={i} className="relative bg-slate-50 border border-slate-200 p-6 group hover:border-indigo-200 hover:bg-white transition-all animate-slide-up hover-lift" style={{borderRadius:'6px', animationDelay:`${i * 0.15}s`, animationFillMode:'both'}}>
                 <div className="absolute top-4 right-4 text-5xl font-black text-slate-100 group-hover:text-indigo-50 transition-colors select-none">{item.step}</div>
                 <div className="w-11 h-11 rounded-md flex items-center justify-center bg-white border border-slate-200 mb-5 shadow-sm" style={{borderRadius:'6px'}}>
                   {item.icon}
@@ -96,7 +96,7 @@ export default function LandingPage() {
       {/* Features */}
       <section className="py-20 px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
+          <div className="text-center mb-14 animate-slide-up" style={{animationFillMode:'both'}}>
             <h2 className="text-3xl font-black text-slate-900 tracking-tight mb-3">Full Analysis Suite</h2>
             <p className="text-slate-500 max-w-xl mx-auto">Everything you need to understand a suspicious file, all in one place.</p>
           </div>
@@ -112,7 +112,7 @@ export default function LandingPage() {
               { icon: <Zap className="w-5 h-5 text-orange-500" />, title: "Risk Scoring", desc: "AI-generated 0–100 composite risk score based on all extracted signals.", color: "orange" },
               { icon: <CheckCircle className="w-5 h-5 text-sky-500" />, title: "String & IOC Extraction", desc: "Automatically extract and rank suspicious strings, URLs, IPs, and registry keys.", color: "sky" },
             ].map((f, i) => (
-              <div key={i} className="p-5 bg-white border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all" style={{borderRadius:'6px'}}>
+              <div key={i} className="p-5 bg-white border border-slate-200 hover:border-slate-300 transition-all animate-slide-up hover-lift" style={{borderRadius:'6px', animationDelay:`${i * 0.1}s`, animationFillMode:'both'}}>
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-9 h-9 bg-slate-50 border border-slate-100 flex items-center justify-center" style={{borderRadius:'5px'}}>
                     {f.icon}
@@ -130,7 +130,7 @@ export default function LandingPage() {
       <section className="py-16 px-4 bg-white border-t border-slate-200">
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1">
+            <div className="flex-1 animate-slide-in-left" style={{animationFillMode:'both'}}>
               <h2 className="text-2xl font-black text-slate-900 mb-3">Supported Binary Formats</h2>
               <p className="text-slate-500 mb-6">All formats are validated by magic bytes before analysis begins — no extension spoofing allowed.</p>
               <div className="space-y-3">
@@ -152,8 +152,8 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-            <div className="flex-1 text-center">
-              <div className="inline-block bg-gradient-to-br from-indigo-600 to-violet-600 p-8 shadow-2xl" style={{borderRadius:'8px'}}>
+            <div className="flex-1 text-center animate-scale-in" style={{animationFillMode:'both', animationDelay:'0.2s'}}>
+              <div className="inline-block bg-gradient-to-br from-indigo-600 to-violet-600 p-8 shadow-2xl hover-lift" style={{borderRadius:'8px'}}>
                 <Binary className="w-20 h-20 text-white mb-4 mx-auto animate-float" style={{animationDuration:'5s'}} />
                 <div className="text-white font-black text-xl mb-1">Zero Execution</div>
                 <div className="text-indigo-200 text-sm">Files are analyzed statically and quarantined. Never run.</div>

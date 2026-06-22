@@ -70,20 +70,20 @@ export default function UploadPage() {
     <div className="h-[calc(100vh-3.5rem)] flex overflow-hidden">
       {/* Left panel – info */}
       <div className="hidden lg:flex flex-col justify-center w-[420px] shrink-0 px-10 border-r border-slate-200 bg-white">
-        <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2.5 py-1 border border-indigo-100 mb-6" style={{borderRadius:'3px'}}>
+        <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2.5 py-1 border border-indigo-100 mb-6 animate-slide-in-left" style={{borderRadius:'3px', animationFillMode:'both'}}>
           <Zap className="w-3 h-3" />
           Static Analysis Engine
         </div>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-4">
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight mb-4 animate-slide-up" style={{animationDelay:'0.05s', animationFillMode:'both'}}>
           Upload a binary<br />for instant AI analysis
         </h1>
-        <p className="text-slate-500 text-sm leading-relaxed mb-8">
+        <p className="text-slate-500 text-sm leading-relaxed mb-8 animate-slide-up" style={{animationDelay:'0.1s', animationFillMode:'both'}}>
           Supports Windows PE, Linux ELF, and .NET assemblies up to <strong className="text-slate-700">10 MB</strong>. Files are quarantined and deleted after 7 days. Never executed.
         </p>
         <div className="space-y-3">
           {features.map((f, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm text-slate-700">
-              <div className="w-8 h-8 bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0" style={{borderRadius:'4px'}}>
+            <div key={i} className="flex items-center gap-3 text-sm text-slate-700 animate-slide-up hover-lift" style={{animationDelay:`${0.15 + i * 0.07}s`, animationFillMode:'both'}}>
+              <div className="w-8 h-8 bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 group-hover:border-indigo-200 transition-colors" style={{borderRadius:'4px'}}>
                 <f.icon className="w-4 h-4 text-indigo-500" />
               </div>
               <span className="font-medium">{f.label}</span>
@@ -91,7 +91,7 @@ export default function UploadPage() {
           ))}
         </div>
 
-        <div className="mt-8 p-4 bg-amber-50 border border-amber-200 text-amber-800 text-xs leading-relaxed" style={{borderRadius:'4px'}}>
+        <div className="mt-8 p-4 bg-amber-50 border border-amber-200 text-amber-800 text-xs leading-relaxed animate-slide-up" style={{borderRadius:'4px', animationDelay:'0.4s', animationFillMode:'both'}}>
           <div className="font-bold mb-1 flex items-center gap-1.5"><AlertCircle className="w-3.5 h-3.5" /> Constraints</div>
           <ul className="space-y-0.5 list-disc list-inside">
             <li>Max file size: <strong>10 MB</strong></li>
@@ -108,7 +108,7 @@ export default function UploadPage() {
         <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-100/40 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-56 h-56 bg-teal-100/30 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative w-full max-w-lg">
+        <div className="relative w-full max-w-lg animate-scale-in" style={{animationDelay:'0.15s', animationFillMode:'both'}}>
           <div className="bg-white border border-slate-200 shadow-md p-8" style={{borderRadius:'8px'}}>
             <div className="text-center mb-6">
               <h2 className="text-xl font-bold text-slate-900">Upload Binary</h2>

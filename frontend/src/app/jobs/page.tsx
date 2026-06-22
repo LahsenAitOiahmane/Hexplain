@@ -49,7 +49,7 @@ export default function HistoryPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
 
       {/* Page header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 animate-slide-up" style={{animationFillMode:'both'}}>
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight">Analysis History</h1>
           <p className="text-slate-500 text-sm mt-0.5">All binary scans associated with your account.</p>
@@ -57,7 +57,7 @@ export default function HistoryPage() {
         <div className="flex items-center gap-2">
           <button
             onClick={load}
-            className="w-9 h-9 flex items-center justify-center border border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm"
+            className="w-9 h-9 flex items-center justify-center border border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all shadow-sm press-effect"
             style={{borderRadius:'4px'}}
             title="Refresh"
           >
@@ -65,7 +65,7 @@ export default function HistoryPage() {
           </button>
           <Link
             href="/upload"
-            className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-sm hover-lift"
             style={{borderRadius:'4px'}}
           >
             <Plus className="w-4 h-4" />
@@ -111,7 +111,7 @@ export default function HistoryPage() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 shadow-sm overflow-hidden" style={{borderRadius:'6px'}}>
+        <div className="bg-white border border-slate-200 shadow-sm overflow-hidden animate-scale-in" style={{borderRadius:'6px', animationDelay:'0.1s', animationFillMode:'both'}}>
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wider">

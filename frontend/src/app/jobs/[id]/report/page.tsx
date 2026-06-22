@@ -39,7 +39,7 @@ export default function ReportPage() {
     <div className="max-w-7xl mx-auto px-4 py-8">
 
       {/* Header */}
-      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start mb-8">
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-start mb-8 animate-slide-up" style={{animationFillMode:'both'}}>
         <div className="min-w-0 flex-1">
           {/* Filename truncated to prevent overflow */}
           <div className="flex items-center gap-2 flex-wrap mb-2">
@@ -75,7 +75,7 @@ export default function ReportPage() {
       </div>
 
       {/* AI Chat CTA banner */}
-      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-5 mb-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg relative overflow-hidden" style={{borderRadius:'6px'}}>
+      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-5 mb-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg relative overflow-hidden animate-slide-up" style={{borderRadius:'6px', animationDelay:'0.1s', animationFillMode:'both'}}>
         <div className="absolute right-0 top-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         <div className="relative flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 backdrop-blur flex items-center justify-center" style={{borderRadius:'6px'}}>
@@ -99,7 +99,7 @@ export default function ReportPage() {
 
         {/* Executive Summary – 2 cols */}
         {report.summary && (
-          <div className="md:col-span-2 glass-panel p-6">
+          <div className="md:col-span-2 glass-panel p-6 animate-slide-up" style={{animationDelay:'0.15s', animationFillMode:'both'}}>
             <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
               <Activity className="w-4 h-4 text-indigo-500" />
               AI Executive Summary
@@ -111,7 +111,7 @@ export default function ReportPage() {
         )}
 
         {/* Signatures & Intel */}
-        <div className="glass-panel p-6 row-span-1">
+        <div className="glass-panel p-6 row-span-1 animate-slide-in-right" style={{animationDelay:'0.2s', animationFillMode:'both'}}>
           <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
             <ShieldAlert className="w-4 h-4 text-red-500" />
             Threat Signatures
@@ -148,7 +148,7 @@ export default function ReportPage() {
         </div>
 
         {/* Capabilities */}
-        <div className="glass-panel p-6">
+        <div className="glass-panel p-6 animate-slide-up" style={{animationDelay:'0.25s', animationFillMode:'both'}}>
           <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
             <Cpu className="w-4 h-4 text-teal-500" />
             Capabilities (Capa)
@@ -168,7 +168,7 @@ export default function ReportPage() {
         </div>
 
         {/* Suspicious Strings */}
-        <div className="glass-panel p-6">
+        <div className="glass-panel p-6 animate-slide-up" style={{animationDelay:'0.3s', animationFillMode:'both'}}>
           <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
             <FileText className="w-4 h-4 text-amber-500" />
             Suspicious Strings
@@ -192,7 +192,7 @@ export default function ReportPage() {
         </div>
 
         {/* File Sections */}
-        <div className="glass-panel p-6">
+        <div className="glass-panel p-6 animate-slide-up" style={{animationDelay:'0.35s', animationFillMode:'both'}}>
           <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
             <Layout className="w-4 h-4 text-violet-500" />
             File Sections

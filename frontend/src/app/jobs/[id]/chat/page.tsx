@@ -150,7 +150,7 @@ export default function ChatPage() {
       </aside>
 
       {/* Main chat area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 relative animate-fade-in" style={{animationFillMode:'both', animationDelay:'0.1s'}}>
         {/* Chat header */}
         <div className="h-12 flex items-center gap-3 px-4 bg-white border-b border-slate-200 shrink-0">
           <button
