@@ -173,4 +173,4 @@ User Question: {question}
         return parsed.get("answer", "Error: could not extract answer.")
     except Exception as e:
         logger.error("rag_llm_failed", error=str(e))
-        return f"Sorry, I encountered an error while trying to answer your question. Error: {str(e)}"
+        return "Sorry, I encountered an error while trying to answer your question."

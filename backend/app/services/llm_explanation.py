@@ -229,5 +229,5 @@ Produce a JSON response with exactly this schema:
         
         return {
             "error": "Failed to generate LLM explanation",
-            "details": str(e)
+            "details": "An internal error occurred while generating the explanation."
         }
