@@ -32,6 +32,8 @@ jobs:
             
             # Restart all containers with the new code
             docker compose down
+            mkdir -p backend/data backend/quarantine
+            chmod -R 777 backend/data backend/quarantine
             docker compose up -d --build
             
             # Prune dangling images
