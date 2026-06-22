@@ -9,7 +9,19 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Copy project files to Droplet
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          password: ${{ secrets.DO_SSH_PASSWORD }}
+          source: "."
+          target: "~/Hexplain"
+
+      - name: Build and Restart Docker
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DO_HOST }}
@@ -17,12 +29,10 @@ jobs:
           password: ${{ secrets.DO_SSH_PASSWORD }}
           script: |
             cd ~/Hexplain
-            git reset --hard HEAD
-            git pull origin main
             
             # Restart all containers with the new code
             docker compose down
             docker compose up -d --build
             
-            # Prune dangling images to prevent the droplet from running out of space!
+            # Prune dangling images
             docker image prune -f
