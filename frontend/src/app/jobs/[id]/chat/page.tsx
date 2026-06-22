@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { api } from "@/lib/api";
-import { useParams, useRouter } from "next/navigation";
-import { MessageSquare, Send, User, Bot, Loader2, ArrowLeft, Shield } from "lucide-react";
+import { useParams } from "next/navigation";
+import { MessageSquare, Send, User, Bot, Loader2, ArrowLeft, Plus, Clock, Shield, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from 'react-markdown';
 import Link from "next/link";
+import { format } from "date-fns";
 
 interface ChatMessage {
   id: string;
@@ -15,24 +16,36 @@ interface ChatMessage {
   created_at: string;
 }
 
+const SUGGESTIONS = [
+  "Explain the YARA matches found",
+  "What does the most suspicious function do?",
+  "Are there any hardcoded IPs or domains?",
+  "Summarize the CAPA capabilities",
+  "What is the overall threat classification?",
+  "Which file sections have high entropy?",
+];
+
 export default function ChatPage() {
   const { id } = useParams();
-  const router = useRouter();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [initialFetch, setInitialFetch] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Session history (UI only – actual history from backend)
+  const [sessionStarts] = useState<{label: string; active: boolean}[]>([
+    { label: "This conversation", active: true },
+  ]);
 
   useEffect(() => {
     if (!initialFetch) {
-      api.get(`/jobs/${id}/chat`).then((res) => {
+      api.get(`/jobs/${id}/chat`).then(res => {
         setMessages(res.data);
         setInitialFetch(true);
-      }).catch(err => {
-        console.error("Failed to load chat history:", err);
-        setInitialFetch(true);
-      });
+      }).catch(() => { setInitialFetch(true); });
     }
   }, [id, initialFetch]);
 
@@ -40,30 +53,29 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || loading) return;
+  const handleSend = async (e?: React.FormEvent, suggestion?: string) => {
+    e?.preventDefault();
+    const text = suggestion ?? input;
+    if (!text.trim() || loading) return;
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: "user",
-      content: input,
+      content: text,
       created_at: new Date().toISOString()
     };
-    
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
     try {
-      const res = await api.post(`/jobs/${id}/chat`, { question: userMsg.content });
-      const assistantMsg: ChatMessage = {
+      const res = await api.post(`/jobs/${id}/chat`, { question: text });
+      setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content: res.data.answer,
         created_at: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, assistantMsg]);
+      }]);
     } catch (err: any) {
       const errDetail = err.response?.data?.detail || "Failed to communicate.";
       setMessages(prev => [...prev, {
@@ -74,52 +86,115 @@ export default function ChatPage() {
       }]);
     } finally {
       setLoading(false);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  };
+
+  const handleClearChat = () => {
+    if (confirm("Clear this conversation? This cannot be undone.")) {
+      setMessages([]);
     }
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 h-[calc(100vh-4rem)] flex flex-col relative z-10">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6 shrink-0">
-        <div className="flex items-center gap-4">
-          <Link href={`/jobs/${id}/report`} className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all shadow-sm">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <Bot className="w-6 h-6 text-indigo-600" />
-              Analysis Assistant
-            </h1>
-            <p className="text-gray-500 text-sm">Ask questions about the decompiled code and extracted capabilities.</p>
+    <div className="h-[calc(100vh-3.5rem)] flex overflow-hidden bg-[#f5f6fa]">
+
+      {/* Sidebar */}
+      <aside className={cn(
+        "flex flex-col border-r border-slate-200 bg-white transition-all duration-200 shrink-0",
+        sidebarOpen ? "w-64" : "w-0 overflow-hidden border-r-0"
+      )}>
+        <div className="p-3 border-b border-slate-100">
+          <div className="flex items-center gap-2 mb-3">
+            <Link href={`/jobs/${id}/report`} className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all" style={{borderRadius:'4px'}} title="Back to report">
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex-1">AI Chat</span>
+          </div>
+          <button
+            onClick={() => { setMessages([]); }}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-all shadow-sm"
+            style={{borderRadius:'4px'}}
+          >
+            <Plus className="w-3.5 h-3.5" />
+            New Chat
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-2">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1.5">History</div>
+          {sessionStarts.map((s, i) => (
+            <div key={i} className={cn(
+              "flex items-center gap-2 px-2.5 py-2 text-xs cursor-pointer transition-all",
+              s.active ? "bg-indigo-50 text-indigo-700 font-semibold border border-indigo-100" : "text-slate-600 hover:bg-slate-50"
+            )} style={{borderRadius:'4px'}}>
+              <MessageSquare className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{s.label}</span>
+            </div>
+          ))}
+          <div className="mt-2 px-2.5 py-2 text-xs text-slate-400 italic border border-dashed border-slate-200" style={{borderRadius:'4px'}}>
+            Multi-session history coming soon
           </div>
         </div>
-      </div>
 
-      {/* Chat Container */}
-      <div className="flex-1 glass-panel flex flex-col overflow-hidden mb-6 shadow-xl">
-        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 custom-scrollbar">
-          
+        <div className="p-3 border-t border-slate-100">
+          <button
+            onClick={handleClearChat}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-red-600 hover:bg-red-50 border border-slate-200 hover:border-red-200 transition-all"
+            style={{borderRadius:'4px'}}
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+            Clear Chat
+          </button>
+        </div>
+      </aside>
+
+      {/* Main chat area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Chat header */}
+        <div className="h-12 flex items-center gap-3 px-4 bg-white border-b border-slate-200 shrink-0">
+          <button
+            onClick={() => setSidebarOpen(o => !o)}
+            className="w-7 h-7 flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-all"
+            style={{borderRadius:'4px'}}
+            title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+          >
+            <MessageSquare className="w-4 h-4" />
+          </button>
+          <div className="flex items-center gap-2">
+            <Bot className="w-4 h-4 text-indigo-600" />
+            <span className="text-sm font-bold text-slate-900">Analysis Assistant</span>
+            <span className="badge-indigo">RAG</span>
+          </div>
+          <div className="flex-1" />
+          {!sidebarOpen && (
+            <Link href={`/jobs/${id}/report`} className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5" /> Report
+            </Link>
+          )}
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scroll">
+
           {messages.length === 0 && !loading && initialFetch && (
-            <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto">
-              <div className="w-20 h-20 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center mb-6">
-                <Shield className="w-10 h-10" />
+            <div className="max-w-2xl mx-auto text-center py-8 animate-fade-in">
+              <div className="w-16 h-16 bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto mb-5" style={{borderRadius:'8px'}}>
+                <Shield className="w-8 h-8 text-indigo-500" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 mb-3">How can I help you analyze this binary?</h2>
-              <p className="text-gray-500 mb-8">I have context on all the YARA matches, CAPA capabilities, strings, and decompiled Ghidra functions for this file.</p>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full">
-                {[
-                  "Explain the YARA matches",
-                  "What does the most suspicious function do?",
-                  "Are there any hardcoded IPs?",
-                  "Summarize the CAPA capabilities"
-                ].map((suggestion, i) => (
-                  <button 
+              <h2 className="text-lg font-black text-slate-900 mb-2">How can I help?</h2>
+              <p className="text-slate-500 text-sm mb-6 max-w-md mx-auto">
+                I have full context of the analysis — YARA matches, Capa capabilities, decompiled Ghidra functions, suspicious strings, and threat intel hits.
+              </p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left">
+                {SUGGESTIONS.map((s, i) => (
+                  <button
                     key={i}
-                    onClick={() => setInput(suggestion)}
-                    className="p-4 rounded-xl border border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50 hover:shadow-sm text-sm text-gray-700 text-left transition-all"
+                    onClick={() => handleSend(undefined, s)}
+                    className="p-3 bg-white border border-slate-200 text-xs text-slate-700 font-medium hover:border-indigo-300 hover:bg-indigo-50 transition-all text-left"
+                    style={{borderRadius:'4px'}}
                   >
-                    {suggestion}
+                    {s}
                   </button>
                 ))}
               </div>
@@ -127,63 +202,68 @@ export default function ChatPage() {
           )}
 
           {messages.map((msg, idx) => (
-            <div key={msg.id || idx} className={cn("flex gap-4 md:gap-6", msg.role === "user" ? "flex-row-reverse" : "flex-row")}>
+            <div key={msg.id || idx} className={cn("flex gap-3 max-w-4xl", msg.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto")}>
               <div className={cn(
-                "shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm", 
-                msg.role === "user" ? "bg-indigo-600 text-white" : "bg-white border border-gray-200 text-indigo-600"
-              )}>
-                {msg.role === "user" ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                "w-8 h-8 flex items-center justify-center shrink-0 mt-0.5",
+                msg.role === "user" ? "bg-indigo-600 text-white" : "bg-white border border-slate-200 text-indigo-600"
+              )} style={{borderRadius:'5px'}}>
+                {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
               </div>
               <div className={cn(
-                "px-6 py-4 rounded-2xl max-w-[85%] md:max-w-[75%] shadow-sm", 
-                msg.role === "user" ? "bg-indigo-600 text-white rounded-tr-sm" : "bg-white border border-gray-100 text-gray-800 rounded-tl-sm"
-              )}>
+                "px-4 py-3 text-sm max-w-[75%] shadow-sm",
+                msg.role === "user"
+                  ? "bg-indigo-600 text-white"
+                  : "bg-white border border-slate-200 text-slate-800"
+              )} style={{borderRadius: msg.role === "user" ? "6px 2px 6px 6px" : "2px 6px 6px 6px"}}>
                 {msg.role === "assistant" ? (
-                  <div className="prose prose-indigo prose-sm md:prose-base max-w-none prose-pre:bg-gray-50 prose-pre:text-gray-800 prose-pre:border prose-pre:border-gray-200">
+                  <div className="prose prose-sm max-w-none prose-headings:text-slate-900 prose-a:text-indigo-600 prose-code:bg-slate-100 prose-code:text-slate-800 prose-code:px-1 prose-pre:bg-slate-100 prose-pre:border prose-pre:border-slate-200">
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : (
-                  <div className="text-[15px]">{msg.content}</div>
+                  <div>{msg.content}</div>
                 )}
               </div>
             </div>
           ))}
-          
+
           {loading && (
-            <div className="flex gap-4 md:gap-6">
-              <div className="shrink-0 w-10 h-10 rounded-xl bg-white border border-gray-200 text-indigo-600 flex items-center justify-center shadow-sm">
-                <Bot className="w-5 h-5" />
+            <div className="flex gap-3 max-w-4xl">
+              <div className="w-8 h-8 bg-white border border-slate-200 text-indigo-600 flex items-center justify-center" style={{borderRadius:'5px'}}>
+                <Bot className="w-4 h-4" />
               </div>
-              <div className="px-6 py-5 rounded-2xl bg-white border border-gray-100 rounded-tl-sm flex items-center shadow-sm">
-                <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
-                <span className="ml-3 text-sm font-medium text-gray-500">Analyzing data...</span>
+              <div className="px-4 py-3 bg-white border border-slate-200 text-sm flex items-center gap-2" style={{borderRadius:'2px 6px 6px 6px'}}>
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
+                <span className="text-slate-500 text-xs font-medium">Analyzing context…</span>
               </div>
             </div>
           )}
+
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 md:p-6 bg-gray-50/80 border-t border-gray-100 backdrop-blur-sm">
-          <form onSubmit={handleSend} className="relative max-w-4xl mx-auto">
+        {/* Input bar */}
+        <div className="border-t border-slate-200 bg-white p-4">
+          <form onSubmit={handleSend} className="flex items-center gap-2 max-w-4xl mx-auto">
             <input
+              ref={inputRef}
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Message Assistant..."
-              className="w-full bg-white border border-gray-200 shadow-sm rounded-full pl-6 pr-16 py-4 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 text-gray-900 transition-all disabled:opacity-50 text-[15px]"
+              onChange={e => setInput(e.target.value)}
+              placeholder="Message Analysis Assistant…"
               disabled={loading}
+              className="flex-1 bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder-slate-400 px-4 py-2.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-all disabled:opacity-50"
+              style={{borderRadius:'4px'}}
             />
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading || !input.trim()}
-              className="absolute right-2.5 top-2.5 p-2.5 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 transition-all shadow-sm hover:shadow-md disabled:hover:shadow-sm"
+              className="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm"
+              style={{borderRadius:'4px'}}
             >
-              <Send className="w-4 h-4 ml-0.5" />
+              <Send className="w-4 h-4" />
             </button>
           </form>
-          <div className="text-center mt-3">
-            <p className="text-xs text-gray-400">Assistant can make mistakes. Verify important information.</p>
-          </div>
+          <p className="text-center text-[11px] text-slate-400 mt-2">AI can make mistakes. Verify critical findings manually.</p>
         </div>
       </div>
     </div>

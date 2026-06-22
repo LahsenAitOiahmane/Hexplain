@@ -77,25 +77,25 @@ export default function ExplorerPage() {
   const repData = report?.report_data || {};
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-12">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10">
-        <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-2">{job.file_name}</h1>
-          <p className="text-gray-500 font-mono text-sm bg-gray-100 px-3 py-1 rounded-md inline-block">{job.file_hash_sha256}</p>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight mb-1 truncate" title={job.file_name}>{job.file_name}</h1>
+          <code className="bg-slate-100 text-slate-600 px-2 py-0.5 font-mono text-xs truncate max-w-full inline-block" style={{borderRadius:'3px'}}>{job.file_hash_sha256}</code>
         </div>
         {job.status === "processing" && (
-          <div className="flex items-center gap-3 bg-indigo-50 text-indigo-700 px-5 py-2.5 rounded-full border border-indigo-100 shadow-sm">
-            <Loader2 className="w-5 h-5 animate-spin" />
-            <span className="font-semibold text-sm">Analysis in Progress</span>
+          <div className="flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 border border-indigo-100 shadow-sm shrink-0" style={{borderRadius:'4px'}}>
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="font-bold text-sm">Analysis in Progress</span>
           </div>
         )}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Left Col: Pipeline Progress */}
-        <div className="lg:col-span-1 space-y-4">
-          <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-indigo-600" />
+        <div className="lg:col-span-1 space-y-3">
+          <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Activity className="w-4 h-4 text-indigo-500" />
             Pipeline Status
           </h2>
           
@@ -115,30 +115,30 @@ export default function ExplorerPage() {
 
         {/* Right Col: Progressive Data View */}
         <div className="lg:col-span-2">
-           <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-             <Layout className="w-5 h-5 text-indigo-600" />
+           <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2">
+             <Layout className="w-4 h-4 text-indigo-500" />
              Live Explorer
            </h2>
            
            <div className="space-y-6">
               <AnimatePresence>
                 {stages.metadata === "completed" && repData.metadata && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-panel p-6 sm:p-8">
-                    <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
-                      <Binary className="w-5 h-5 text-indigo-600"/> Identity
+                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-panel p-5">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
+                      <Binary className="w-3.5 h-3.5 text-indigo-500"/> Identity
                     </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-sm">
+                    <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
-                        <div className="text-gray-500 font-medium mb-1">Architecture</div>
-                        <div className="font-mono text-gray-900 font-semibold">{repData.metadata.architecture}</div>
+                        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Arch</div>
+                        <div className="font-mono text-slate-900 font-bold text-sm">{repData.metadata.architecture}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500 font-medium mb-1">Entropy</div>
-                        <div className="font-mono text-gray-900 font-semibold">{repData.metadata.entropy?.toFixed(2)}</div>
+                        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Entropy</div>
+                        <div className="font-mono text-slate-900 font-bold text-sm">{repData.metadata.entropy?.toFixed(2)}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500 font-medium mb-1">Signed</div>
-                        <div className={cn("font-mono font-semibold", repData.metadata.is_signed ? "text-green-600" : "text-yellow-600")}>
+                        <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">Signed</div>
+                        <div className={cn("font-mono font-bold text-sm", repData.metadata.is_signed ? "text-emerald-600" : "text-amber-600")}>
                           {repData.metadata.is_signed ? "Yes" : "No"}
                         </div>
                       </div>
@@ -147,21 +147,21 @@ export default function ExplorerPage() {
                 )}
 
                 {stages.structural === "completed" && repData.structural?.sections && (
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="glass-panel p-6 sm:p-8">
-                    <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2 border-b border-gray-100 pb-4">
-                      <Layout className="w-5 h-5 text-indigo-600"/> Sections
+                  <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="glass-panel p-5">
+                    <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-100">
+                      <Layout className="w-3.5 h-3.5 text-indigo-500"/> Sections
                     </h3>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm text-left">
-                        <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-y border-gray-100">
-                          <tr><th className="px-4 py-3 font-semibold">Name</th><th className="px-4 py-3 font-semibold">Size</th><th className="px-4 py-3 font-semibold">Entropy</th></tr>
+                      <table className="w-full text-xs">
+                        <thead className="text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                          <tr><th className="py-2 text-left">Name</th><th className="py-2 pl-3 text-left">Size</th><th className="py-2 pl-3 text-left">Entropy</th></tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-slate-50 font-mono">
                           {repData.structural.sections.map((s: any, i: number) => (
-                            <tr key={i} className="hover:bg-gray-50 transition-colors font-mono text-gray-600">
-                              <td className="px-4 py-3 text-gray-900 font-medium">{s.name}</td>
-                              <td className="px-4 py-3">{s.size}</td>
-                              <td className={cn("px-4 py-3", s.entropy > 7.0 ? "text-red-600 font-bold" : "")}>{s.entropy?.toFixed(2)}</td>
+                            <tr key={i} className="hover:bg-slate-50 transition-colors">
+                              <td className="py-2 text-slate-900 font-semibold">{s.name}</td>
+                              <td className="py-2 pl-3 text-slate-500">{s.size}</td>
+                              <td className={cn("py-2 pl-3 font-bold", s.entropy > 7.0 ? "text-red-600" : "text-slate-500")}>{s.entropy?.toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
