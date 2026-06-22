@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { api } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
-import { Loader2, ArrowRight, CheckCircle2, ShieldAlert, Binary, Cpu, Layout, FileText, XCircle } from "lucide-react";
+import { Loader2, ArrowRight, CheckCircle2, ShieldAlert, Binary, Cpu, Layout, FileText, XCircle, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
