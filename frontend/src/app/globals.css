@@ -29,7 +29,7 @@
 
 @layer base {
   body {
-    @apply bg-background text-foreground;
+    @apply text-slate-900;
     font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
     background-color: #f8fafc;
