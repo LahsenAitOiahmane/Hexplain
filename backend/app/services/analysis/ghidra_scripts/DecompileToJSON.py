@@ -197,11 +197,16 @@ def decompile_functions(program, functions, monitor):
                             })
                             break
                             
-                        # Extract basic info
+                        # Extract basic info safely
+                        instr_str = str(instr)
+                        mnemonic = str(instr.getMnemonicString())
+                        # The operands are the remainder of the string after the mnemonic
+                        operands = instr_str[len(mnemonic):].strip() if instr_str.startswith(mnemonic) else ""
+                        
                         assembly.append({
                             "address": str(instr.getAddress()),
-                            "mnemonic": str(instr.getMnemonicString()),
-                            "operands": str(instr.getDefaultOperandRepresentation()) or ""
+                            "mnemonic": mnemonic,
+                            "operands": operands
                         })
                         count += 1
                 except Exception as e:

@@ -226,7 +226,7 @@ export default function ReportPage() {
               Decompiled Functions
             </h3>
             {repData.decompilation?.functions?.length ? (
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-64 overflow-y-auto custom-scroll pr-1">
                 {repData.decompilation.functions.map((f: any, i: number) => (
                   <Link 
                     key={i} 
