@@ -8,7 +8,7 @@ from app.models.user import User
 from app.models.job import AnalysisJob, JobStatus
 from app.models.report import AnalysisReport
 from app.models.chat import ChatMessage
-from app.core.security import get_password_hash
+from app.core.security import hash_password
 
 def seed_showcase():
     init_db()
@@ -20,7 +20,7 @@ def seed_showcase():
         user = User(
             username="analyst",
             email="analyst@hexplain.local",
-            hashed_password=get_password_hash("password123"),
+            hashed_password=hash_password("password123"),
             is_active=True
         )
         db.add(user)
