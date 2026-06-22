@@ -13,12 +13,12 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="sticky top-0 z-50 w-full glass border-b border-white/10">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 w-full bg-white border-b border-gray-200 shadow-sm">
+      <div className="container mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/jobs" className="flex items-center gap-2 font-bold text-xl tracking-tight text-white group">
-            <Shield className="w-6 h-6 text-primary group-hover:text-blue-400 transition-colors" />
-            <span>Malw<span className="text-primary">AI</span>re</span>
+          <Link href="/jobs" className="flex items-center gap-2 font-bold text-xl tracking-tight text-gray-900 group">
+            <Shield className="w-5 h-5 text-indigo-600 group-hover:text-indigo-500 transition-colors" />
+            <span>Malw<span className="text-indigo-600">AI</span>re</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-1">
@@ -37,8 +37,8 @@ export default function Navbar() {
             fetch("/api/auth/logout", { method: "POST" }).then(() => {
               window.location.href = "/login";
             });
-          }} className="text-sm text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
-            <LogOut className="w-4 h-4" />
+          }} className="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center gap-2 transition-colors">
+            <LogOut className="w-4 h-4 text-gray-400" />
             <span>Sign out</span>
           </button>
         </div>
@@ -52,10 +52,10 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
     <Link
       href={href}
       className={cn(
-        "px-4 py-2 rounded-md text-sm font-medium transition-all duration-200",
+        "px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200",
         active 
-          ? "bg-white/10 text-white shadow-sm" 
-          : "text-gray-400 hover:text-white hover:bg-white/5"
+          ? "bg-indigo-50 text-indigo-700" 
+          : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
       )}
     >
       {children}
