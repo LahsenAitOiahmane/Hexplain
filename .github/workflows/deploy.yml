@@ -1,0 +1,28 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd ~/Hexplain
+            git reset --hard HEAD
+            git pull origin main
+            
+            # Restart all containers with the new code
+            docker compose down
+            docker compose up -d --build
+            
+            # Prune dangling images to prevent the droplet from running out of space!
+            docker image prune -f
