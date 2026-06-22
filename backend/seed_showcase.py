@@ -19,7 +19,7 @@ def seed_showcase():
     if not user:
         user = User(
             username="analyst",
-            email="analyst@hexplain.local",
+            email="analyst@hexplain.com",
             hashed_password=hash_password("password123"),
             is_active=True
         )
@@ -28,9 +28,16 @@ def seed_showcase():
         db.refresh(user)
         print("Created user 'analyst' (password: password123)")
     else:
-        print("User 'analyst' already exists.")
+        print("User 'analyst' already exists. Ensuring email is correct...")
+        if user.email != "analyst@hexplain.com":
+            user.email = "analyst@hexplain.com"
+            db.commit()
 
-    print("Creating showcase job...")
+    print("Cleaning up old showcase jobs...")
+    db.query(AnalysisJob).filter(AnalysisJob.file_name == "invoice_Q4_urgent.exe").delete()
+    db.commit()
+
+    print("Creating new showcase job...")
     job = AnalysisJob(
         user_id=user.id,
         status=JobStatus.COMPLETED,
@@ -68,10 +75,10 @@ def seed_showcase():
         },
         "structural": {
             "sections": [
-                {"name": ".text", "size": 45056, "entropy": 6.45},
-                {"name": ".data", "size": 12288, "entropy": 4.12},
-                {"name": ".rsrc", "size": 65536, "entropy": 7.95},
-                {"name": ".reloc", "size": 2552, "entropy": 3.22}
+                {"name": ".text", "size": "45 KB", "entropy": 6.45},
+                {"name": ".data", "size": "12 KB", "entropy": 4.12},
+                {"name": ".rsrc", "size": "65 KB", "entropy": 7.95},
+                {"name": ".reloc", "size": "2 KB", "entropy": 3.22}
             ]
         },
         "suspicious_apis": {
@@ -84,9 +91,19 @@ def seed_showcase():
             ]
         },
         "strings_iocs": {
-            "ips": ["192.168.1.100", "45.33.22.11"],
-            "urls": ["http://malicious-c2.example.com/payload.exe", "https://pastebin.com/raw/XYZ123"],
-            "registry_keys": ["Software\\Microsoft\\Windows\\CurrentVersion\\Run"]
+            "suspicious_strings": [
+                "http://malicious-c2.example.com/payload.exe",
+                "https://pastebin.com/raw/XYZ123",
+                "Software\\Microsoft\\Windows\\CurrentVersion\\Run",
+                "powershell.exe -ExecutionPolicy Bypass -WindowStyle Hidden -EncodedCommand",
+                "cmd.exe /c vssadmin.exe Delete Shadows /All /Quiet",
+                "C:\\Users\\Public\\Document.zip",
+                "GetProcAddress",
+                "LoadLibraryA",
+                "CreateRemoteThread",
+                "WriteProcessMemory",
+                "VirtualAllocEx"
+            ]
         },
         "yara_scan": {
             "total_matches": 3,
@@ -97,11 +114,12 @@ def seed_showcase():
             ]
         },
         "capa": {
-            "capabilities": [
-                "allocate thread local storage (2 matches)",
-                "create process (1 matches)",
-                "inject thread (1 matches)",
-                "download file (3 matches)"
+            "matches": [
+                {"rule": "allocate thread local storage", "description": "Memory manipulation for injection (2 matches)"},
+                {"rule": "create process", "description": "Spawns child processes, potentially cmd.exe or powershell.exe"},
+                {"rule": "inject thread", "description": "Injects code into another process (e.g. explorer.exe)"},
+                {"rule": "download file", "description": "Downloads next stage payload from the internet"},
+                {"rule": "delete shadow copies", "description": "Ransomware behavior: prevents system recovery"}
             ]
         },
         "decompilation": {
@@ -112,8 +130,11 @@ def seed_showcase():
             ]
         },
         "threat_intel": {
-            "virustotal_score": "54/72",
-            "alienvault_pulses": 3
+            "matches": [
+                {"source": "VirusTotal", "description": "54/72 security vendors flagged this file as malicious."},
+                {"source": "AlienVault OTX", "description": "Associated with 3 active pulses for LockBit 3.0 ransomware."},
+                {"source": "HybridAnalysis", "description": "100/100 Malicious confidence score based on sandbox execution."}
+            ]
         },
         "risk_assessment": {
             "critical_factors": [
@@ -135,6 +156,7 @@ The analyzed file **invoice_Q4_urgent.exe** exhibits strong indicators of being 
 2. **Network C2**: It contacts `http://malicious-c2.example.com/payload.exe` to likely download a second-stage payload.
 3. **Persistence**: It attempts to modify the `Run` registry key to ensure it executes upon system reboot.
 4. **Packing**: The `.rsrc` section has a very high entropy of 7.95, indicating that the true payload is likely compressed or encrypted and unpacked in memory.
+5. **Ransomware Indicators**: We detected attempts to execute `vssadmin.exe Delete Shadows /All /Quiet`, which is a classic ransomware tactic to prevent users from recovering files.
 
 ## Recommended Action
 **QUARANTINE IMMEDIATELY.** Do not execute on a production host. Block the extracted IPs (`45.33.22.11`) and URLs at the firewall level.
@@ -146,21 +168,22 @@ The analyzed file **invoice_Q4_urgent.exe** exhibits strong indicators of being 
     db.add(report)
 
     print("Creating showcase chat data...")
-    chat1 = ChatMessage(
-        job_id=job.id,
-        role="user",
-        content="What does the high entropy in the .rsrc section mean?"
-    )
-    chat2 = ChatMessage(
-        job_id=job.id,
-        role="assistant",
-        content="High entropy (7.95) in the `.rsrc` (Resource) section indicates that the data stored there is highly random. In the context of malware, this almost always means the author has packed, compressed, or encrypted a second-stage payload inside the resource section to evade signature-based antivirus detection. When the malware runs, it decrypts this section and loads it directly into memory."
-    )
-    db.add(chat1)
-    db.add(chat2)
+    messages = [
+        ("user", "Can you explain what this malware does in simple terms?"),
+        ("assistant", "Of course. This file, **invoice_Q4_urgent.exe**, appears to be a two-stage malware, commonly known as a dropper, with ransomware capabilities.\n\nFirst, it uses a technique called **Process Injection** to hide itself inside legitimate Windows processes like `explorer.exe`. Once hidden, it connects to a malicious server (`malicious-c2.example.com`) to download the next phase of the attack.\n\nFinally, we detected that it tries to delete Windows Shadow Copies, which is a massive red flag. Ransomware does this so you can't easily recover your encrypted files."),
+        ("user", "What does the high entropy in the .rsrc section mean?"),
+        ("assistant", "Entropy measures randomness. A high entropy (7.95 out of 8.0) in the `.rsrc` (Resource) section indicates that the data stored there is highly random.\n\nIn the context of malware, this almost always means the author has **packed, compressed, or encrypted** the main malicious code inside the resource section to evade signature-based antivirus detection. When the malware runs, it decrypts this section and loads the real payload directly into memory."),
+        ("user", "Are there any indicators of compromise (IOCs) I can block?"),
+        ("assistant", "Yes, absolutely. You should immediately add these to your network blocklist:\n\n**Network Indicators:**\n- `http://malicious-c2.example.com/payload.exe`\n- `https://pastebin.com/raw/XYZ123`\n- `192.168.1.100`\n- `45.33.22.11`\n\n**Host Indicators:**\n- Hash (SHA256): `8b1a9953c4611296a827abf8c47804d7e6c49c6b8c4c7c8b4c2b9a1b1b2c3d4e`\n- Registry changes: `Software\\Microsoft\\Windows\\CurrentVersion\\Run`"),
+        ("user", "Is this definitely LockBit? The YARA scan mentioned it."),
+        ("assistant", "Based on the YARA scan hits (`Ransomware_LockBit_Strings`) and the Threat Intel from AlienVault OTX, there is a very high probability this is a variant of **LockBit 3.0**. \n\nThe combination of deleting shadow copies via `vssadmin.exe` and the specific memory injection techniques strongly align with known LockBit tactics, techniques, and procedures (TTPs).")
+    ]
+    
+    for role, content in messages:
+        db.add(ChatMessage(job_id=job.id, role=role, content=content))
 
     db.commit()
-    print(f"Successfully seeded database! Login with analyst / password123. Job ID: {job.id}")
+    print(f"Successfully seeded database! Login with analyst@hexplain.com / password123. Job ID: {job.id}")
 
 if __name__ == "__main__":
     seed_showcase()
