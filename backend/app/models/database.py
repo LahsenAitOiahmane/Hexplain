@@ -64,5 +64,20 @@ def init_db() -> None:
     import app.models.user  # noqa: F401
     import app.models.job  # noqa: F401
     import app.models.report  # noqa: F401
+    import app.models.chat  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
+
+    # Perform a fast schema patch to add session_id to existing chat_messages table
+    # This avoids full alembic setup for this sprint.
+    from sqlalchemy import text
+    try:
+        with engine.begin() as conn:
+            # Check if column exists
+            result = conn.execute(text("PRAGMA table_info(chat_messages)")).fetchall()
+            column_names = [row[1] for row in result]
+            if "session_id" not in column_names:
+                conn.execute(text("ALTER TABLE chat_messages ADD COLUMN session_id VARCHAR(36)"))
+                print("Added session_id column to chat_messages table successfully.")
+    except Exception as e:
+        print(f"Error checking/altering chat_messages schema: {e}")
