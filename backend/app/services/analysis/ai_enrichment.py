@@ -99,8 +99,7 @@ Return a JSON object with this exact schema:
         logger.error("ai_enrichment_llm_failed", error=str(e))
         return {
             "is_ai_generated": True,
-            "error": "AI Enrichment failed to generate intel.",
-            "summary": "AI Enrichment encountered an error.",
+            "summary": "AI Enrichment encountered an error. Proceed with caution.",
             "threat_name": "Unknown",
             "tags": [],
             "matches": [],

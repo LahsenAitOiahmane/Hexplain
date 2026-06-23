@@ -507,3 +507,32 @@
 .animate-pulse-ring {
   animation: pulse-ring 1.5s cubic-bezier(0.21, 1.02, 0.73, 1) infinite;
 }
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .glass-panel {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 2rem !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  /* Force page breaks before large sections if needed */
+  .page-break-before {
+    page-break-before: always;
+  }
+  /* Ensure all text is dark for readability */
+  * {
+    color: #000 !important;
+  }
+  /* Hide the Next.js dev overlays or any fixed headers */
+  header, footer, nav {
+    display: none !important;
+  }
+}

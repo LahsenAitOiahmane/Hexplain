@@ -15,6 +15,34 @@ export default function ReportPage() {
   const [job, setJob] = useState<any>(null);
   const [error, setError] = useState("");
 
+  const exportJSON = () => {
+    if (!report || !job) return;
+    const exportData = JSON.parse(JSON.stringify(report));
+    
+    if (exportData.report_data?.decompilation?.functions) {
+      exportData.report_data.decompilation.functions.forEach((f: any) => {
+        const nameLower = (f.name || "").toLowerCase();
+        const isEntryPoint = nameLower.includes("main") || nameLower.includes("start") || nameLower.includes("entry");
+        if (!isEntryPoint) {
+          f.assembly = [];
+          f.decompiled = "// Code excluded from export to preserve readability. View in UI.";
+        }
+      });
+    }
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData, null, 2));
+    const dlNode = document.createElement('a');
+    dlNode.setAttribute("href", dataStr);
+    dlNode.setAttribute("download", `Hexplain_Report_${job.file_hash_sha256.substring(0,8)}.json`);
+    document.body.appendChild(dlNode);
+    dlNode.click();
+    dlNode.remove();
+  };
+
+  const exportPDF = () => {
+    window.print();
+  };
+
   useEffect(() => {
     Promise.all([api.get(`/jobs/${id}`), api.get(`/jobs/${id}/report`)])
       .then(([jobRes, reportRes]) => { setJob(jobRes.data); setReport(reportRes.data); })
@@ -75,7 +103,7 @@ export default function ReportPage() {
       </div>
 
       {/* AI Chat CTA banner */}
-      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-5 mb-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg relative overflow-hidden animate-slide-up" style={{borderRadius:'6px', animationDelay:'0.1s', animationFillMode:'both'}}>
+      <div className="bg-gradient-to-r from-indigo-600 to-violet-600 p-5 mb-8 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg relative overflow-hidden animate-slide-up no-print" style={{borderRadius:'6px', animationDelay:'0.1s', animationFillMode:'both'}}>
         <div className="absolute right-0 top-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         <div className="relative flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 backdrop-blur flex items-center justify-center" style={{borderRadius:'6px'}}>
@@ -148,18 +176,26 @@ export default function ReportPage() {
                   </li>
                 ))}
               </ul>
-            ) : repData.threat_intel?.ai_enriched?.matches?.length ? (
-              <ul className="space-y-2">
-                {repData.threat_intel.ai_enriched.matches.map((hit: any, i: number) => (
-                  <li key={`ai-${i}`} className="p-2.5 bg-indigo-50/50 border border-indigo-100 text-xs hover:border-indigo-300 transition-colors" style={{borderRadius:'4px'}}>
-                    <span className="font-bold text-indigo-900 block flex items-center gap-1">
-                      <Wand2 className="w-3 h-3 text-indigo-500" />
-                      {hit.source}
-                    </span>
-                    <span className="text-slate-600 mt-0.5 block leading-snug">{hit.description}</span>
-                  </li>
-                ))}
-              </ul>
+            ) : repData.threat_intel?.ai_enriched?.is_ai_generated ? (
+              <div className="p-3 bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 text-sm hover:border-indigo-300 transition-colors space-y-2 relative overflow-hidden" style={{borderRadius:'4px'}}>
+                 <div className="font-bold text-indigo-900 flex items-center gap-1.5 relative z-10">
+                    <Wand2 className="w-4 h-4 text-indigo-500" />
+                    {repData.threat_intel.ai_enriched.threat_name || "Heuristic Threat"}
+                 </div>
+                 <div className="text-slate-700 text-xs leading-relaxed relative z-10">
+                    {repData.threat_intel.ai_enriched.summary || "AI analysis determined this file exhibits malicious characteristics."}
+                 </div>
+                 {repData.threat_intel.ai_enriched.matches?.length > 0 && (
+                   <ul className="space-y-1.5 mt-2 border-t border-indigo-200/50 pt-2 relative z-10">
+                     {repData.threat_intel.ai_enriched.matches.map((hit: any, i: number) => (
+                        <li key={`ai-${i}`} className="text-xs">
+                          <span className="font-bold text-slate-800">{hit.source}</span>: <span className="text-slate-600">{hit.description}</span>
+                        </li>
+                     ))}
+                   </ul>
+                 )}
+                 <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-purple-200 rounded-full blur-2xl opacity-50 pointer-events-none" />
+              </div>
             ) : (
               <div className="text-xs text-slate-400 italic p-2.5 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>No threat intel hits.</div>
             )}
@@ -175,10 +211,18 @@ export default function ReportPage() {
           {(repData.capa?.capabilities?.length || repData.capa?.matches?.length) ? (
             <ul className="space-y-1.5 max-h-64 overflow-y-auto custom-scroll pr-1">
               {(repData.capa?.capabilities || repData.capa?.matches || []).map((m: any, i: number) => (
-                <li key={i} className="p-2.5 bg-slate-50 border border-slate-100 hover:border-teal-200 transition-colors text-xs" style={{borderRadius:'4px'}}>
-                  <span className="font-bold text-slate-900 block">{m.name || m.rule}</span>
+                <Link 
+                  key={i} 
+                  href={`/jobs/${id}/report/capability/${encodeURIComponent(m.name || m.rule)}`}
+                  className="block p-2.5 bg-slate-50 border border-slate-100 hover:border-teal-300 hover:bg-teal-50 transition-colors text-xs group" 
+                  style={{borderRadius:'4px'}}
+                >
+                  <span className="font-bold text-slate-900 block group-hover:text-teal-800 flex items-center justify-between">
+                    {m.name || m.rule}
+                    <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-teal-500" />
+                  </span>
                   {m.description && <span className="text-slate-500 mt-0.5 block">{m.description}</span>}
-                </li>
+                </Link>
               ))}
             </ul>
           ) : (
@@ -317,7 +361,7 @@ export default function ReportPage() {
                   >
                     <div className="font-mono text-xs font-bold text-slate-900 group-hover:text-indigo-700">{f.name}</div>
                     <div className="text-xs text-slate-400 flex items-center gap-2">
-                      <span>{f.line_count} lines</span>
+                      <span>{f.pipeline === "dotnet" && f.line_count === 0 ? "JIT Extraction" : `${f.line_count} lines`}</span>
                       <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-indigo-500" />
                     </div>
                   </Link>
@@ -339,15 +383,23 @@ export default function ReportPage() {
             {repData.risk_assessment?.breakdown?.length ? (
               <div className="space-y-2 max-h-64 overflow-y-auto custom-scroll pr-1">
                 {repData.risk_assessment.breakdown.map((item: any, i: number) => (
-                  <div key={i} className="flex justify-between items-start p-2.5 bg-slate-50 border border-slate-100" style={{borderRadius:'4px'}}>
+                  <Link 
+                    key={i} 
+                    href={`/jobs/${id}/report/risk/${encodeURIComponent(item.signal)}`}
+                    className="flex justify-between items-start p-2.5 bg-slate-50 hover:bg-amber-50 border border-slate-100 hover:border-amber-200 transition-colors group" 
+                    style={{borderRadius:'4px'}}
+                  >
                     <div>
-                      <div className="font-bold text-xs text-slate-800">{item.signal.replace(/_/g, ' ')}</div>
+                      <div className="font-bold text-xs text-slate-800 group-hover:text-amber-800">{item.signal.replace(/_/g, ' ')}</div>
                       <div className="text-[10px] text-slate-500 mt-0.5">{item.detail}</div>
                     </div>
-                    <div className={cn("text-xs font-bold shrink-0 ml-2", item.points > 0 ? "text-amber-600" : "text-slate-400")}>
-                      +{item.points} pt
+                    <div className="flex items-center gap-2">
+                      <div className={cn("text-xs font-bold shrink-0", item.points > 0 ? "text-amber-600" : "text-slate-400")}>
+                        +{item.points} pt
+                      </div>
+                      <ArrowRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity text-amber-500" />
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
@@ -357,22 +409,33 @@ export default function ReportPage() {
 
         </div>
 
-        {/* Coming soon: Export */}
-        <div className="md:col-span-3 glass-panel p-5 flex items-center gap-4 border-dashed border-slate-200">
-          <div className="w-10 h-10 bg-slate-50 border border-slate-200 flex items-center justify-center" style={{borderRadius:'4px'}}>
+        {/* Export Options */}
+        <div className="md:col-span-3 glass-panel p-5 flex flex-col sm:flex-row sm:items-center gap-4 border-slate-200 no-print">
+          <div className="w-10 h-10 bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0" style={{borderRadius:'4px'}}>
             <Download className="w-5 h-5 text-slate-400" />
           </div>
           <div className="flex-1">
             <div className="font-bold text-slate-700 text-sm">Export Report</div>
-            <div className="text-slate-400 text-xs mt-0.5">Download as PDF or JSON for offline review.</div>
+            <div className="text-slate-400 text-xs mt-0.5">Download as PDF or JSON for offline review. Irrelevant decompilation code is excluded to ensure readability.</div>
           </div>
-          <button
-            onClick={() => alert("Export — Coming soon!")}
-            className="px-4 py-2 text-xs font-bold border border-slate-200 text-slate-500 bg-slate-50 hover:bg-slate-100 transition-all"
-            style={{borderRadius:'4px'}}
-          >
-            Coming Soon
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={exportJSON}
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold border border-slate-200 text-slate-600 bg-white hover:bg-slate-50 transition-all shadow-sm"
+              style={{borderRadius:'4px'}}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              Export JSON
+            </button>
+            <button
+              onClick={exportPDF}
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-all shadow-sm"
+              style={{borderRadius:'4px'}}
+            >
+              <Layout className="w-3.5 h-3.5" />
+              Export PDF
+            </button>
+          </div>
         </div>
 
       </div>
