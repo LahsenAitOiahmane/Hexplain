@@ -1,5 +1,5 @@
 """
-MalwAIre — ORM Model Exports.
+Hexplain — ORM Model Exports.
 
 All models imported here so Alembic and Base.metadata.create_all()
 can discover them automatically.

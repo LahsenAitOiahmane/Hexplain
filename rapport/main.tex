@@ -1,0 +1,79 @@
+% =============================================================================
+% Hexplain — Rapport de Stage — main.tex
+% Compilé avec pdflatex + biber sur Overleaf
+% =============================================================================
+
+\documentclass[12pt, a4paper, twoside]{report}
+
+\input{preambule}
+
+% --- Sigles & Acronymes ---
+\makeglossaries
+\newacronym{llm}{LLM}{Large Language Model}
+\newacronym{rag}{RAG}{Retrieval-Augmented Generation}
+\newacronym{pe}{PE}{Portable Executable}
+\newacronym{elf}{ELF}{Executable and Linkable Format}
+\newacronym{yara}{YARA}{Yet Another Ridiculous Acronym}
+\newacronym{capa}{CAPA}{Common Analysis Platform for Analysis}
+\newacronym{mitre}{MITRE}{Massachusetts Institute of Technology Research and Engineering}
+\newacronym{api}{API}{Application Programming Interface}
+\newacronym{jwt}{JWT}{JSON Web Token}
+\newacronym{csrf}{CSRF}{Cross-Site Request Forgery}
+\newacronym{nlp}{NLP}{Natural Language Processing}
+\newacronym{ensa}{ENSA}{École Nationale des Sciences Appliquées}
+\newacronym{gcdste}{GCDSTE}{Génie Cyber Défense et Systèmes de Télécommunications Embarqués}
+\newacronym{osint}{OSINT}{Open Source Intelligence}
+\newacronym{ioc}{IOC}{Indicateur de Compromission}
+\newacronym{orm}{ORM}{Object-Relational Mapping}
+\newacronym{cicd}{CI/CD}{Intégration Continue et Déploiement Continu}
+\newacronym{otx}{OTX}{Open Threat Exchange}
+\newacronym{vt}{VT}{VirusTotal}
+\newacronym{sha}{SHA}{Secure Hash Algorithm}
+\newacronym{uuid}{UUID}{Universally Unique Identifier}
+\newacronym{http}{HTTP}{Hypertext Transfer Protocol}
+\newacronym{rest}{REST}{Representational State Transfer}
+\newacronym{json}{JSON}{JavaScript Object Notation}
+\newacronym{sdk}{SDK}{Software Development Kit}
+\newacronym{asgi}{ASGI}{Asynchronous Server Gateway Interface}
+\newacronym{wsgi}{WSGI}{Web Server Gateway Interface}
+\newacronym{cors}{CORS}{Cross-Origin Resource Sharing}
+\newacronym{xss}{XSS}{Cross-Site Scripting}
+\newacronym{csp}{CSP}{Content Security Policy}
+\newacronym{ia}{IA}{Intelligence Artificielle}
+
+\begin{document}
+
+% =========================================================
+% PAGES LIMINAIRES — numérotation romaine
+% =========================================================
+\pagenumbering{roman}
+\pagestyle{empty}
+
+\input{pages_liminaires}
+
+% =========================================================
+% CORPS DU RAPPORT — numérotation arabe
+% =========================================================
+\pagenumbering{arabic}
+\pagestyle{fancy}
+
+\input{chapitres/introduction}
+\input{chapitres/chapitre1_organisme_accueil}
+\input{chapitres/chapitre2_contexte}
+\input{chapitres/chapitre3_conception}
+\input{chapitres/chapitre4_architecture}
+\input{chapitres/chapitre5_realisation}
+\input{chapitres/chapitre6_perspectives}
+\input{chapitres/conclusion}
+
+% =========================================================
+% BIBLIOGRAPHIE
+% =========================================================
+\printbibliography[heading=bibintoc, title={Références et Bibliographie}]
+
+% =========================================================
+% GLOSSAIRE & ACRONYMES
+% =========================================================
+\printglossary[type=\acronymtype, title={Liste des Sigles et Acronymes}, toctitle={Liste des Sigles et Acronymes}]
+
+\end{document}

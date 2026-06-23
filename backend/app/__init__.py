@@ -1,1 +1,1 @@
-# MalwAIre Backend Application
+# Hexplain Backend Application

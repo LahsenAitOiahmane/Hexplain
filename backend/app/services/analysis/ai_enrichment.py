@@ -1,5 +1,5 @@
 """
-MalwAIre — AI-Augmented Threat Intel.
+Hexplain — AI-Augmented Threat Intel.
 
 If the binary is flagged as malicious but traditional Threat Intel / IOC cards
 are empty, this service uses duckduckgo-search to gather live OSINT and
@@ -10,7 +10,7 @@ import json
 import structlog
 from app.services.llm_explanation import get_llm_provider
 
-logger = structlog.get_logger("malwaire.analysis.ai_enrichment")
+logger = structlog.get_logger("Hexplain.analysis.ai_enrichment")
 
 def enrich_threat_intel(sha256: str, file_name: str, yara_matches: list, capa_matches: list) -> dict:
     """

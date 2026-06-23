@@ -1,5 +1,5 @@
 """
-MalwAIre — Analysis Job Model.
+Hexplain — Analysis Job Model.
 
 Tracks the lifecycle of a file analysis: upload → pending → processing → completed/failed.
 Each job belongs to exactly one user (ownership enforced on every query).

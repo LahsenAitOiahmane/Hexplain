@@ -1,5 +1,5 @@
 """
-MalwAIre — Upload Response Schema.
+Hexplain — Upload Response Schema.
 
 Response model for the file upload endpoint. Never exposes internal
 file paths or quarantine locations.

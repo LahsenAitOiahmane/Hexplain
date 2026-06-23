@@ -1,5 +1,5 @@
 """
-MalwAIre — File Service.
+Hexplain — File Service.
 
 Handles the security-critical file processing pipeline:
   1. Magic byte validation (never trust client-declared type/extension)
@@ -22,7 +22,7 @@ from pathlib import Path
 import magic
 import structlog
 
-logger = structlog.get_logger("malwaire.file_service")
+logger = structlog.get_logger("Hexplain.file_service")
 
 # ---------------------------------------------------------------------------
 # Magic byte signatures for allow-listed file types

@@ -1,5 +1,5 @@
 """
-MalwAIre — Health Check API Route.
+Hexplain — Health Check API Route.
 
 Endpoint:
   GET /api/health — Verify all subsystems are operational
@@ -25,7 +25,7 @@ from app.core.config import settings
 from app.core.deps import get_db
 from app.schemas.health import HealthResponse
 
-logger = structlog.get_logger("malwaire.api.health")
+logger = structlog.get_logger("Hexplain.api.health")
 router = APIRouter(tags=["Health"])
 
 

@@ -1,0 +1,180 @@
+% =============================================================================
+% Pages liminaires : Page de garde, Remerciements, Résumé, Abstract,
+%                    Table des figures, Table des matières
+% =============================================================================
+
+% ─────────────────────────────────────────────────────────────────────────────
+% PAGE DE GARDE
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{titlepage}
+\newgeometry{top=2cm, bottom=2cm, left=2.5cm, right=2.5cm}
+
+% Logos
+\begin{minipage}[c]{0.45\linewidth}
+  \includegraphics[height=2.5cm]{ensa_logo}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.45\linewidth}
+  \raggedleft
+  \includegraphics[height=2.5cm]{aiox_labs_logo}
+\end{minipage}
+
+\vspace{0.4cm}
+\noindent\rule{\linewidth}{1.5pt}
+\vspace{0.2cm}
+
+% Établissement
+\begin{center}
+  {\large\bfseries\color{indigodark} École Nationale des Sciences Appliquées --- Marrakech}\\[0.15cm]
+  {\normalsize Filière~: Génie Cyber Défense et Systèmes de Télécommunications Embarqués (GCDSTE)}\\[0.15cm]
+  {\normalsize Promotion 2024/2025}
+\end{center}
+
+\vspace{0.2cm}
+\noindent\rule{\linewidth}{0.6pt}
+
+% Type de rapport
+\vspace{0.4cm}
+\begin{center}
+  \fcolorbox{indigodark}{slatelight}{%
+    \parbox{0.75\linewidth}{\centering\large\bfseries\color{indigodark} RAPPORT DE STAGE}
+  }
+\end{center}
+
+\vspace{0.5cm}
+
+% Titre
+\begin{center}
+  \begin{tcolorbox}[
+    colback=indigodark,
+    colframe=indigodark,
+    coltext=white,
+    boxrule=0pt,
+    arc=4pt,
+    top=14pt, bottom=14pt, left=12pt, right=12pt
+  ]
+    \centering
+    \large\bfseries
+    Étude et développement d'un pipeline d'analyse statique\\[6pt]
+    de binaires PE/ELF intégrant des modèles de langage (LLM)\\[6pt]
+    pour la génération automatique de rapports de cybersécurité
+  \end{tcolorbox}
+\end{center}
+
+\vspace{0.5cm}
+
+% Informations stage
+\begin{center}
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{|>{\bfseries\color{slategray}}p{5cm}|p{9cm}|}
+\hline
+Organisme d'accueil & AIOX Labs --- Rabat, Maroc \\
+\hline
+Durée du stage & du 15/07/2025 au 10/09/2025 \\
+\hline
+Encadrant académique & Mme EL HALOUI (ENSA Marrakech) \\
+\hline
+Encadrant professionnel & M. Imade Benelallam, CTO --- AIOX Labs \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{0.6cm}
+
+% Auteur
+\begin{center}
+  {\large Réalisé par~:}\\[0.3cm]
+  {\LARGE\bfseries\color{indigodark} AIT OIHMANE Lahsen}
+\end{center}
+
+\vfill
+
+% Année universitaire
+\noindent\rule{\linewidth}{0.6pt}
+\begin{center}
+  {\large Année Universitaire 2024/2025}
+\end{center}
+
+\restoregeometry
+\end{titlepage}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% REMERCIEMENTS
+% ─────────────────────────────────────────────────────────────────────────────
+\clearpage
+\pagestyle{plain}
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+Ce rapport de stage est le fruit d'un travail de deux mois au sein d'AIOX Labs, et il n'aurait pu voir le jour sans le soutien et l'accompagnement de nombreuses personnes à qui je tiens à adresser ma profonde gratitude.
+
+Je remercie en premier lieu \textbf{Madame EL HALOUI}, enseignante-chercheuse à l'École Nationale des Sciences Appliquées de Marrakech (ENSA Marrakech) et encadrante académique de ce stage, pour sa disponibilité, ses orientations précieuses et son suivi rigoureux tout au long de cette expérience professionnelle.
+
+Mes sincères remerciements vont également à \textbf{Monsieur Imade Benelallam}, CTO d'AIOX Labs, pour m'avoir accordé l'opportunité de réaliser ce stage dans un environnement technologique stimulant, pour la confiance qu'il m'a témoignée en me confiant un projet à la fois ambitieux et innovant, et pour ses conseils avisés sur les enjeux de l'intelligence artificielle appliquée à la cybersécurité.
+
+Je tiens à remercier chaleureusement l'ensemble de \textbf{l'équipe d'AIOX Labs} pour leur accueil bienveillant, leur esprit collaboratif et la richesse des échanges techniques et humains qui ont jalonné ces semaines de stage.
+
+Mes remerciements s'adressent également aux \textbf{professeurs et intervenants de la filière GCDSTE} de l'ENSA Marrakech, dont les enseignements en sécurité informatique, en réseaux et en systèmes embarqués ont constitué le socle théorique indispensable à la réalisation de ce projet.
+
+Enfin, je remercie ma famille et mes proches pour leur soutien indéfectible et leurs encouragements constants tout au long de ma formation.
+
+\vspace{1cm}
+\begin{flushright}
+  AIT OIHMANE Lahsen\\
+  ENSA Marrakech, 2025
+\end{flushright}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% RÉSUMÉ (Français)
+% ─────────────────────────────────────────────────────────────────────────────
+\clearpage
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+\textbf{Contexte.} Dans un environnement numérique où les cybermenaces prolifèrent à un rythme sans précédent, l'analyse de logiciels malveillants est devenue une discipline incontournable de la cybersécurité. L'analyse statique de binaires exécutables --- qui consiste à examiner le code d'un programme sans l'exécuter --- reste cependant une discipline exigeante, réservée à des experts maîtrisant le langage assembleur, les formats de fichiers PE et ELF, ainsi que des outils spécialisés tels que Ghidra ou IDA Pro. Pour les analystes non experts ou les équipes à ressources limitées, la compréhension d'un binaire potentiellement malveillant représente un investissement en temps considérable et constitue un frein majeur à la démocratisation de la sécurité informatique.
+
+\textbf{Problématique.} Les outils d'analyse statique existants produisent des sorties brutes --- instructions assembleur, tables d'imports, règles YARA --- qui sont difficilement exploitables sans expertise préalable. Aucune solution accessible ne permet aujourd'hui de transformer automatiquement ces données techniques en explications pédagogiques compréhensibles par un non-spécialiste, tout en maintenant une rigueur analytique suffisante pour un usage professionnel.
+
+\textbf{Solution développée.} Ce rapport présente \textbf{Hexplain}, une plateforme d'analyse statique de binaires PE/ELF/.NET assistée par intelligence artificielle, développée dans le cadre d'un stage à AIOX Labs (Rabat, Maroc). Hexplain intègre un pipeline d'analyse en neuf étapes --- extraction de métadonnées, analyse structurelle, détection d'API suspectes, extraction de chaînes de caractères et IOC, scan YARA, détection de capacités MITRE ATT\&CK via Mandiant Capa, décompilation Ghidra/ILSpy, renseignements sur les menaces (VirusTotal, MalwareBazaar, AlienVault OTX) et scoring heuristique --- suivi d'une couche LLM (Gemini 2.0 Flash / Llama-3.1) qui génère un rapport d'analyse en langage naturel. Un système de \acrfull{rag} local, fondé sur ChromaDB et le modèle \textit{sentence-transformers} all-MiniLM-L6-v2, permet à l'utilisateur de dialoguer avec le rapport généré via un chatbot pédagogique contextuel.
+
+\textbf{Résultats.} La plateforme a été déployée avec succès sur DigitalOcean via Docker Compose et un pipeline CI/CD GitHub Actions. Elle est capable d'analyser des binaires PE32, PE32+ et ELF 64 bits, de détecter des comportements malveillants (injection de processus, persistance, téléchargement de payload), d'attribuer un score de risque hybride (heuristique + LLM), et de restituer des explications pédagogiques accessibles. Des tests sur des fichiers de démonstration ont confirmé la pertinence des analyses et la capacité du système à détecter des comportements de type ransomware et dropper.
+
+\vspace{0.4cm}
+\noindent\textbf{Mots-clés~:} analyse statique, binaires PE/ELF, malwares, LLM, RAG, Ghidra, YARA, Capa, MITRE ATT\&CK, FastAPI, Next.js, cybersécurité, ingénierie inverse.
+
+% ─────────────────────────────────────────────────────────────────────────────
+% ABSTRACT (English)
+% ─────────────────────────────────────────────────────────────────────────────
+\clearpage
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+
+\textbf{Context.} In a digital landscape where cyber threats are proliferating at an unprecedented rate, malware analysis has become a critical discipline within cybersecurity. Static analysis of executable binaries --- examining a program's code without running it --- remains a demanding field reserved for experts proficient in assembly language, PE and ELF file formats, and specialized tools such as Ghidra or IDA Pro. For non-expert analysts or resource-constrained security teams, understanding a potentially malicious binary represents a significant time investment and constitutes a major barrier to the democratization of information security.
+
+\textbf{Problem Statement.} Existing static analysis tools produce raw outputs --- assembly instructions, import tables, YARA rules --- that are difficult to exploit without prior expertise. No accessible solution currently exists to automatically transform this technical data into pedagogical, plain-language explanations understandable by non-specialists, while maintaining sufficient analytical rigor for professional use.
+
+\textbf{Developed Solution.} This report presents \textbf{Hexplain}, an AI-assisted static analysis platform for PE/ELF/.NET binaries, developed during an internship at AIOX Labs (Rabat, Morocco). Hexplain integrates a nine-step analysis pipeline --- metadata extraction, structural analysis, suspicious API detection, string and IOC extraction, YARA scanning, MITRE ATT\&CK capability detection via Mandiant Capa, Ghidra/ILSpy decompilation, threat intelligence lookups (VirusTotal, MalwareBazaar, AlienVault OTX), and heuristic risk scoring --- followed by an LLM layer (Gemini 2.0 Flash / Llama-3.1) that generates a natural language analysis report. A local \acrfull{rag} system, based on ChromaDB and the \textit{sentence-transformers} all-MiniLM-L6-v2 model, enables users to interact with the generated report through a contextual educational chatbot.
+
+\textbf{Results.} The platform was successfully deployed on DigitalOcean via Docker Compose and a GitHub Actions CI/CD pipeline. It can analyze PE32, PE32+ and ELF 64-bit binaries, detect malicious behaviors (process injection, persistence, payload download), assign a hybrid risk score (heuristic + LLM), and deliver accessible educational explanations. Tests on demonstration files confirmed the relevance of the analyses and the system's ability to detect ransomware and dropper-type behaviors.
+
+\vspace{0.4cm}
+\noindent\textbf{Keywords:} static analysis, PE/ELF binaries, malware, LLM, RAG, Ghidra, YARA, Capa, MITRE ATT\&CK, FastAPI, Next.js, cybersecurity, reverse engineering.
+
+% ─────────────────────────────────────────────────────────────────────────────
+% TABLE DES FIGURES
+% ─────────────────────────────────────────────────────────────────────────────
+\clearpage
+\listoffigures
+\addcontentsline{toc}{chapter}{Table des figures}
+
+% ─────────────────────────────────────────────────────────────────────────────
+% TABLE DES MATIÈRES
+% ─────────────────────────────────────────────────────────────────────────────
+\clearpage
+\tableofcontents
+
+% ─────────────────────────────────────────────────────────────────────────────
+% LISTE DES ACRONYMES — insérée ici pour visibilité (aussi générée en fin)
+% ─────────────────────────────────────────────────────────────────────────────
+\clearpage
+\printglossary[type=\acronymtype, title={Liste des Sigles et Acronymes}]

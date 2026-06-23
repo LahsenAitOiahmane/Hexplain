@@ -1,5 +1,5 @@
 """
-MalwAIre — File Upload API Route.
+Hexplain — File Upload API Route.
 
 Endpoint:
   POST /api/upload — Upload a file for analysis
@@ -38,7 +38,7 @@ from app.services.file_service import (
     validate_file_type,
 )
 
-logger = structlog.get_logger("malwaire.api.upload")
+logger = structlog.get_logger("Hexplain.api.upload")
 router = APIRouter(tags=["Upload"])
 
 

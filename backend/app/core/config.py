@@ -1,5 +1,5 @@
 """
-MalwAIre — Application Configuration.
+Hexplain — Application Configuration.
 
 Uses Pydantic BaseSettings for type-safe config with env var loading.
 Implements multi-tiered secret key fallback per secure coding guidelines:
@@ -14,7 +14,7 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
-logger = logging.getLogger("malwaire.config")
+logger = logging.getLogger("Hexplain.config")
 
 
 def _resolve_secret(env_name: str, file_name: str) -> str:
@@ -57,7 +57,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # --- Project ---
-    PROJECT_NAME: str = "MalwAIre"
+    PROJECT_NAME: str = "Hexplain"
     API_V1_PREFIX: str = "/api"
     DEBUG: bool = False
 
@@ -67,7 +67,7 @@ class Settings(BaseSettings):
     SECURE_COOKIES: bool = False  # Set True in production (HTTPS)
 
     # --- Database ---
-    DATABASE_URL: str = "sqlite:///./data/malwaire.db"
+    DATABASE_URL: str = "sqlite:///./data/Hexplain.db"
 
     # --- Redis ---
     REDIS_URL: str = "redis://redis:6379/0"

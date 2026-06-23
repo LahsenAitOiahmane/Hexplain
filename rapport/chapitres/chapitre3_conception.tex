@@ -1,0 +1,212 @@
+% =============================================================================
+% Chapitre 3 — Analyse et Conception
+% =============================================================================
+
+\chapter{Analyse et Conception}
+
+\section{Introduction}
+
+La phase d'analyse et de conception constitue le fondement de tout projet logiciel rigoureux. Elle permet de formaliser les exigences du système, de définir les acteurs et leurs interactions, et de produire les artefacts de modélisation qui guideront l'implémentation. Ce chapitre présente successivement l'analyse des besoins fonctionnels et non fonctionnels, les diagrammes de cas d'utilisation, les diagrammes de séquence des scénarios clés, et le modèle de données sous forme de diagramme de classes.
+
+\section{Analyse des besoins}
+
+\subsection{Besoins fonctionnels}
+
+Les besoins fonctionnels décrivent les fonctions que le système doit réaliser du point de vue de l'utilisateur. Ils ont été identifiés lors de la phase d'analyse initiale en collaboration avec l'encadrant professionnel.
+
+\subsubsection{Module d'authentification et de gestion des utilisateurs}
+\begin{itemize}
+  \item \textbf{BF-01}~: Le système doit permettre à un utilisateur de créer un compte avec email, nom d'utilisateur et mot de passe.
+  \item \textbf{BF-02}~: Le système doit authentifier les utilisateurs par identifiant et mot de passe, et maintenir la session via un JWT stocké dans un cookie HttpOnly.
+  \item \textbf{BF-03}~: Le système doit permettre la déconnexion sécurisée (suppression du cookie de session).
+  \item \textbf{BF-04}~: Chaque utilisateur ne doit avoir accès qu'à ses propres analyses (isolation par \texttt{user\_id}).
+\end{itemize}
+
+\subsubsection{Module de soumission et de gestion des fichiers}
+\begin{itemize}
+  \item \textbf{BF-05}~: Le système doit accepter l'upload de fichiers binaires PE (Windows), ELF (Linux) et .NET assemblies.
+  \item \textbf{BF-06}~: Le système doit valider le type du fichier par magic bytes avant tout traitement.
+  \item \textbf{BF-07}~: Le système doit stocker les fichiers dans un volume de quarantaine isolé, jamais servi directement.
+  \item \textbf{BF-08}~: Le système doit calculer les empreintes SHA-256, SHA-1 et MD5 du fichier uploadé.
+  \item \textbf{BF-09}~: Le système doit lancer automatiquement l'analyse après l'upload et retourner immédiatement un \texttt{job\_id}.
+\end{itemize}
+
+\subsubsection{Module de pipeline d'analyse statique}
+\begin{itemize}
+  \item \textbf{BF-10}~: Le pipeline doit extraire les métadonnées du fichier (architecture, entropie, signature numérique, compilateur).
+  \item \textbf{BF-11}~: Le pipeline doit parser la structure PE/ELF (sections, imports, exports) et détecter les sections à haute entropie (potentiellement packées ou chiffrées).
+  \item \textbf{BF-12}~: Le pipeline doit identifier les API Windows suspectes utilisées par le binaire (injection, persistance, réseau, cryptographie).
+  \item \textbf{BF-13}~: Le pipeline doit extraire les chaînes de caractères imprimables et filtrer les IOC (URLs, adresses IP, chemins de fichiers, clés de registre).
+  \item \textbf{BF-14}~: Le pipeline doit scanner le fichier avec des règles YARA communautaires et personnalisées.
+  \item \textbf{BF-15}~: Le pipeline doit analyser les capacités du binaire via Mandiant Capa et les mapper sur MITRE ATT\&CK.
+  \item \textbf{BF-16}~: Le pipeline doit décompiler le binaire via Ghidra (natif) ou ILSpy (pour .NET) et extraire les fonctions clés.
+  \item \textbf{BF-17}~: Le pipeline doit interroger les plateformes de threat intelligence (VirusTotal, MalwareBazaar, AlienVault OTX) par hash.
+  \item \textbf{BF-18}~: Le pipeline doit calculer un score de risque heuristique sur 100 points et attribuer un niveau de risque (clean, low, medium, high, critical).
+\end{itemize}
+
+\subsubsection{Module LLM et RAG}
+\begin{itemize}
+  \item \textbf{BF-19}~: Le système doit générer un rapport d'analyse en langage naturel via un LLM, incluant résumé exécutif, classification, comportements clés, explications MITRE et analyse des fonctions décompilées.
+  \item \textbf{BF-20}~: Le système doit calculer un score de risque LLM combiné au score heuristique.
+  \item \textbf{BF-21}~: Le système doit indexer le rapport dans une base vectorielle locale (ChromaDB) pour permettre les requêtes RAG.
+  \item \textbf{BF-22}~: L'utilisateur doit pouvoir poser des questions en langage naturel sur le rapport, auxquelles le chatbot RAG répondra exclusivement sur la base du contenu indexé.
+  \item \textbf{BF-23}~: Le système doit gérer des sessions de chat persistantes (multi-tours) avec historique des échanges.
+\end{itemize}
+
+\subsubsection{Module de restitution et d'export}
+\begin{itemize}
+  \item \textbf{BF-24}~: L'utilisateur doit pouvoir consulter l'historique de toutes ses analyses avec leur statut et score de risque.
+  \item \textbf{BF-25}~: L'utilisateur doit pouvoir suivre en temps réel l'avancement de l'analyse (10 étapes avec statut visuel).
+  \item \textbf{BF-26}~: Le rapport doit être navigable par sections (fonctions, sections binaires, IOC, capacités, facteurs de risque).
+  \item \textbf{BF-27}~: L'utilisateur doit pouvoir exporter le rapport au format PDF ou JSON.
+  \item \textbf{BF-28}~: L'utilisateur doit pouvoir demander une explication contextuelle par IA sur n'importe quel élément du rapport (section, fonction, facteur de risque).
+\end{itemize}
+
+\subsection{Besoins non fonctionnels}
+
+\subsubsection{Sécurité (priorité maximale)}
+\begin{itemize}
+  \item \textbf{BNF-01}~: Aucun fichier uploadé ne doit être exécuté à quelque étape que ce soit du traitement.
+  \item \textbf{BNF-02}~: Les mots de passe doivent être hachés avec Argon2id (résistant aux attaques GPU).
+  \item \textbf{BNF-03}~: Toutes les requêtes modifiant l'état doivent être protégées contre les attaques CSRF.
+  \item \textbf{BNF-04}~: Les clés API externes ne doivent jamais apparaître dans les réponses API ni dans les journaux d'erreurs.
+  \item \textbf{BNF-05}~: Les appels de sous-processus doivent utiliser des listes d'arguments (interdiction de \texttt{shell=True}).
+  \item \textbf{BNF-06}~: La sérialisation Celery doit utiliser JSON uniquement (interdiction de pickle).
+\end{itemize}
+
+\subsubsection{Performance et disponibilité}
+\begin{itemize}
+  \item \textbf{BNF-07}~: L'API doit répondre aux requêtes de consultation en moins de 500~ms.
+  \item \textbf{BNF-08}~: L'upload d'un fichier doit être accepté (202 Accepted) en moins de 2 secondes.
+  \item \textbf{BNF-09}~: L'analyse complète d'un binaire de taille standard (< 10 MB) doit s'achever en moins de 5 minutes.
+  \item \textbf{BNF-10}~: Le chatbot RAG doit retourner une réponse en moins de 10 secondes.
+\end{itemize}
+
+\subsubsection{Maintenabilité et extensibilité}
+\begin{itemize}
+  \item \textbf{BNF-11}~: Le pipeline d'analyse doit être extensible~: l'ajout d'un nouveau module ne doit pas modifier les modules existants.
+  \item \textbf{BNF-12}~: La configuration doit être externalisée dans des variables d'environnement (fichier \texttt{.env}).
+  \item \textbf{BNF-13}~: Le code doit être documenté avec des docstrings et des commentaires explicatifs.
+\end{itemize}
+
+\subsubsection{Accessibilité économique}
+\begin{itemize}
+  \item \textbf{BNF-14}~: La solution doit fonctionner avec des APIs gratuites ou à faible coût.
+  \item \textbf{BNF-15}~: En l'absence de clé API LLM, le pipeline d'analyse statique doit continuer à fonctionner de manière dégradée (sans couche LLM).
+\end{itemize}
+
+\subsection{Exigences techniques}
+
+\begin{itemize}
+  \item Architecture microservices containerisée (Docker Compose).
+  \item Base de données SQLite compatible avec une migration future vers PostgreSQL.
+  \item Frontend Next.js compilable en production sur un serveur Node.js.
+  \item Compatibilité avec les environnements WSL2 + Docker Desktop (Windows).
+\end{itemize}
+
+\section{Modélisation fonctionnelle --- Diagrammes de cas d'utilisation}
+
+Le diagramme de cas d'utilisation présenté en Figure~\ref{fig:use_case} identifie les trois acteurs principaux du système et leurs interactions avec les fonctionnalités offertes.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{diagramme_cas_utilisation}
+  \caption{Diagramme de cas d'utilisation global --- Hexplain}
+  \label{fig:use_case}
+\end{figure}
+
+\subsection{Description des acteurs}
+
+\begin{description}
+  \item[\textbf{Utilisateur non-technique}] Toute personne souhaitant analyser un fichier suspect sans expertise en rétro-ingénierie. Il accède aux fonctionnalités de base~: upload, consultation du rapport, chat avec le copilote IA et export.
+
+  \item[\textbf{Analyste en sécurité}] Expert en cybersécurité souhaitant accélérer son workflow. Il utilise les mêmes fonctionnalités que l'utilisateur non-technique, en y ajoutant la consultation détaillée des fonctions décompilées et l'interprétation avancée des IOC et des techniques MITRE.
+
+  \item[\textbf{Système}] Acteur interne représentant les services automatiques~: exécution du pipeline d'analyse, indexation du rapport dans ChromaDB, appels aux APIs de threat intelligence. Ces actions sont déclenchées sans intervention directe de l'utilisateur.
+\end{description}
+
+\subsection{Cas d'utilisation étendus}
+
+Deux cas d'utilisation étendent \textit{Visualiser le rapport d'analyse} via la relation \texttt{<<extend>>}~:
+\begin{itemize}
+  \item \textbf{Générer un score de risque heuristique}~: déclenché automatiquement à la fin du pipeline, il calcule et stocke le score composite.
+  \item \textbf{Enrichissement IA (OSINT LLM)}~: déclenché conditionnellement lorsque le score heuristique est élevé mais que le threat intelligence ne remonte pas de correspondances précises.
+\end{itemize}
+
+\section{Conception technique --- Diagrammes de séquence}
+
+\subsection{Scénario 1~: Analyse complète d'un binaire PE/ELF}
+
+Le diagramme de séquence de la Figure~\ref{fig:seq_analyse} illustre le flux complet d'une analyse de binaire, depuis l'upload jusqu'à la restitution du rapport final.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{diagramme_sequence_analyse}
+  \caption{Diagramme de séquence --- Analyse complète d'un binaire PE/ELF}
+  \label{fig:seq_analyse}
+\end{figure}
+
+Les points clés de ce scénario sont~:
+\begin{enumerate}
+  \item \textbf{Acceptation immédiate}~: L'API retourne un \texttt{202 Accepted} avec le \texttt{job\_id} dès réception du fichier validé, sans attendre la fin de l'analyse. Ce pattern asynchrone permet à l'interface de proposer un suivi en temps réel.
+  \item \textbf{Isolation de la quarantaine}~: Le Worker accède au fichier directement dans le volume monté (\texttt{/app/quarantine}), sans que l'API n'ait à transmettre le contenu du fichier via le broker Redis.
+  \item \textbf{Résilience modulaire}~: Chaque étape du pipeline est isolée dans un wrapper \texttt{\_safe\_call}. Une défaillance d'un module (timeout Ghidra, erreur réseau VirusTotal) n'interrompt pas le pipeline.
+  \item \textbf{Double scoring}~: Le score heuristique est calculé à partir des sorties déterministes du pipeline, puis affiné par le LLM qui produit son propre score contextuel. Le score final combiné est stocké dans \texttt{AnalysisReport.risk\_score}.
+\end{enumerate}
+
+\subsection{Scénario 2~: Flux RAG (interrogation du chatbot)}
+
+Le diagramme de séquence de la Figure~\ref{fig:seq_rag} détaille le mécanisme de Retrieval-Augmented Generation qui permet au chatbot de répondre aux questions de l'utilisateur de manière contextuellement ancrée.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{diagramme_sequence_rag}
+  \caption{Diagramme de séquence --- Flux RAG (chatbot pédagogique)}
+  \label{fig:seq_rag}
+\end{figure}
+
+Les étapes clés de ce flux sont~:
+\begin{enumerate}
+  \item \textbf{Embedding de la question}~: La question de l'utilisateur est encodée en un vecteur de 384 dimensions par le modèle \textit{all-MiniLM-L6-v2} localement (sans appel API externe).
+  \item \textbf{Retrieval sémantique}~: ChromaDB recherche les 5 chunks les plus sémantiquement proches parmi ceux indexés lors de la génération du rapport (résumé, comportements, fonctions, techniques MITRE).
+  \item \textbf{Génération ancrée}~: Le LLM reçoit uniquement ces 5 chunks comme contexte, avec une instruction stricte~: répondre exclusivement sur la base de ce contexte ou déclarer explicitement l'impossibilité de répondre. Ce mécanisme prévient l'hallucination.
+\end{enumerate}
+
+\section{Modélisation des données --- Diagramme de classes}
+
+Le diagramme de classes de la Figure~\ref{fig:class_diagram} présente le modèle de données relationnel de Hexplain, tel qu'il est implémenté avec SQLAlchemy (ORM Python).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{diagramme_classes}
+  \caption{Diagramme de classes --- Modèle de données Hexplain}
+  \label{fig:class_diagram}
+\end{figure}
+
+\subsection{Description des entités}
+
+\begin{description}
+  \item[\textbf{User}] Représente un compte utilisateur. L'attribut \texttt{hashed\_password} stocke le hash Argon2id du mot de passe (jamais le mot de passe en clair). La méthode \texttt{verify\_password()} compare un mot de passe soumis à son hash stocké via le contexte Argon2id.
+
+  \item[\textbf{AnalysisJob}] Entité centrale du système. Chaque job correspond à un fichier uploadé et suit un cycle de vie~: \texttt{PENDING} $\rightarrow$ \texttt{PROCESSING} $\rightarrow$ \texttt{COMPLETED}/\texttt{FAILED}. L'attribut \texttt{file\_path} stocke l'emplacement physique du fichier en quarantaine~: il est interne au système et \textbf{ne doit jamais être exposé dans les réponses API}. Les trois attributs de hash (SHA-256, SHA-1, MD5) permettent la déduplication et les lookups de threat intelligence.
+
+  \item[\textbf{AnalysisReport}] Stocke les résultats de l'analyse~: score de risque (\texttt{risk\_score}, 0-100), niveau de risque (\texttt{risk\_level}) et le blob JSON complet (\texttt{report\_data}) contenant toutes les sorties du pipeline. La relation avec \texttt{AnalysisJob} est de type one-to-one avec cascade de suppression.
+
+  \item[\textbf{ChatSession}] Représente une session de conversation multi-tours associée à un job. Un job peut avoir plusieurs sessions de chat indépendantes, permettant à l'utilisateur d'organiser ses interrogations par thème.
+
+  \item[\textbf{ChatMessage}] Stocke chaque message d'une session de chat. L'attribut \texttt{is\_ai} distingue les messages utilisateur des réponses générées par le LLM/RAG.
+
+  \item[\textbf{JobStatus (Enum)}] Définit les quatre états possibles du cycle de vie d'un job~: \texttt{PENDING} (en attente de traitement), \texttt{PROCESSING} (analyse en cours), \texttt{COMPLETED} (analyse réussie), \texttt{FAILED} (erreur irrémédiable).
+\end{description}
+
+\subsection{Règles métier importantes}
+
+\begin{itemize}
+  \item \textbf{Isolation par utilisateur}~: Toutes les requêtes sur \texttt{AnalysisJob} et \texttt{AnalysisReport} filtrent systématiquement par \texttt{user\_id}. Un utilisateur ne peut jamais accéder aux données d'un autre utilisateur.
+  \item \textbf{Expiration automatique}~: L'attribut \texttt{expires\_at} (par défaut, 7 jours après la création) permet une politique de rétention et de nettoyage automatique des fichiers.
+  \item \textbf{Cascade de suppression}~: La suppression d'un \texttt{User} entraîne la suppression de tous ses jobs, rapports, sessions et messages en cascade.
+\end{itemize}
+
+\section{Conclusion}
+
+Ce chapitre a formalisé l'ensemble des exigences du système Hexplain à travers une analyse structurée des besoins fonctionnels, non fonctionnels et techniques. Les diagrammes UML produits --- cas d'utilisation, séquences et classes --- constituent les artefacts de référence qui ont guidé l'implémentation. Ils montrent notamment la séparation claire des responsabilités entre l'API, le Worker asynchrone et le service RAG, ainsi que la rigueur du modèle de données en matière de sécurité (isolation par utilisateur, champs internes jamais exposés). Le chapitre suivant entre dans les détails de l'architecture technique du pipeline.

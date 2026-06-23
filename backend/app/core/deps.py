@@ -1,5 +1,5 @@
 """
-MalwAIre — FastAPI Dependency Injection.
+Hexplain — FastAPI Dependency Injection.
 
 Provides reusable dependencies for:
   - Database session management
@@ -22,7 +22,7 @@ from app.core.security import decode_access_token, validate_csrf_token
 from app.models.database import SessionLocal
 from app.models.user import User
 
-logger = structlog.get_logger("malwaire.deps")
+logger = structlog.get_logger("Hexplain.deps")
 
 
 # ---------------------------------------------------------------------------

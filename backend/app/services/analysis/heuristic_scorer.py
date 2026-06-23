@@ -1,5 +1,5 @@
 """
-MalwAIre — Deterministic Heuristic Risk Scorer.
+Hexplain — Deterministic Heuristic Risk Scorer.
 
 Computes a risk score (0–100) from the analysis pipeline outputs
 using a transparent, weighted signal system. Every signal that
@@ -31,7 +31,7 @@ to a specific signal and threshold.
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.heuristic_scorer")
+logger = structlog.get_logger("Hexplain.analysis.heuristic_scorer")
 
 # ---------------------------------------------------------------------------
 # Risk level thresholds

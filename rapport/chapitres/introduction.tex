@@ -1,0 +1,58 @@
+% =============================================================================
+% Introduction générale
+% =============================================================================
+
+\chapter*{Introduction générale}
+\addcontentsline{toc}{chapter}{Introduction générale}
+\markboth{Introduction générale}{Introduction générale}
+
+\section*{Contexte général}
+
+La cybersécurité traverse une période de transformation profonde. L'essor fulgurant des plateformes numériques, la multiplication des objets connectés et la sophistication croissante des acteurs malveillants ont fait de la menace informatique un enjeu stratégique majeur pour les organisations publiques et privées à travers le monde. Selon les rapports annuels des agences spécialisées, le nombre de logiciels malveillants nouveaux détectés chaque jour se compte en centaines de milliers, rendant intenable toute approche d'analyse exclusivement manuelle~\cite{avtest2024}.
+
+Face à cette réalité, l'analyse de logiciels malveillants --- ou \textit{malware analysis} --- constitue l'une des activités les plus critiques des équipes de réponse aux incidents (CSIRT/SOC). Elle se divise en deux grandes approches complémentaires~: l'analyse \textbf{dynamique}, qui consiste à exécuter le programme dans un environnement contrôlé (sandbox) pour observer son comportement en temps réel, et l'analyse \textbf{statique}, qui examine le code binaire d'un programme sans jamais l'exécuter. Cette dernière présente l'avantage de ne présenter aucun risque d'infection et de permettre une analyse de masse sans infrastructure de virtualisation coûteuse.
+
+L'analyse statique de binaires repose sur la maîtrise d'un ensemble de connaissances techniques très spécialisées~: compréhension du langage assembleur x86/x64, connaissance des formats de fichiers PE (\textit{Portable Executable}) et ELF (\textit{Executable and Linkable Format}), interprétation des tables d'imports, des sections exécutables et des indicateurs d'entropie. Ces compétences s'acquièrent sur plusieurs années et constituent un frein à l'entrée considérable pour les analystes débutants ou les organisations ne disposant pas d'équipes spécialisées.
+
+Parallèlement, l'émergence des \textbf{modèles de langage de grande taille} (\acrfull{llm}) --- tels que GPT-4, Llama-3 ou Gemini --- ouvre des perspectives nouvelles pour automatiser et démocratiser la compréhension de systèmes complexes. Ces modèles, capables de raisonner sur du code source, d'expliquer des routines assembleur et de synthétiser des rapports techniques en langage naturel, constituent un outil prometteur pour assister les analystes en sécurité dans leur travail quotidien~\cite{llm_malware_2023}.
+
+\section*{Problématique identifiée}
+
+Malgré l'existence d'outils d'analyse statique performants --- Ghidra, IDA Pro, Binary Ninja, YARA, Capa --- leur adoption reste limitée en dehors des cercles d'experts pour plusieurs raisons fondamentales.
+
+\textbf{Premièrement, la barrière de l'assembleur.} Le langage assembleur est l'un des langages informatiques les plus difficiles à lire et à interpréter. Une simple fonction de déchiffrement ou de communication réseau peut représenter des dizaines d'instructions sans sémantique apparente pour un analyste novice. Comprendre ce que fait une routine nécessite de connaître les conventions d'appel, le fonctionnement des registres, les patterns d'accès mémoire et les appels système --- autant de notions qui s'apprennent sur des années.
+
+\textbf{Deuxièmement, la fragmentation des outils.} Un analyste doit aujourd'hui jongler entre plusieurs outils indépendants~: un désassembleur (Ghidra), un scanner de signatures (YARA), un outil de détection de capacités (Capa), une plateforme de renseignement sur les menaces (VirusTotal), et bien d'autres. Chacun produit des sorties dans un format différent, sans corrélation ni synthèse automatique. La consolidation de ces informations en un rapport cohérent représente un travail manuel chronophage.
+
+\textbf{Troisièmement, l'absence d'explication pédagogique.} Les outils existants fournissent des données brutes --- nombres hexadécimaux, noms de règles YARA, identifiants de techniques MITRE --- sans jamais expliquer en langage naturel ce que ces données signifient concrètement pour la sécurité du système analysé. Un analyste débutant peut voir s'afficher \texttt{T1055 - Process Injection} sans comprendre ce que cela implique réellement.
+
+\textbf{Quatrièmement, le coût temporel et humain.} Analyser manuellement un binaire complexe peut prendre plusieurs heures, voire plusieurs jours pour un expert. Dans un contexte d'incident de sécurité, ce délai est souvent inacceptable. Les équipes SOC sous-staffées ont besoin d'outils capables de fournir une première évaluation rapide et fiable.
+
+\section*{Objectifs du stage}
+
+Ce stage, réalisé au sein d'AIOX Labs (Rabat, Maroc) du 15 juillet au 10 septembre 2025, avait pour objectifs de~:
+
+\begin{enumerate}
+  \item Concevoir et développer un \textbf{pipeline d'analyse statique de binaires PE/ELF} complet et automatisé, intégrant les meilleurs outils open-source disponibles (LIEF, YARA, Mandiant Capa, Ghidra, ILSpy).
+  \item Intégrer une \textbf{couche de raisonnement LLM} capable de transformer les sorties brutes du pipeline en rapports d'analyse compréhensibles, incluant un score de risque hybride (heuristique + IA).
+  \item Implémenter un \textbf{chatbot RAG local} permettant à l'utilisateur d'interroger interactivement le rapport généré, dans une logique pédagogique d'assistance à la compréhension du code malveillant.
+  \item Concevoir une \textbf{interface web moderne} (dashboard) exposant toutes ces fonctionnalités de manière accessible, sécurisée et intuitive.
+  \item Respecter des \textbf{contraintes de sécurité strictes}~: aucune exécution du fichier analysé, isolation en quarantaine, authentification robuste, protection contre les vulnérabilités web classiques.
+  \item Déployer la solution sur une \textbf{infrastructure zéro/faible budget} (DigitalOcean Droplet) avec un pipeline CI/CD automatisé.
+\end{enumerate}
+
+\section*{Organisation du mémoire}
+
+Ce rapport est organisé en six chapitres qui reflètent le déroulement naturel du stage, depuis la découverte du contexte organisationnel jusqu'aux perspectives d'évolution du projet.
+
+\textbf{Le Chapitre 1} présente l'organisme d'accueil, AIOX Labs, son positionnement dans l'écosystème de l'intelligence artificielle marocain et africain, ainsi que le cadre et les conditions du stage.
+
+\textbf{Le Chapitre 2} analyse le contexte général du projet~: l'état de l'art des solutions d'analyse de malwares existantes, leurs limites, et la justification de l'approche retenue combinant analyse statique et \acrshort{llm}.
+
+\textbf{Le Chapitre 3} présente l'analyse des besoins et la conception du système~: spécifications fonctionnelles et non fonctionnelles, diagrammes de cas d'utilisation, de séquence et de classes.
+
+\textbf{Le Chapitre 4} décrit l'architecture technique détaillée du pipeline~: les modules d'analyse, l'infrastructure Docker, les mécanismes de sécurité et les flux de communication entre composants.
+
+\textbf{Le Chapitre 5} documente la réalisation concrète~: déploiement, implémentation des modules, développement de l'interface, tests et validation des résultats obtenus.
+
+\textbf{Le Chapitre 6} dresse le bilan du stage, présente les perspectives d'évolution technique du projet et expose les apports personnels et professionnels de cette expérience.

@@ -1,5 +1,5 @@
 """
-MalwAIre — Authentication API Routes.
+Hexplain — Authentication API Routes.
 
 Endpoints:
   POST /api/auth/register — Create a new user account
@@ -45,7 +45,7 @@ from app.schemas.auth import (
     UserResponse,
 )
 
-logger = structlog.get_logger("malwaire.api.auth")
+logger = structlog.get_logger("Hexplain.api.auth")
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 limiter = Limiter(key_func=get_remote_address)
 

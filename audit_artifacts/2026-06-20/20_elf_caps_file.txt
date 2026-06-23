@@ -1,2 +1,0 @@
-audit_artifacts/2026-06-20/elf_caps: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=d92d080e8c783505d2bed77b6b8960b628df0df9, for GNU/Linux 3.2.0, with debug_info, not stripped
-ded3c5c927147c17248b0dfe3357ed2068eed8d71bf31e5081d23498f073e44e  audit_artifacts/2026-06-20/elf_caps

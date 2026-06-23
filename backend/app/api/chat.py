@@ -14,7 +14,7 @@ from app.models.report import AnalysisReport
 from app.services.llm_explanation import get_llm_provider
 from app.core.config import settings
 
-logger = structlog.get_logger("malwaire.api.chat")
+logger = structlog.get_logger("Hexplain.api.chat")
 
 router = APIRouter()
 

@@ -1,5 +1,5 @@
 """
-MalwAIre — String Extraction and IOC Filtering.
+Hexplain — String Extraction and IOC Filtering.
 
 Extracts printable strings from PE/ELF binaries and classifies them
 into IOC (Indicator of Compromise) categories:
@@ -20,7 +20,7 @@ import re
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.strings_iocs")
+logger = structlog.get_logger("Hexplain.analysis.strings_iocs")
 
 # Maximum items per IOC category
 _MAX_PER_CATEGORY = 50

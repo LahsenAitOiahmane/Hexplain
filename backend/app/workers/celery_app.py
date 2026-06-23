@@ -1,5 +1,5 @@
 """
-MalwAIre — Celery Application Instance.
+Hexplain — Celery Application Instance.
 
 Configured with Redis as both broker and result backend.
 Task serialization uses JSON (no pickle — prevents deserialization attacks).
@@ -13,7 +13,7 @@ from celery import Celery
 from app.core.config import settings
 
 celery_app = Celery(
-    "malwaire",
+    "Hexplain",
     broker=settings.REDIS_URL,
     backend=settings.REDIS_URL,
 )
@@ -37,7 +37,7 @@ celery_app.conf.update(
     result_expires=3600,  # Clean up results after 1 hour
 
     # --- Task routing (future: separate queues for light/heavy tasks) ---
-    task_default_queue="malwaire",
+    task_default_queue="Hexplain",
 
     # --- Imports ---
     include=["app.workers.tasks"],
@@ -62,7 +62,7 @@ from celery.signals import worker_ready  # noqa: E402
 def precompile_yara_rules(sender=None, **kwargs):
     """Eagerly compile YARA rules when the worker process starts."""
     import structlog
-    log = structlog.get_logger("malwaire.workers.startup")
+    log = structlog.get_logger("Hexplain.workers.startup")
 
     try:
         from app.services.analysis import yara_scanner

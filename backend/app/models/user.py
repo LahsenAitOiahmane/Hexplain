@@ -1,5 +1,5 @@
 """
-MalwAIre — User Model.
+Hexplain — User Model.
 
 Stores authenticated user accounts. Every upload and analysis job is
 tied to a user — no anonymous access.

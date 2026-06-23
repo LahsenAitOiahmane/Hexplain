@@ -1,5 +1,5 @@
 """
-MalwAIre — PE/ELF Structural Parsing.
+Hexplain — PE/ELF Structural Parsing.
 
 Extracts the internal structure of PE and ELF binaries:
   - Sections: name, sizes, per-section entropy, flags/characteristics
@@ -17,7 +17,7 @@ import math
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.structural")
+logger = structlog.get_logger("Hexplain.analysis.structural")
 
 
 def _section_entropy(data: bytes) -> float:

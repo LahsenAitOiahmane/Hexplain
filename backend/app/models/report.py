@@ -1,5 +1,5 @@
 """
-MalwAIre — Analysis Report Model (Sprint 2 placeholder).
+Hexplain — Analysis Report Model (Sprint 2 placeholder).
 
 Will store the structured output of the analysis pipeline:
   - Summary text

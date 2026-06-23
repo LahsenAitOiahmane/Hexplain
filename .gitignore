@@ -1,4 +1,8 @@
-# Python
+# =============================================================================
+# Hexplain — .gitignore
+# =============================================================================
+
+# --- Python ---
 __pycache__/
 *.py[cod]
 *$py.class
@@ -8,44 +12,66 @@ dist/
 build/
 *.so
 
-# Virtual environments
+# --- Virtual environments ---
 .venv/
 venv/
 env/
 
-# IDE
+# --- IDE ---
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Environment & secrets
+# --- Environment & secrets (NEVER commit) ---
 .env
+.env.local
+.env.production
 jwt_secret.txt
 csrf_secret.txt
+*.secret
+*.key
 
-# Database
+# --- Runtime databases (auto-generated) ---
 *.db
 *.sqlite3
+backend/data/
 
-# Quarantine (never commit uploaded samples)
+# --- ChromaDB vector store (auto-generated) ---
+backend/data/chromadb/
+
+# --- Quarantine volume (NEVER commit uploaded malware samples) ---
+backend/quarantine/
 quarantine/
 
-# Docker
+# --- Node.js ---
+node_modules/
+.next/
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# --- Docker ---
 docker-compose.override.yml
 
-# OS
+# --- OS ---
 .DS_Store
 Thumbs.db
 
-# Testing
+# --- Testing artifacts ---
 .pytest_cache/
 .coverage
 htmlcov/
+cookies.txt
 
-# Alembic
+# --- Alembic compiled ---
 migrations/versions/*.pyc
 
-# Logs
+# --- Logs ---
 *.log
+
+# --- Audit and temp files ---
+audit_artifacts/
+*.tmp
+*.bak

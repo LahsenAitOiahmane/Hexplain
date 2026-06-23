@@ -1,5 +1,5 @@
 """
-MalwAIre — Job & Report Schemas.
+Hexplain — Job & Report Schemas.
 
 Response models for analysis job listing, detail, and report endpoints.
 Never exposes internal file paths.

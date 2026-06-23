@@ -1,5 +1,5 @@
 """
-MalwAIre — Job Status & Report API Routes.
+Hexplain — Job Status & Report API Routes.
 
 Endpoints:
   GET /api/jobs        — List user's analysis jobs (paginated)
@@ -25,7 +25,7 @@ from app.models.report import AnalysisReport
 from app.models.user import User
 from app.schemas.job import JobListResponse, JobResponse, ReportResponse
 
-logger = structlog.get_logger("malwaire.api.jobs")
+logger = structlog.get_logger("Hexplain.api.jobs")
 router = APIRouter(prefix="/jobs", tags=["Jobs"])
 
 

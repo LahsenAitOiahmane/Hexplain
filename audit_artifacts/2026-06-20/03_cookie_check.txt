@@ -1,4 +1,0 @@
-
-CSRF length: 0
-Cookie jar names:
-	len=0

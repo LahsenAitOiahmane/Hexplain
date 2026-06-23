@@ -1,5 +1,5 @@
 """
-MalwAIre — YARA Rule Scanner.
+Hexplain — YARA Rule Scanner.
 
 Scans binary files against the vendored YARA rule set (Yara-Rules/rules
 community repository). Rules are compiled at first use and cached in memory.
@@ -20,7 +20,7 @@ from pathlib import Path
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.yara_scanner")
+logger = structlog.get_logger("Hexplain.analysis.yara_scanner")
 
 # Timeout for YARA scanning (seconds)
 _YARA_TIMEOUT = 60

@@ -1,5 +1,5 @@
 """
-MalwAIre — Suspicious API Detection.
+Hexplain — Suspicious API Detection.
 
 Cross-references the import table of PE/ELF binaries against a categorized
 database of ~80 known-suspicious API functions. Categories:
@@ -18,7 +18,7 @@ Security: Read-only analysis — file is never executed.
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.suspicious_apis")
+logger = structlog.get_logger("Hexplain.analysis.suspicious_apis")
 
 # ---------------------------------------------------------------------------
 # Suspicious API Database — Windows (PE)

@@ -1,0 +1,247 @@
+% =============================================================================
+% Chapitre 5 — Réalisation et résultats
+% =============================================================================
+
+\chapter{Réalisation et résultats}
+
+\section{Introduction}
+
+Ce chapitre présente la réalisation concrète du projet Hexplain~: l'interface utilisateur développée, les fonctionnalités implémentées, les spécificités de la couche LLM/RAG, les tests effectués et les résultats obtenus. Les captures d'écran de l'interface y sont intégrées pour illustrer chaque fonctionnalité décrite.
+
+\section{Interface utilisateur --- Le dashboard Hexplain}
+
+L'interface frontend a été développée avec Next.js 14 et TypeScript, stylée avec Tailwind CSS et des animations CSS personnalisées. Le design suit une charte visuelle cohérente~: fond clair (\texttt{\#f0f2f5}), accents indigo (\texttt{\#6366f1}) et typographie sans-serif moderne, créant une interface à la fois professionnelle et accessible.
+
+\subsection{Page d'accueil}
+
+La page d'accueil (\textit{landing page}) présente Hexplain aux visiteurs non authentifiés avec un message d'accroche immédiat et des boutons d'appel à l'action clairs.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{landing_page_hero}
+  \caption{Page d'accueil de Hexplain --- \textit{«~Understand any binary. Instantly.~»}}
+  \label{fig:landing_page}
+\end{figure}
+
+Le slogan --- \textit{«~Understand any binary. Instantly.~»} --- résume l'ambition fondamentale du projet~: démocratiser la compréhension des binaires en rendant l'analyse accessible en quelques secondes, sans expertise préalable en rétro-ingénierie.
+
+\subsection{Authentification}
+
+La page d'authentification propose une interface élégante avec deux onglets coulissants (Connexion / Inscription), illustrée en Figure~\ref{fig:auth_page}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{auth_login_page}
+  \caption{Interface d'authentification --- vue onglet Connexion}
+  \label{fig:auth_page}
+\end{figure}
+
+Techniquement, le formulaire de connexion~:
+\begin{itemize}
+  \item Envoie les identifiants via \texttt{POST /api/auth/login} avec le jeton CSRF dans l'en-tête \texttt{X-CSRF-Token}.
+  \item Reçoit un cookie HttpOnly \texttt{access\_token} contenant le JWT signé.
+  \item Redirige vers le tableau de bord en cas de succès, ou affiche un message d'erreur générique (sans préciser si c'est l'email ou le mot de passe qui est incorrect, pour ne pas aider un attaquant).
+\end{itemize}
+
+\subsection{Upload et soumission d'un binaire}
+
+L'interface d'upload, présentée en Figure~\ref{fig:upload_interface}, permet à l'utilisateur de déposer un fichier (par glisser-déposer ou sélection) tout en affichant clairement les formats acceptés et les limites de taille.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{upload_binary_interface}
+  \caption{Interface d'upload de binaires avec affichage des contraintes}
+  \label{fig:upload_interface}
+\end{figure}
+
+Une fois le fichier soumis, l'API retourne immédiatement un \texttt{202 Accepted} avec le \texttt{job\_id}, et l'utilisateur est redirigé vers la page de suivi en temps réel.
+
+\subsection{Suivi en temps réel du pipeline}
+
+La page de suivi (Figure~\ref{fig:pipeline_progress}) affiche l'avancement de l'analyse en temps réel grâce à un mécanisme de \textit{polling} (interrogation périodique de l'API toutes les 3 secondes). Chaque module du pipeline est représenté par un indicateur d'état (en attente, en cours, terminé, en erreur).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{pipeline_live_progress}
+  \caption{Écran de suivi en temps réel du pipeline d'analyse}
+  \label{fig:pipeline_progress}
+\end{figure}
+
+La partie droite de l'écran propose un \textit{Live Explorer} qui donne accès aux résultats partiels des modules terminés, avant même la fin de l'analyse complète. Cette fonctionnalité améliore significativement l'expérience utilisateur en réduisant la perception du temps d'attente.
+
+\subsection{Historique des analyses}
+
+La page d'historique (Figure~\ref{fig:jobs_history}) liste toutes les analyses passées de l'utilisateur authentifié, avec leur nom de fichier, date, statut et score de risque affiché avec un badge coloré.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{jobs_history_list}
+  \caption{Tableau de bord «~Analysis History~» avec scores de risque}
+  \label{fig:jobs_history}
+\end{figure}
+
+\subsection{Rapport d'analyse complet}
+
+Le rapport d'analyse est la fonctionnalité centrale de Hexplain. La Figure~\ref{fig:report_executive} montre la section de résumé exécutif, générée par le LLM~: classification, score de risque global, comportements clés détectés et correspondances YARA.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{report_executive_summary}
+  \caption{Rapport d'analyse --- résumé exécutif généré par LLM (score CRITICAL 93/100)}
+  \label{fig:report_executive}
+\end{figure}
+
+La Figure~\ref{fig:report_capa} montre les sections dédiées aux capacités Capa, aux IOC extraits et à l'analyse des sections binaires avec leurs entropies. La section \texttt{.rsrc} est marquée «~PACKED?~» car son entropie (7.95) dépasse le seuil de 7.0.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{report_capa_iocs_sections}
+  \caption{Rapport --- Capacités Capa, IOC détectés et analyse des sections binaires}
+  \label{fig:report_capa}
+\end{figure}
+
+La Figure~\ref{fig:report_risk_breakdown} présente la décomposition du score de risque par facteur et la liste des fonctions décompilées par Ghidra avec leur nombre d'instructions.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{report_decompiled_functions_risk}
+  \caption{Rapport --- Fonctions décompilées et détail du score de risque par facteur}
+  \label{fig:report_risk_breakdown}
+\end{figure}
+
+\subsection{Vue décompilation --- Disassembleur et pseudo-C}
+
+En cliquant sur une fonction dans le rapport, l'utilisateur accède à une vue dédiée (Figure~\ref{fig:disassembly_view}) présentant côte à côte le code assembleur brut (avec adresses mémoire et opcodes) et le pseudo-C généré par Ghidra, accompagné du bouton «~Explain Function~» pour obtenir une explication IA.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{function_disassembly_pseudocode}
+  \caption{Vue décompilation~: assembleur x86 (gauche) et pseudo-C Ghidra (droite)}
+  \label{fig:disassembly_view}
+\end{figure}
+
+\subsection{Explication contextuelle par IA}
+
+Le bouton «~Explain Function~» déclenche un appel LLM contextuel qui génère une explication pédagogique de la fonction sélectionnée (Figure~\ref{fig:ai_explanation}). L'explication est affichée dans un panneau latéral (\textit{drawer}), sans quitter la vue de décompilation.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{function_ai_explanation_drawer}
+  \caption{Panneau d'explication IA contextuelle --- \textit{«~Explain Function~»}}
+  \label{fig:ai_explanation}
+\end{figure}
+
+Ce mécanisme est également disponible pour les sections binaires (Figure~\ref{fig:section_ai_drawer})~: un bouton «~Ask AI About Section~» génère une explication contextuelle de la section sélectionnée (entropie, flags, implications de sécurité).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.9\textwidth]{section_detail_ai_drawer}
+  \caption{Explication IA contextuelle d'une section binaire (.idata)}
+  \label{fig:section_ai_drawer}
+\end{figure}
+
+\subsection{Détail d'une section binaire}
+
+La page de détail d'une section (Figure~\ref{fig:section_idata}) présente ses caractéristiques techniques~: entropie de Shannon, type, taille virtuelle, taille brute et flags de caractéristiques (READ, WRITE, EXECUTE, INITIALIZED\_DATA).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.7\textwidth]{section_idata_detail}
+  \caption{Fiche détail de la section \texttt{.idata} (table des imports)}
+  \label{fig:section_idata}
+\end{figure}
+
+\section{Chatbot RAG --- Copilote IA pédagogique}
+
+\subsection{Interface du chatbot}
+
+L'interface de chat IA (Figure~\ref{fig:rag_chat1}) permet à l'utilisateur de poser des questions en langage naturel sur l'analyse effectuée. Le chatbot répond en s'appuyant exclusivement sur le contenu indexé dans ChromaDB lors de la génération du rapport.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{rag_chat_session1}
+  \caption{Interface du chatbot RAG --- interrogation sur la fonction suspecte la plus critique}
+  \label{fig:rag_chat1}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{rag_chat_session2}
+  \caption{Interface du chatbot RAG --- liste des fonctions décompilées avec rôles}
+  \label{fig:rag_chat2}
+\end{figure}
+
+\subsection{Guardrails et prévention des hallucinations}
+
+Plusieurs mécanismes ont été implémentés pour garantir la fiabilité des réponses du chatbot~:
+
+\begin{itemize}
+  \item \textbf{Anchoring explicite}~: Le prompt système instruit le LLM~: \textit{«~You must ONLY use the provided context to answer. If the answer is not in the context, say exactly: "I don't know based on this report."~»}
+  \item \textbf{Injection de contexte limité}~: Seuls 5 chunks sémantiquement proches sont fournis au LLM, limitant la «~surface d'hallucination~» possible.
+  \item \textbf{Contexte d'analyse obligatoire}~: Le LLM reçoit systématiquement en début de prompt le résumé général de l'analyse (type de fichier, score de risque, classification), lui évitant de devoir l'inférer.
+  \item \textbf{Règle de sécurité stricte}~: Le LLM est explicitement instruit de ne jamais fournir d'instructions permettant de reproduire ou d'améliorer les techniques malveillantes identifiées dans le binaire.
+\end{itemize}
+
+\section{Export du rapport}
+
+La plateforme propose deux formats d'export du rapport~:
+
+\begin{itemize}
+  \item \textbf{Export PDF}~: Généré côté client via \texttt{@react-pdf/renderer}, le rapport PDF (Figure~\ref{fig:pdf_export}) inclut le résumé exécutif, le score de risque, la liste des comportements clés, les correspondances YARA et les fonctions décompilées pertinentes.
+  \item \textbf{Export JSON}~: Exporte le blob JSON complet du rapport (\texttt{report\_data}), permettant une intégration dans des outils SIEM ou des scripts d'automatisation.
+\end{itemize}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.65\textwidth]{pdf_export_report}
+  \caption{Export PDF du rapport d'analyse MalwAIre (MalwAIre Analysis Report)}
+  \label{fig:pdf_export}
+\end{figure}
+
+\section{Tests et validation}
+
+\subsection{Tests du pipeline sur des binaires de référence}
+
+Des tests ont été réalisés sur plusieurs binaires de démonstration~:
+
+\begin{table}[H]
+  \centering
+  \caption{Résultats des tests sur binaires de démonstration}
+  \label{tab:test_results}
+  \begin{tabularx}{\textwidth}{l l c l X}
+    \toprule
+    \textbf{Fichier} & \textbf{Type} & \textbf{Score} & \textbf{Niveau} & \textbf{Détections clés} \\
+    \midrule
+    \texttt{registry\_test\_clean.exe} & PE32+ x64 & 25/100 & LOW & IsPE64, persistance registre, YARA \\
+    \texttt{malware\_demo.exe} & PE32 x86 & 93/100 & CRITICAL & Injection (T1055), C2 URLs, 54/72 VT \\
+    \texttt{sample\_elf} & ELF 64-bit & 42/100 & MEDIUM & Socket réseau, setuid, API chiffrement \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsubsection{Analyse du binaire \texttt{registry\_test\_clean.exe}}
+
+Ce binaire de démonstration (PE32+, x86-64, 18 sections, Score 25/100) a permis de valider le pipeline complet. Le LLM l'a correctement classifié comme «~possible injection-capable binary~» avec une confiance moyenne, identifiant les API \texttt{RegCreateKeyExA} et \texttt{RegSetValueExA} comme preuves d'une tentative de persistance via la clé \texttt{Software\textbackslash Malware} du registre Windows. Le score bas (25/100) est cohérent avec l'absence de détections VirusTotal et la simple persistance registre sans autres indicateurs de compromission.
+
+\subsubsection{Validation du chatbot RAG}
+
+Lors des tests de validation, le chatbot RAG a démontré sa capacité à~:
+\begin{itemize}
+  \item Répondre correctement aux questions factuelles («~Quel est le score de risque~?~», «~Quelles API suspectes ont été détectées~?~»).
+  \item Décrire le rôle de chaque fonction décompilée en s'appuyant sur le contexte.
+  \item Refuser explicitement de répondre aux questions hors contexte (ex.~: «~Comment puis-je utiliser cette technique~?~»).
+  \item Gérer correctement la persistance de l'historique de conversation entre questions consécutives.
+\end{itemize}
+
+\subsection{Tests de sécurité}
+
+\begin{itemize}
+  \item \textbf{Test d'upload de fichier invalide}~: Un fichier PDF renommé \texttt{.exe} est rejeté avec une erreur 400 avant d'atteindre le système de fichiers (validation magic bytes en mémoire).
+  \item \textbf{Test CSRF}~: Une requête POST sans en-tête \texttt{X-CSRF-Token} reçoit une réponse 403 Forbidden.
+  \item \textbf{Test d'isolation inter-utilisateurs}~: Une requête \texttt{GET /api/jobs/{id}} avec un \texttt{job\_id} appartenant à un autre utilisateur reçoit une réponse 404 Not Found (pas de fuite d'existence du job).
+  \item \textbf{Test de rate limiting}~: 6 tentatives de connexion en moins d'une minute depuis la même IP reçoivent une réponse 429 Too Many Requests.
+\end{itemize}
+
+\section{Conclusion}
+
+Ce chapitre a documenté la réalisation complète de Hexplain, de l'interface utilisateur aux tests de validation. Les captures d'écran intégrées illustrent la cohérence et la richesse des fonctionnalités développées, couvrant l'intégralité du parcours utilisateur~: de l'upload du binaire au dialogue en langage naturel avec le copilote IA, en passant par la décompilation interactive et l'export du rapport. Les tests effectués ont confirmé la robustesse du pipeline d'analyse, l'efficacité des mécanismes de sécurité et la pertinence des réponses du chatbot RAG. Le chapitre suivant dresse le bilan du stage et expose les perspectives d'évolution du projet.

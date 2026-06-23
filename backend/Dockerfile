@@ -1,5 +1,5 @@
 # =============================================================================
-# MalwAIre Backend — Multi-stage Dockerfile (Sprint 2)
+# Hexplain Backend — Multi-stage Dockerfile (Sprint 2)
 #
 # Build args:
 #   WITH_GHIDRA=true (default) — full image including Ghidra decompilation
@@ -14,7 +14,7 @@
 # Everything else in the pipeline works normally.
 #
 # Security:
-#   - Non-root user (malwaire:malwaire)
+#   - Non-root user (Hexplain:Hexplain)
 #   - libmagic for magic byte validation
 #   - All analysis tools perform STATIC analysis only (no execution)
 #   - No shell=True in subprocess calls
@@ -168,20 +168,20 @@ COPY --from=builder /build/yara-rules /app/yara-rules
 COPY --from=builder /build/capa-rules /app/capa-rules
 
 # Create non-root user for security
-RUN groupadd -r malwaire && \
-    useradd -r -g malwaire -d /app -s /sbin/nologin malwaire
+RUN groupadd -r Hexplain && \
+    useradd -r -g Hexplain -d /app -s /sbin/nologin Hexplain
 
 WORKDIR /app
 
 # Create directories with correct ownership
 RUN mkdir -p /app/quarantine /app/data && \
-    chown -R malwaire:malwaire /app
+    chown -R Hexplain:Hexplain /app
 
 # Copy application code
-COPY --chown=malwaire:malwaire . /app/
+COPY --chown=Hexplain:Hexplain . /app/
 
 # Switch to non-root user
-USER malwaire
+USER Hexplain
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=15s \

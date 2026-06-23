@@ -1,0 +1,140 @@
+% =============================================================================
+% Chapitre 6 — Bilan, limitations et perspectives
+% =============================================================================
+
+\chapter{Bilan, limitations et perspectives}
+
+\section{Introduction}
+
+Ce dernier chapitre avant la conclusion générale dresse un bilan objectif du projet Hexplain~: ce qui a été accompli, les limitations identifiées, et les pistes d'amélioration et d'évolution qui constitueront les prochaines étapes naturelles du projet. Il revient également sur les apports personnels et professionnels de ce stage.
+
+\section{Bilan du projet}
+
+\subsection{Objectifs atteints}
+
+À l'issue des huit semaines de stage, l'ensemble des objectifs définis initialement ont été atteints~:
+
+\begin{itemize}
+  \item[\checkmark] \textbf{Pipeline d'analyse complet}~: Les 9 modules d'analyse statique sont opérationnels et intégrés dans un pipeline résilient géré par Celery.
+  \item[\checkmark] \textbf{Couche LLM explicative}~: La génération de rapports en langage naturel fonctionne avec deux fournisseurs LLM (Gemini 2.0 Flash et Groq/Llama-3.1) avec basculement automatique.
+  \item[\checkmark] \textbf{Chatbot RAG local}~: Le pipeline RAG (ChromaDB + sentence-transformers) est opérationnel avec des guardrails anti-hallucination validés.
+  \item[\checkmark] \textbf{Interface web complète}~: Le dashboard Next.js 14 couvre l'intégralité du parcours utilisateur (upload, suivi, rapport, décompilation, chat, export).
+  \item[\checkmark] \textbf{Sécurité}~: Les mécanismes de sécurité critiques (quarantaine, Argon2id, CSRF, rate limiting, isolation) sont tous opérationnels.
+  \item[\checkmark] \textbf{Déploiement}~: La plateforme est déployée sur DigitalOcean avec CI/CD GitHub Actions.
+\end{itemize}
+
+\subsection{Métriques de développement}
+
+Le projet représente un volume de code significatif~: \placeholder{Nombre de lignes de code exactes (à compter via \texttt{cloc} sur le dépôt)}. Les principales métriques disponibles sont~:
+
+\begin{itemize}
+  \item \textbf{Backend Python (FastAPI + Celery)}~: 9 modules d'analyse, 5 services transversaux (auth, LLM, RAG, threat intel, enrichissement IA).
+  \item \textbf{Frontend TypeScript (Next.js)}~: Plus de 15 pages et composants couvrant l'ensemble du parcours utilisateur.
+  \item \textbf{Docker}~: 4 conteneurs, 2 volumes persistants, 1 réseau interne.
+  \item \textbf{Pipeline CI/CD}~: Déploiement automatisé en moins de 2 minutes sur push sur la branche \texttt{main}.
+\end{itemize}
+
+\section{Limitations du projet}
+
+Un bilan objectif implique de reconnaître les limitations actuelles du système, qu'elles soient techniques, fonctionnelles ou liées aux contraintes du stage.
+
+\subsection{Limitations techniques}
+
+\subsubsection{Scalabilité limitée}
+La contrainte \texttt{--concurrency=1} du Worker Celery, imposée par les besoins en RAM de Ghidra, signifie que la plateforme ne peut traiter qu'une analyse à la fois. En cas de fort trafic, les jobs s'accumulent dans la file d'attente et les utilisateurs peuvent attendre plusieurs minutes avant que leur analyse ne commence. Une architecture multi-workers avec des machines dédiées à Ghidra (et des workers légers pour les autres modules) serait nécessaire pour passer à l'échelle.
+
+\subsubsection{Analyse statique uniquement}
+Hexplain est, par conception, un outil d'analyse \textbf{statique} uniquement. Il ne collecte aucune information comportementale dynamique (appels système effectifs, modifications du registre observées à l'exécution, connexions réseau réelles). Pour les malwares fortement obfusqués, packés ou polymorphes, l'analyse statique seule peut manquer des comportements qui ne se révèlent qu'à l'exécution dans un environnement sandbox. La combinaison avec un outil d'analyse dynamique (Cuckoo Sandbox, CAPE) constitue une lacune à combler.
+
+\subsubsection{Couverture de décompilation limitée pour les binaires obfusqués}
+Ghidra peut échouer ou produire des pseudo-C peu lisibles face à des binaires fortement obfusqués (control flow obfuscation, bogus code, dead code injection). Le timeout de 120 secondes peut également être insuffisant pour des binaires très volumineux.
+
+\subsubsection{Base de données SQLite}
+SQLite est un excellent choix pour le développement et les usages mono-utilisateur, mais atteint ses limites en cas d'accès concurrents importants (plusieurs utilisateurs effectuant des analyses simultanément). La migration vers PostgreSQL est prévue mais non encore réalisée.
+
+\subsubsection{Dépendance aux APIs externes}
+Les modules de threat intelligence (VirusTotal, MalwareBazaar, OTX) et le module LLM (Groq/Gemini) dépendent de services externes avec des quotas d'utilisation. Le mode dégradé (sans LLM) a été prévu, mais une interruption de VirusTotal ou OTX dégrade la qualité du scoring heuristique.
+
+\subsubsection{Pas d'analyse ARM / MIPS}
+Ghidra supporte l'architecture ARM, mais les règles YARA, Capa et la liste d'API suspectes ont été optimisées pour x86/x64. L'analyse de binaires pour appareils embarqués (routeurs, IoT) est possible mais incomplète.
+
+\subsection{Limitations fonctionnelles}
+
+\subsubsection{Absence d'analyse des macros Office et des scripts}
+Hexplain est conçu pour les binaires natifs PE/ELF/.NET. Il ne prend pas en charge l'analyse de macros Microsoft Office (\texttt{.docm}, \texttt{.xlsm}), de scripts PowerShell, de fichiers JavaScript malveillants ou de fichiers PDF. Ces formats représentent pourtant une part importante des vecteurs d'attaque modernes.
+
+\subsubsection{Analyse réseau non implémentée}
+Les adresses IP et URLs extraites des chaînes sont présentées comme IOC, mais Hexplain ne réalise pas de lookup de réputation d'IP/domaine en temps réel (sans appel à VirusTotal qui couvre déjà les hashes). Des services comme Shodan, IPInfo ou URLScan.io pourraient enrichir considérablement cette dimension.
+
+\subsubsection{Absence de dashboard analytique}
+Le Sprint 4 prévoyait un dashboard de visualisation analytique (distributions de scores, tendances temporelles, familles de malwares fréquentes). Cette fonctionnalité, marquée «~SOON~» dans la navigation, n'a pas été implémentée faute de temps.
+
+\subsubsection{Pas de gestion des utilisateurs en rôle administrateur}
+L'administration de la plateforme (gestion des utilisateurs, purge des analyses expirées, monitoring de la file Celery) doit être réalisée directement en base de données ou via l'interface Redis. Un panneau d'administration web n'a pas été développé.
+
+\subsubsection{Règles YARA non personnalisables par l'utilisateur}
+Les règles YARA sont fixées au déploiement. Un utilisateur avancé souhaitant ajouter ses propres règles doit accéder directement au système de fichiers du conteneur.
+
+\section{Perspectives d'évolution}
+
+Les limitations identifiées constituent autant de pistes de développement pour les versions futures de Hexplain.
+
+\subsection{Perspectives techniques à court terme}
+
+\begin{itemize}
+  \item \textbf{Migration PostgreSQL}~: Remplacement de SQLite par PostgreSQL pour supporter la concurrence et les déploiements multi-instances.
+  \item \textbf{Architecture multi-workers}~: Séparation du Worker en deux files~: une file «~légère~» pour les modules rapides (métadonnées, YARA, Capa) et une file «~lourde~» dédiée à Ghidra, permettant le traitement parallèle de plusieurs analyses.
+  \item \textbf{Modèle d'embedding local plus performant}~: Remplacement de \textit{all-MiniLM-L6-v2} par un modèle spécialisé en cybersécurité (ex.~: \textit{SecBERT}~\cite{secbert2022}) pour améliorer la pertinence du retrieval RAG sur du vocabulaire technique spécialisé.
+  \item \textbf{Cache des résultats par hash}~: Si un binaire avec le même SHA-256 a déjà été analysé, retourner directement le rapport cached sans relancer le pipeline. Réduction drastique du temps d'attente pour les fichiers fréquemment soumis.
+\end{itemize}
+
+\subsection{Perspectives fonctionnelles à moyen terme}
+
+\begin{itemize}
+  \item \textbf{Intégration d'un sandbox dynamique}~: Couplage avec Cuckoo Sandbox ou CAPE pour combiner analyse statique et dynamique dans un rapport unifié.
+  \item \textbf{Support des macros Office et scripts}~: Extension du pipeline pour analyser les documents malveillants (\texttt{.docm}, \texttt{.xlsm}) via olevba/oletools, et les scripts PowerShell via des analyseurs statiques spécialisés.
+  \item \textbf{Lookup de réputation IP/URL}~: Intégration de Shodan, URLScan.io ou IPInfo pour enrichir l'analyse des IOC réseau détectés dans les chaînes de caractères.
+  \item \textbf{Dashboard analytique}~: Implémentation du tableau de bord avec visualisations D3.js~: distribution des scores de risque, familles de malwares détectées, évolution temporelle.
+  \item \textbf{Upload par lots (batch)}~: Permettre à l'utilisateur de soumettre plusieurs binaires en une seule opération pour des analyses de campagne.
+  \item \textbf{Règles YARA personnalisables}~: Interface d'édition et de test de règles YARA personnalisées directement depuis le dashboard.
+  \item \textbf{Panneau d'administration}~: Interface de gestion des utilisateurs, monitoring de la file Celery et tableau de bord de santé de l'infrastructure.
+\end{itemize}
+
+\subsection{Perspectives à long terme}
+
+\begin{itemize}
+  \item \textbf{Modèle LLM spécialisé en sécurité}~: Fine-tuning d'un modèle de langage sur un corpus de rapports de malwares (Malware Analysis Reports, APT reports) pour améliorer la qualité et la précision des explications générées.
+  \item \textbf{API publique / mode SaaS}~: Exposition d'une API publique documentée (OpenAPI) permettant l'intégration de Hexplain dans des pipelines SOC automatisés ou des outils tiers.
+  \item \textbf{Plugin VirusTotal Community}~: Développement d'un plugin permettant de lancer une analyse Hexplain directement depuis la page VirusTotal d'un fichier.
+  \item \textbf{Intégration MISP}~: Export automatique des IOC et des rapports au format MISP~\cite{misp2016} pour partage avec la communauté de threat intelligence.
+  \item \textbf{Support multi-langues}~: Génération des rapports LLM en arabe, français, espagnol et anglais, pour rendre la plateforme accessible à un public international plus large.
+\end{itemize}
+
+\section{Apports personnels et professionnels}
+
+Ce stage m'a permis d'acquérir et d'approfondir des compétences dans plusieurs domaines~:
+
+\subsection{Compétences techniques acquises}
+\begin{itemize}
+  \item Maîtrise de l'analyse statique de binaires~: formats PE/ELF, entrée/sortie Ghidra, règles YARA, framework MITRE ATT\&CK.
+  \item Conception et développement d'une API REST asynchrone avec FastAPI et Celery.
+  \item Implémentation complète d'un pipeline RAG (Retrieval-Augmented Generation) avec ChromaDB et sentence-transformers.
+  \item Ingénierie de prompts pour des LLM appliqués à la cybersécurité.
+  \item Containerisation avancée avec Docker et Docker Compose (multi-services, volumes, healthchecks).
+  \item Mise en place d'un pipeline CI/CD avec GitHub Actions.
+  \item Développement frontend avec Next.js 14, TypeScript et Tailwind CSS.
+  \item Application des principes de sécurité web~: Argon2id, JWT, CSRF, rate limiting, CSP.
+\end{itemize}
+
+\subsection{Compétences transverses développées}
+\begin{itemize}
+  \item Gestion de projet en mode agile (sprints de 2 semaines, réunions de suivi).
+  \item Capacité à arbitrer entre ambition fonctionnelle et contraintes de temps.
+  \item Rédaction de documentation technique en anglais.
+  \item Communication régulière avec l'encadrant professionnel~: formulation claire des blocages, propositions de solutions alternatives.
+  \item Travail en autonomie sur une problématique à la frontière de deux domaines (sécurité et IA).
+\end{itemize}
+
+\section{Conclusion}
+
+Ce chapitre a dressé un bilan honnête et complet du projet Hexplain. Si l'ensemble des objectifs définis en début de stage ont été atteints, plusieurs limitations subsistent~: scalabilité du Worker, couverture des formats de fichiers, absence du dashboard analytique. Ces limitations ne sont pas des échecs mais des priorités identifiées pour les prochaines versions, qui bénéficient d'une feuille de route claire. Le stage a constitué une expérience formatrice exceptionnelle, permettant d'explorer à la fois les profondeurs de la rétro-ingénierie binaire et les possibilités offertes par les LLM appliqués à la cybersécurité, dans un environnement professionnel stimulant et bienveillant.

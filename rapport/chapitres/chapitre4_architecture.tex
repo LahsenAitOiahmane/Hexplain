@@ -1,0 +1,253 @@
+% =============================================================================
+% Chapitre 4 — Architecture et aspects techniques
+% =============================================================================
+
+\chapter{Architecture et aspects techniques}
+
+\section{Introduction}
+
+Ce chapitre présente l'architecture technique détaillée de la plateforme Hexplain. Après une vue d'ensemble de l'architecture globale, nous décrirons chaque module du pipeline d'analyse, l'infrastructure Docker et l'orchestration des services, les mécanismes de sécurité mis en œuvre, et les flux de communication entre composants. Ce chapitre est le cœur technique du rapport~: il s'appuie directement sur le code source développé pendant le stage.
+
+\section{Architecture globale du pipeline}
+
+\subsection{Vue d'ensemble}
+
+Hexplain repose sur une architecture \textbf{microservices conteneurisée} orchestrée par Docker Compose. Quatre conteneurs collaborent pour offrir l'ensemble des fonctionnalités de la plateforme~:
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{architecture_pipeline}
+  \caption{Architecture globale du pipeline Hexplain}
+  \label{fig:architecture_globale}
+\end{figure}
+
+\begin{description}
+  \item[\texttt{hexplain-frontend}] Conteneur Next.js 14 exposant l'interface web sur le port 3000. Communique avec l'API via le réseau interne Docker (\texttt{hexplain\_net}).
+  \item[\texttt{hexplain-api}] Conteneur FastAPI exposant l'API REST sur le port 8000 (lié à \texttt{127.0.0.1} uniquement sur l'hôte, pour ne pas être directement accessible depuis l'extérieur). Point d'entrée de toutes les requêtes client.
+  \item[\texttt{hexplain-worker}] Conteneur Celery exécutant le pipeline d'analyse statique en arrière-plan. Aucun port exposé~: il communique exclusivement via Redis et des volumes partagés.
+  \item[\texttt{hexplain-redis}] Conteneur Redis (7-alpine) servant de broker de messages et de backend de résultats pour Celery. Non exposé sur l'hôte~: accessible uniquement depuis le réseau interne.
+\end{description}
+
+\subsection{Volumes partagés}
+
+Deux volumes Docker persistent les données critiques~:
+\begin{itemize}
+  \item \textbf{\texttt{./backend/quarantine}} $\rightarrow$ \texttt{/app/quarantine}~: Stocke les binaires uploadés sous forme de fichiers nommés par leur UUID (ex. \texttt{3f7a1b2c-...-d4e5.bin}). Ce volume est monté à la fois sur l'API (écriture lors de l'upload) et sur le Worker (lecture lors de l'analyse). Il n'est \textbf{jamais servi} par le serveur web.
+  \item \textbf{\texttt{./backend/data}} $\rightarrow$ \texttt{/app/data}~: Stocke la base de données SQLite (\texttt{hexplain.db}) et le répertoire ChromaDB pour la persistance des embeddings RAG.
+\end{itemize}
+
+\subsection{Réseau interne}
+
+Tous les conteneurs partagent le réseau bridge \texttt{hexplain\_net}. Redis n'expose aucun port sur l'hôte~: il n'est accessible que via ce réseau interne, empêchant tout accès direct depuis l'extérieur. Ce cloisonnement réseau constitue une ligne de défense importante.
+
+\section{Description des modules du pipeline d'analyse}
+
+Le pipeline d'analyse est orchestré par le fichier \texttt{orchestrator.py}. Il suit un ordre précis~: du moins coûteux au plus coûteux, et du plus local au plus externe, afin d'optimiser les temps d'exécution et de limiter les appels réseau aux cas nécessaires.
+
+\subsection{Module 1 --- Extraction de métadonnées (\texttt{metadata.py})}
+
+Ce module constitue la première étape du pipeline. À partir des octets bruts du fichier, il extrait~:
+\begin{itemize}
+  \item L'\textbf{architecture cible}~: x86 (32 bits), x86\_64 (64 bits), ARM, MIPS.
+  \item L'\textbf{entropie de Shannon} du fichier global~: une entropie supérieure à 7.0 est un indicateur fort de packing ou de chiffrement.
+  \item La \textbf{présence d'une signature numérique} Authenticode (pour les PE).
+  \item Des \textbf{métadonnées de compilation}~: timestamp PE, identifiant du compilateur (Rich Header), informations de débogage éventuelles.
+  \item La \textbf{famille détectée} (PE ou ELF) à partir du type libmagic, utilisée pour router vers les modules PE ou ELF spécialisés.
+\end{itemize}
+
+\subsection{Module 2 --- Analyse structurelle (\texttt{structural.py})}
+
+Ce module parse la structure interne du binaire via LIEF~:
+\begin{itemize}
+  \item \textbf{Sections}~: nom, taille virtuelle, taille brute, entropie par section, flags (READ/WRITE/EXECUTE). Les sections à haute entropie (> 7.0) ou avec des permissions inhabituelles (section .text en écriture) sont marquées comme suspectes.
+  \item \textbf{Table des imports}~: liste de toutes les DLL et fonctions importées (pour PE), ou des bibliothèques partagées et symboles (pour ELF).
+  \item \textbf{Table des exports}~: fonctions exportées, souvent révélatrices pour les DLL malveillantes.
+  \item \textbf{Détection de packers connus}~: reconnaissance des signatures UPX, MPRESS et autres packers commerciaux.
+\end{itemize}
+
+\subsection{Module 3 --- Détection d'API suspectes (\texttt{suspicious\_apis.py})}
+
+Ce module analyse la table des imports PE et identifie les API Windows classifiées par catégorie de risque~:
+
+\begin{table}[H]
+  \centering
+  \caption{Catégories d'API suspectes détectées par Hexplain}
+  \label{tab:suspicious_apis}
+  \begin{tabularx}{\textwidth}{l X}
+    \toprule
+    \textbf{Catégorie} & \textbf{Exemples d'API et signification} \\
+    \midrule
+    Injection de processus & \texttt{VirtualAllocEx}, \texttt{WriteProcessMemory}, \texttt{CreateRemoteThread} \\
+    Persistance & \texttt{RegCreateKeyEx}, \texttt{RegSetValueEx} (modification du registre Windows) \\
+    Communication réseau & \texttt{WSAStartup}, \texttt{connect}, \texttt{HttpSendRequest} \\
+    Cryptographie & \texttt{CryptEncrypt}, \texttt{CryptDecrypt}, \texttt{BCryptGenRandom} \\
+    Manipulation de processus & \texttt{OpenProcess}, \texttt{TerminateProcess}, \texttt{CreateToolhelp32Snapshot} \\
+    Contournement de sécurité & \texttt{IsDebuggerPresent}, \texttt{CheckRemoteDebuggerPresent} \\
+    Manipulation de fichiers & \texttt{DeleteFileW}, \texttt{MoveFileEx} (pour ransomwares) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Module 4 --- Extraction de chaînes et IOC (\texttt{strings\_iocs.py})}
+
+Ce module extrait les chaînes de caractères imprimables du binaire (séquences de longueur $\geq$ 4 caractères) et applique des filtres regex pour identifier les \acrfull{ioc}~:
+\begin{itemize}
+  \item \textbf{URLs et domaines}~: détection de serveurs C2 (\textit{Command and Control}).
+  \item \textbf{Adresses IP}~: identification de serveurs de communication malveillants.
+  \item \textbf{Chemins de fichiers Windows}~: révèle les artefacts créés ou modifiés par le malware.
+  \item \textbf{Clés de registre}~: identifie les mécanismes de persistance.
+  \item \textbf{Commandes système}~: détecte les invocations de \texttt{cmd.exe}, \texttt{powershell.exe}, \texttt{vssadmin.exe} (shadow copy deletion, technique ransomware).
+\end{itemize}
+
+\begin{warnbox}
+Aucune URL, adresse IP, clé de registre ni autre IOC extrait du binaire analysé n'est inclus dans ce rapport sous forme de lien cliquable ou de valeur directement exécutable. Toutes les valeurs sont présentées à titre strictement informatif et analytique.
+\end{warnbox}
+
+\subsection{Module 5 --- Scan YARA (\texttt{yara\_scanner.py})}
+
+YARA~\cite{yara2023} est le standard de facto pour la détection de malwares par signatures. Ce module compile et exécute des règles YARA regroupées en plusieurs catégories~:
+\begin{itemize}
+  \item Règles communautaires (dépôt \texttt{Yara-Rules}) couvrant des centaines de familles de malwares connus.
+  \item Règles spécialisées anti-packers et anti-obfuscation.
+  \item Règles de détection de CVE exploités (\textit{Common Vulnerabilities and Exposures}).
+  \item Règles personnalisées développées pendant le stage.
+\end{itemize}
+
+Pour chaque règle déclenchée, le module remonte le nom de la règle, la chaîne correspondante et son offset dans le fichier.
+
+\subsection{Module 6 --- Détection de capacités Capa (\texttt{capa\_analyzer.py})}
+
+Mandiant Capa~\cite{capa2020} est un outil open-source qui analyse un binaire et identifie ses \textbf{capacités comportementales} en les mappant sur le framework MITRE ATT\&CK~\cite{mitre_attck}. Contrairement à YARA qui travaille sur des signatures de code, Capa raisonne sur la \textit{sémantique} du programme~: il détecte qu'un binaire «~alloue de la mémoire dans un processus distant~» (T1055 - Process Injection), indépendamment de la technique exacte utilisée.
+
+Les résultats de Capa fournissent au LLM un vocabulaire structuré et référencé pour expliquer les comportements détectés.
+
+\subsection{Module 7 --- Décompilation (\texttt{ghidra\_decompiler.py} / \texttt{dotnet\_decompiler.py})}
+
+Ce module est le plus coûteux en ressources du pipeline (jusqu'à 1~Go de RAM pour Ghidra). Il adapte sa stratégie au type du binaire~:
+
+\begin{itemize}
+  \item \textbf{Binaires natifs (PE/ELF C/C++)}~: Ghidra est lancé en mode \textit{headless} via un sous-processus Python. Un script Ghidra personnalisé (\texttt{DecompileToJSON.py}) extrait les $N$ fonctions les plus intéressantes (points d'entrée, fonctions appelant des API suspectes) sous forme de JSON structuré contenant le code assembleur et le pseudo-C décompilé.
+
+  \item \textbf{Binaires .NET}~: \texttt{ilspycmd} extrait la cartographie des namespaces et classes de l'assembly .NET. La décompilation complète en C\# est différée~: elle est réalisée à la demande (\textit{Just-In-Time}) lorsque l'utilisateur clique sur une fonction spécifique dans l'interface.
+\end{itemize}
+
+Un timeout configurable (par défaut 120 secondes) empêche Ghidra de bloquer le pipeline sur des binaires particulièrement complexes ou obfusqués.
+
+\subsection{Module 8 --- Renseignement sur les menaces (\texttt{threat\_intel.py})}
+
+Ce module réalise des lookups par hash (SHA-256) auprès de plusieurs plateformes de threat intelligence~:
+
+\begin{itemize}
+  \item \textbf{VirusTotal}~: Remonte le nombre de moteurs antivirus qui détectent le fichier comme malveillant (ex.~: 54/72).
+  \item \textbf{MalwareBazaar (abuse.ch)}~: Base de données de malwares connus avec classification de famille.
+  \item \textbf{AlienVault OTX}~: Fournit des «~pulses~» d'information contextuelle sur les menaces associées au hash.
+  \item \textbf{Module d'enrichissement IA (\texttt{ai\_enrichment.py})}~: Si le threat intelligence ne produit pas de correspondances précises mais que le score heuristique est élevé, ce module effectue une recherche OSINT (DuckDuckGo) basée sur les règles YARA et les capacités Capa détectées, puis soumet les résultats au LLM pour génération d'un contexte explicatif.
+\end{itemize}
+
+\begin{notebox}
+Aucune clé API, adresse IP de serveur, mot de passe ou secret de configuration n'est exposé dans ce rapport. Toutes les communications avec les APIs externes se font via des variables d'environnement injectées au démarrage des conteneurs Docker.
+\end{notebox}
+
+\subsection{Module 9 --- Scoring heuristique (\texttt{heuristic\_scorer.py})}
+
+Le moteur de scoring heuristique agrège les sorties de tous les modules précédents pour calculer un score de risque déterministe sur 100 points. Le score est composé de contributions pondérées~:
+
+\begin{table}[H]
+  \centering
+  \caption{Facteurs de contribution au score heuristique}
+  \label{tab:heuristic_score}
+  \begin{tabular}{l c l}
+    \toprule
+    \textbf{Facteur} & \textbf{Points max} & \textbf{Condition} \\
+    \midrule
+    Détections VirusTotal & +30 & Proportionnel au ratio détections/total \\
+    Correspondances YARA & +15 & +5 pt par règle, plafonné à 15 \\
+    API suspectes critiques & +20 & Injection de processus, cryptographie, etc. \\
+    Haute entropie & +10 & Section > 7.0 de Shannon \\
+    IOC réseau détectés & +10 & URLs C2 ou IPs suspectes extraites \\
+    Capacités Capa & +10 & Selon la gravité des techniques MITRE \\
+    Absence de signature & +5 & Binaire non signé numériquement \\
+    \midrule
+    \textbf{Total} & \textbf{100} & \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Le niveau de risque est ensuite attribué par seuillage~: \texttt{clean} (0-10), \texttt{low} (11-30), \texttt{medium} (31-55), \texttt{high} (56-80), \texttt{critical} (81-100).
+
+\section{Infrastructure et orchestration}
+
+\subsection{Dockerfile multi-étapes}
+
+Le Dockerfile du backend utilise une construction multi-étapes pour optimiser la taille de l'image finale tout en incluant les outils d'analyse lourds~:
+\begin{enumerate}
+  \item Installation de Java 21 (OpenJDK) pour Ghidra.
+  \item Téléchargement et installation de Ghidra (NSA, open-source).
+  \item Installation d'ilspycmd via .NET SDK.
+  \item Installation des dépendances Python depuis \texttt{requirements.txt}.
+  \item Création d'un utilisateur non-root \texttt{hexplain} pour l'exécution du service.
+\end{enumerate}
+
+\subsection{Orchestration Docker Compose}
+
+Le fichier \texttt{docker-compose.yml} définit les dépendances entre services~: le Worker et l'API ne démarrent qu'une fois Redis confirmé sain (healthcheck \texttt{redis-cli ping}). Redis est configuré avec une limite mémoire de 128~Mo et une politique d'éviction \texttt{allkeys-lru} pour prévenir les débordements mémoire sur un serveur modeste.
+
+\subsection{Contrainte de concurrence du Worker}
+
+Le Worker Celery est configuré avec une concurrence de 1 (\texttt{--concurrency=1}). Ce choix délibéré découle des besoins en ressources de Ghidra, qui consomme jusqu'à 1~Go de RAM par analyse. Sur un Droplet DigitalOcean de 4~Go de RAM, exécuter plusieurs analyses simultanées provoquerait des crashs par manque de mémoire. La file Celery garantit que les analyses sont traitées séquentiellement, de manière fiable.
+
+\section{Sécurité}
+
+\subsection{Modèle de sécurité complet}
+
+La sécurité est une priorité de premier ordre dans Hexplain, compte tenu de la nature des fichiers traités (malwares potentiels). Le tableau~\ref{tab:security_model} récapitule les couches de protection implémentées.
+
+\begin{table}[H]
+  \centering
+  \caption{Modèle de sécurité de la plateforme Hexplain}
+  \label{tab:security_model}
+  \begin{tabularx}{\textwidth}{l X}
+    \toprule
+    \textbf{Couche} & \textbf{Protection implémentée} \\
+    \midrule
+    Authentification & Hachage Argon2id (résistant aux attaques GPU), JWT en cookies HttpOnly \\
+    Protection CSRF & Patron \textit{Double Submit Cookie} sur tous les endpoints modifiant l'état \\
+    Validation des fichiers & Double passe~: magic bytes bruts (en-tête PE/ELF) + libmagic avec liste d'autorisation \\
+    Stockage des fichiers & UUID-named \texttt{.bin} dans un volume non-servi, \texttt{chmod 0o440} \\
+    Analyse statique & Tous les outils travaillent en lecture seule~; aucune exécution du binaire \\
+    Isolation des données & Toutes les requêtes filtrent par \texttt{user\_id} --- aucune fuite inter-utilisateurs \\
+    Limitation de débit & \texttt{slowapi}~: 5 tentatives de connexion / minute, 3 inscriptions / minute \\
+    En-têtes HTTP & CSP, X-Frame-Options, X-Content-Type-Options, Permissions-Policy \\
+    Secrets & Pas de valeur codée en dur~; injections via variables d'environnement uniquement \\
+    Sérialisation & Celery utilise JSON uniquement (pas de pickle~: prévient les désérialisations malveillantes) \\
+    Sous-processus & Appels avec listes d'arguments (\texttt{shell=False}~: prévient l'injection de commandes) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Quarantaine des binaires}
+
+La quarantaine des fichiers malveillants est le mécanisme de sécurité le plus critique du système. Lorsqu'un utilisateur uploade un fichier~:
+\begin{enumerate}
+  \item Le fichier est lu en mémoire et ses magic bytes sont vérifiés (les 4 premiers octets doivent correspondre à \texttt{MZ} pour PE ou \texttt{\textbackslash x7FELF} pour ELF).
+  \item Une vérification libmagic confirme le type MIME du fichier.
+  \item Si les deux vérifications passent, le fichier est écrit sous un nom UUID aléatoire dans \texttt{/app/quarantine/}, avec les permissions \texttt{0o440} (lecture seule pour le propriétaire et le groupe, aucun accès pour les autres).
+  \item Le chemin physique du fichier est stocké dans la base de données mais \textbf{n'est jamais inclus dans aucune réponse API}.
+  \item Lors de l'analyse, les outils accèdent directement au chemin physique~; la quarantaine ne dispose d'aucune configuration de serveur web, ce qui rend impossible le téléchargement direct du fichier via HTTP.
+\end{enumerate}
+
+\section{Communication entre composants}
+
+Les flux de données entre les composants suivent trois canaux distincts~:
+
+\begin{enumerate}
+  \item \textbf{HTTP REST (API $\leftrightarrow$ Frontend)}~: Toutes les interactions utilisateur passent par l'API REST FastAPI. Les réponses sont validées par des schémas Pydantic avant d'être sérialisées en JSON.
+
+  \item \textbf{Queue Redis (API $\rightarrow$ Worker)}~: Lorsqu'un fichier est uploadé, l'API publie un message Celery dans la file Redis contenant uniquement le \texttt{job\_id}. Le Worker récupère ce message, charge les informations du job depuis SQLite, et démarre l'analyse.
+
+  \item \textbf{Volume partagé (Worker $\leftrightarrow$ Quarantaine)}~: Le Worker accède directement aux fichiers binaires via le volume Docker monté. Cela évite de transmettre des fichiers potentiellement malveillants à travers Redis.
+\end{enumerate}
+
+\section{Conclusion}
+
+Ce chapitre a présenté en détail l'architecture technique de Hexplain~: une architecture microservices à quatre conteneurs Docker, un pipeline d'analyse en neuf modules résilients, et un ensemble de mécanismes de sécurité couvrant l'authentification, l'isolation des fichiers, la protection CSRF et la prévention des injections. La conception modulaire garantit l'extensibilité du système (ajout d'un module sans impacter les autres), tandis que les contraintes de ressources (Worker à concurrence=1, timeout Ghidra) assurent la stabilité sur des infrastructures modestes. Le chapitre suivant documente la réalisation concrète de cette architecture.

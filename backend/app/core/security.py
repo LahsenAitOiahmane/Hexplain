@@ -1,5 +1,5 @@
 """
-MalwAIre — Security Utilities.
+Hexplain — Security Utilities.
 
 Handles:
   - Password hashing (Argon2)

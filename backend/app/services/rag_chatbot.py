@@ -1,5 +1,5 @@
 """
-MalwAIre — RAG Chatbot Service.
+Hexplain — RAG Chatbot Service.
 
 Indexes the generated LLM report and condensed static analysis data into a local
 ChromaDB vector store. Provides an interface to query the store and generate
@@ -15,7 +15,7 @@ from sentence_transformers import SentenceTransformer
 from app.core.config import settings
 from app.services.llm_explanation import get_llm_provider
 
-logger = structlog.get_logger("malwaire.rag_chatbot")
+logger = structlog.get_logger("Hexplain.rag_chatbot")
 
 # Initialize ChromaDB client pointing to a local directory
 CHROMA_DB_DIR = os.path.join(settings.DATA_DIR, "chromadb")

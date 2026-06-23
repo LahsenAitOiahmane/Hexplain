@@ -1,0 +1,190 @@
+% =============================================================================
+% Hexplain — Rapport de Stage
+% Préambule LaTeX — packages, configurations, commandes personnalisées
+% Compatible Overleaf (pdflatex)
+% =============================================================================
+
+% --- Encodage & langue ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{csquotes}
+
+% --- Mise en page ---
+\usepackage[a4paper, top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage{emptypage}    % Supprime en-têtes/pieds sur pages vides
+
+% --- Typographie ---
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% --- En-têtes et pieds de page ---
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textit{Hexplain — Pipeline d'analyse statique de binaires PE/ELF intégrant des LLM}}
+\fancyhead[R]{\small\textit{AIT OIHMANE Lahsen}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% --- Style de page pour les débuts de chapitre ---
+\fancypagestyle{plain}{%
+  \fancyhf{}
+  \fancyfoot[C]{\thepage}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% --- Couleurs ---
+\usepackage[dvipsnames,svgnames,table]{xcolor}
+\definecolor{indigodark}{RGB}{55,48,163}
+\definecolor{indigo}{RGB}{79,70,229}
+\definecolor{indigolight}{RGB}{165,180,252}
+\definecolor{slategray}{RGB}{71,85,105}
+\definecolor{slatelight}{RGB}{248,250,252}
+\definecolor{codebackground}{RGB}{248,249,250}
+\definecolor{framegray}{RGB}{209,213,219}
+\definecolor{warnorange}{RGB}{217,119,6}
+\definecolor{successgreen}{RGB}{5,150,105}
+\definecolor{dangerred}{RGB}{185,28,28}
+
+% --- Graphiques & images ---
+\usepackage{graphicx}
+\graphicspath{{img/}}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\captionsetup{
+  font=small,
+  labelfont=bf,
+  labelsep=period,
+  justification=centering,
+  skip=6pt
+}
+
+% --- Tableaux ---
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{makecell}
+\renewcommand{\arraystretch}{1.3}
+
+% --- Listes ---
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*, topsep=4pt, itemsep=2pt}
+\setlist[enumerate]{leftmargin=*, topsep=4pt, itemsep=2pt}
+
+% --- Code source ---
+\usepackage{listings}
+\lstdefinestyle{hexplainstyle}{
+  backgroundcolor=\color{codebackground},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  commentstyle=\color{slategray}\itshape,
+  frame=single,
+  rulecolor=\color{framegray},
+  keywordstyle=\color{indigo}\bfseries,
+  numberstyle=\tiny\color{slategray},
+  numbers=left,
+  numbersep=8pt,
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  stringstyle=\color{successgreen},
+  tabsize=2,
+  xleftmargin=12pt,
+  xrightmargin=4pt,
+  aboveskip=8pt,
+  belowskip=8pt
+}
+\lstset{style=hexplainstyle}
+
+% --- Boîtes colorées ---
+\usepackage{tcolorbox}
+\tcbuselibrary{most}
+
+\newtcolorbox{notebox}{
+  colback=slatelight,
+  colframe=indigodark,
+  fonttitle=\bfseries,
+  title=Note,
+  left=6pt, right=6pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{warnbox}{
+  colback=yellow!10,
+  colframe=warnorange,
+  fonttitle=\bfseries,
+  title=Avertissement,
+  left=6pt, right=6pt, top=4pt, bottom=4pt
+}
+
+\newtcolorbox{definitionbox}[1]{
+  colback=blue!5,
+  colframe=indigo,
+  fonttitle=\bfseries,
+  title=#1,
+  left=6pt, right=6pt, top=4pt, bottom=4pt
+}
+
+% --- Liens hypertexte ---
+\usepackage[hidelinks, colorlinks=true, linkcolor=indigodark, citecolor=indigodark, urlcolor=indigo]{hyperref}
+\usepackage{url}
+
+% --- Bibliographie ---
+\usepackage[backend=biber, style=numeric, sorting=none, maxbibnames=99]{biblatex}
+\addbibresource{bibliographie.bib}
+
+% --- Numérotation ---
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% --- Titres de chapitres personnalisés ---
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{indigodark}}
+  {\chaptertitlename\ \thechapter}
+  {16pt}
+  {\Huge}
+\titlespacing*{\chapter}{0pt}{-20pt}{30pt}
+
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{indigodark}}
+  {\thesection}
+  {1em}
+  {}
+
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{slategray}}
+  {\thesubsection}
+  {1em}
+  {}
+
+\titleformat{\subsubsection}
+  {\normalfont\normalsize\bfseries}
+  {\thesubsubsection}
+  {1em}
+  {}
+
+% --- Sigles ---
+\usepackage[acronym, toc, nonumberlist]{glossaries}
+
+% --- Divers ---
+\usepackage{lipsum}
+\usepackage{pdfpages}
+\usepackage{pdflscape}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Commande pratique : terme technique mis en évidence
+\newcommand{\tech}[1]{\texttt{\textcolor{indigodark}{#1}}}
+% Commande pour placeholder à compléter
+\newcommand{\placeholder}[1]{\textbf{\textcolor{dangerred}{[À COMPLÉTER : #1]}}}
+% Commande pour nota bene
+\newcommand{\nb}{\textbf{N.B.}~}

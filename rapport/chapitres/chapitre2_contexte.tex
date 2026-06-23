@@ -1,0 +1,213 @@
+% =============================================================================
+% Chapitre 2 — Contexte général du projet
+% =============================================================================
+
+\chapter{Contexte général du projet}
+
+\section{Introduction}
+
+Avant de présenter la solution développée, il convient d'analyser en profondeur le contexte dans lequel elle s'inscrit. Ce chapitre dresse un état de l'art de l'analyse statique de malwares, identifie les limites des approches actuelles, présente le projet Hexplain dans ses grandes lignes, décrit la démarche méthodologique adoptée et recense les outils et technologies utilisés.
+
+\section{Analyse de l'existant et limites des approches actuelles}
+
+\subsection{L'analyse statique de binaires~: état de l'art}
+
+L'analyse statique de binaires exécutables est une discipline fondamentale de la rétro-ingénierie et de la cybersécurité. Elle consiste à examiner le code machine d'un programme --- ses instructions, ses structures de données, ses appels système et ses chaînes de caractères --- sans jamais l'exécuter, ce qui élimine tout risque d'infection pour l'analyste~\cite{sikorski2012practical}.
+
+Les principaux outils utilisés par les professionnels se répartissent en plusieurs catégories~:
+
+\begin{itemize}
+  \item \textbf{Désassembleurs et décompilateurs}~: Ghidra (NSA, open-source), IDA Pro (commercial), Binary Ninja. Ces outils transforment le code machine en assembleur lisible, voire en pseudo-code C, facilitant la compréhension du flot de contrôle d'un programme.
+  \item \textbf{Moteurs de signatures}~: YARA~\cite{yara2023}, l'outil de référence pour la détection par patterns, permet d'identifier des familles de malwares connues à partir de règles définissant des séquences d'octets ou des expressions régulières caractéristiques.
+  \item \textbf{Outils de détection de capacités}~: Mandiant Capa~\cite{capa2020} analyse un binaire et identifie ses capacités (injection de processus, lecture de registre, communication réseau) en les mappant sur le framework MITRE ATT\&CK~\cite{mitre_attck}.
+  \item \textbf{Bibliothèques de parsing}~: LIEF~\cite{lief2017}, pefile, pyelftools permettent de parser les structures internes des formats PE et ELF pour en extraire les en-têtes, sections, imports et exports.
+  \item \textbf{Plateformes de threat intelligence}~: VirusTotal~\cite{virustotal}, MalwareBazaar, AlienVault OTX permettent de croiser le hash d'un fichier avec des bases de données mondiales de menaces connues.
+\end{itemize}
+
+\subsection{Limites et lacunes identifiées}
+
+Malgré la puissance de ces outils, plusieurs lacunes structurelles persistent et constituent la motivation principale du projet Hexplain~:
+
+\subsubsection{La barrière de compétence en assembleur}
+
+Le langage assembleur reste l'un des langages les plus ardus à maîtriser. La Figure~\ref{fig:function_disassembly} illustre concrètement ce problème~: une simple fonction de manipulation du registre Windows se traduit en dizaines d'instructions assembleur (PUSH, MOV, SUB, LEA, CALL) dont la sémantique combinée est loin d'être immédiate. Chaque instruction opère sur des registres (RAX, RBP, RDX), des offsets mémoire et des pointeurs dont l'interprétation nécessite une connaissance approfondie de l'ABI x86-64.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{function_disassembly_pseudocode}
+  \caption{Vue désassembleur (gauche) et pseudo-C Ghidra (droite) d'une fonction de manipulation de registre Windows --- illustrant la complexité de l'assembleur pour un non-expert}
+  \label{fig:function_disassembly}
+\end{figure}
+
+Des études menées dans le domaine de l'enseignement de la rétro-ingénierie~\cite{eagle2011ghidra} montrent qu'il faut en moyenne \textbf{18 à 24 mois} de pratique intensive pour qu'un ingénieur logiciel puisse analyser des binaires complexes avec autonomie. Cette durée d'apprentissage est incompatible avec les délais de réponse aux incidents de sécurité.
+
+\subsubsection{La fragmentation des outils}
+
+Un analyste qui souhaite réaliser une analyse complète d'un binaire doit aujourd'hui~:
+\begin{enumerate}
+  \item Ouvrir Ghidra pour désassembler et décompiler le code.
+  \item Exécuter YARA en ligne de commande pour tester les règles de signatures.
+  \item Lancer Capa sur le fichier pour obtenir les capacités MITRE.
+  \item Uploader le hash sur VirusTotal via son navigateur web.
+  \item Agréger manuellement les résultats dans un rapport Word ou Excel.
+\end{enumerate}
+
+Ce processus, outre son coût en temps, est source d'erreurs et de pertes d'informations lors de la consolidation manuelle. Aucun outil existant n'offre une vision unifiée et corrélée de l'ensemble de ces informations~\cite{ligh2010malware}.
+
+\subsubsection{L'absence de contextualisation et d'explication}
+
+Les outils actuels produisent des données brutes~: une liste d'imports, un score VirusTotal, des identifiants de règles YARA, des techniques MITRE ATT\&CK. Ces informations sont précieuses pour l'expert, mais \textbf{totalement opaques pour l'analyste novice} qui ne sait pas ce que signifie concrètement «~T1055 - Process Injection~» ou «~L'entropie de la section .rsrc est de 7.95~». L'absence de couche d'explication pédagogique constitue une barrière à l'adoption de ces outils par des équipes non spécialisées.
+
+\subsubsection{Le coût temporel et humain}
+
+Selon les experts du domaine~\cite{sikorski2012practical}, l'analyse complète d'un malware de complexité moyenne peut prendre de \textbf{4 à 8 heures} pour un analyste expérimenté. Pour un binaire obfusqué ou packé, ce délai peut dépasser plusieurs jours. Dans un contexte d'incident de sécurité critique, ce délai est souvent inacceptable. Les équipes SOC (\textit{Security Operations Center}) sous-staffées ont besoin d'outils capables de fournir une première évaluation rapide et fiable, permettant de trier et prioriser les menaces.
+
+\subsubsection{Solutions commerciales~: accessibles mais coûteuses}
+
+Des solutions commerciales comme \textbf{Intezer Analyze}, \textbf{Joe Sandbox} ou \textbf{Recorded Future} proposent des analyses automatisées de haute qualité, mais à des tarifs annuels inaccessibles pour les PME, les équipes académiques ou les pays en développement. Il existe donc un \textbf{vide entre les outils gratuits complexes et les solutions commerciales hors de portée}.
+
+\section{Présentation du projet Hexplain}
+
+\subsection{Enjeux et vision}
+
+\textbf{Hexplain} (contraction de «~Hex Explain~», en référence aux dump hexadécimaux que les analystes déchiffrent au quotidien) est une plateforme open-source d'analyse statique de binaires PE/ELF/.NET assistée par intelligence artificielle. Sa vision fondamentale est de \textbf{démocratiser la compréhension des malwares}~: rendre accessible à un analyste junior ou à une équipe sans ressources spécialisées des analyses qui requièrent aujourd'hui des années d'expertise.
+
+\subsection{Solution proposée et valeurs ajoutées}
+
+Hexplain répond aux lacunes identifiées ci-dessus par plusieurs innovations complémentaires~:
+
+\begin{enumerate}
+  \item \textbf{Pipeline unifié en 9 étapes}~: En un seul upload, l'utilisateur déclenche automatiquement l'ensemble de la chaîne d'analyse (métadonnées, YARA, Capa, Ghidra, threat intel, scoring), sans configuration ni expertise préalable.
+
+  \item \textbf{Génération de rapports en langage naturel (LLM)}~: Un modèle de langage (Gemini 2.0 Flash ou Llama-3.1) analyse les sorties brutes du pipeline et les traduit en explications pédagogiques structurées~: résumé exécutif, comportements clés, explications des techniques MITRE, analyse fonction par fonction. L'\textbf{hallucination est explicitement prévenue} par des garde-fous stricts dans les prompts~: le modèle est instruit de ne jamais affirmer une classification qu'il ne peut corroborer par des preuves multiples et concrètes.
+
+  \item \textbf{Score de risque hybride}~: La plateforme calcule un score de risque sur 100 points combinant une composante heuristique déterministe (basée sur des règles pondérées) et une composante LLM contextuelle. Cette double approche réduit les faux positifs et les faux négatifs.
+
+  \item \textbf{Chatbot RAG pédagogique}~: L'utilisateur peut, après avoir reçu son rapport, poser des questions en langage naturel sur le binaire analysé (<<~Que fait la fonction à l'adresse 0x401000~?~>>, <<~Pourquoi le score de risque est-il aussi élevé~?~>>). Le système RAG local garantit que les réponses sont ancrées exclusivement dans les données du rapport, sans fabrication d'informations.
+
+  \item \textbf{Sécurité native}~: La conception sécurité-d'abord est une différenciation majeure~: les fichiers malveillants sont isolés en quarantaine (volume non-servi, permissions \texttt{0o440}), jamais exécutés, et tous les accès sont protégés par authentification forte et CSRF.
+
+  \item \textbf{Accessibilité économique}~: La solution fonctionne sur des APIs gratuites (Groq, Gemini, VirusTotal free tier) et peut être déployée sur un serveur modeste (DigitalOcean Droplet à faible coût), rendant la cybersécurité avancée accessible aux organisations à ressources limitées.
+\end{enumerate}
+
+\subsection{Périmètre du projet}
+
+Dans le cadre de ce stage (8 semaines), le projet a été développé en \textbf{quatre sprints itératifs}~:
+
+\begin{table}[H]
+  \centering
+  \caption{Sprints de développement du projet Hexplain}
+  \label{tab:sprints}
+  \begin{tabularx}{\textwidth}{c X l}
+    \toprule
+    \textbf{Sprint} & \textbf{Périmètre} & \textbf{Statut} \\
+    \midrule
+    1 & Fondation sécurisée~: authentification (Argon2id, JWT, CSRF), upload et quarantaine des fichiers, file de tâches asynchrones (Celery/Redis) & \textcolor{successgreen}{\textbf{Terminé}} \\
+    \midrule
+    2 & Moteur d'analyse statique~: parsing PE/ELF, YARA, Capa, Ghidra/ILSpy, threat intelligence (VT, MalwareBazaar, OTX), scoring heuristique & \textcolor{successgreen}{\textbf{Terminé}} \\
+    \midrule
+    3 & Couche LLM/RAG~: génération de rapport LLM (Groq/Gemini), pipeline RAG local (ChromaDB + sentence-transformers), chatbot multi-sessions & \textcolor{successgreen}{\textbf{Terminé}} \\
+    \midrule
+    4 & Frontend dashboard complet (Next.js), export PDF, déploiement DigitalOcean, pipeline CI/CD GitHub Actions & \textcolor{successgreen}{\textbf{Terminé}} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Démarche méthodologique adoptée}
+
+\subsection{Approche itérative par sprints}
+
+La méthodologie de développement adoptée s'inspire des pratiques agiles~: le projet a été découpé en \textbf{sprints de deux semaines} chacun, avec des objectifs clairs, des livrables définis et des points de validation réguliers avec l'encadrant professionnel. Cette approche a permis de détecter et corriger rapidement les dérives techniques (notamment lors de l'intégration de Ghidra dans un conteneur Docker), et d'ajuster les priorités en fonction des retours de validation.
+
+\subsection{Principe de sécurité par conception}
+
+Dès la conception du système, le principe \textit{security by design} a été appliqué de manière systématique~: chaque fonctionnalité a été évaluée selon son impact potentiel sur la sécurité avant toute implémentation. Ce principe s'est traduit notamment par~:
+\begin{itemize}
+  \item L'isolation physique des fichiers malveillants dans un volume Docker non-servi.
+  \item La validation en deux passes des fichiers uploadés (magic bytes bruts + libmagic).
+  \item L'utilisation de listes d'autorisation strictes (PE/ELF uniquement).
+  \item L'absence de toute exécution des binaires analysés à quelque étape que ce soit du pipeline.
+\end{itemize}
+
+\subsection{Modularité et résilience du pipeline}
+
+Le pipeline d'analyse a été conçu selon un principe de \textbf{résilience modulaire}~: chaque module d'analyse est enveloppé dans un gestionnaire d'erreurs isolé (\texttt{\_safe\_call}). Si un module échoue (Ghidra qui dépasse son timeout, VirusTotal qui renvoie une erreur HTTP), le pipeline continue son exécution avec les modules restants et préserve les résultats partiels. Cela garantit qu'une défaillance ponctuelle ne prive pas l'utilisateur de l'ensemble des informations disponibles.
+
+\section{Outils et technologies utilisés}
+
+\subsection{Backend et analyse statique}
+
+\begin{table}[H]
+  \centering
+  \caption{Technologies backend et analyse statique}
+  \label{tab:tech_backend}
+  \begin{tabularx}{\textwidth}{l l X}
+    \toprule
+    \textbf{Technologie} & \textbf{Version} & \textbf{Rôle} \\
+    \midrule
+    FastAPI & $\geq$ 0.115 & Framework web Python asynchrone pour l'API REST \\
+    Celery & $\geq$ 5.4 & File de tâches asynchrones pour l'exécution du pipeline \\
+    Redis & 7-alpine & Broker de messages et backend de résultats Celery \\
+    SQLite (SQLAlchemy) & $\geq$ 2.0 & Base de données relationnelle avec ORM \\
+    Alembic & $\geq$ 1.13 & Gestion des migrations de schéma de base de données \\
+    LIEF & $\geq$ 0.16 & Parsing des structures PE/ELF (sections, imports, entropie) \\
+    pefile & $\geq$ 2023.2 & Parsing complémentaire du format PE \\
+    pyelftools & $\geq$ 0.31 & Parsing du format ELF \\
+    capstone & $\geq$ 5.0 & Moteur de désassemblage (x86/x64/ARM) \\
+    yara-python & $\geq$ 4.5 & Binding Python pour le moteur YARA \\
+    flare-capa & $\geq$ 9.0 & Détection de capacités et mapping MITRE ATT\&CK \\
+    Ghidra & 11.x & Décompilateur headless pour binaires natifs C/C++ \\
+    ilspycmd & \textemdash & Décompilateur CLI pour binaires .NET (C\#) \\
+    python-magic & $\geq$ 0.4.27 & Détection de type par magic bytes \\
+    argon2-cffi & $\geq$ 23.1 & Hachage de mots de passe Argon2id \\
+    python-jose & $\geq$ 3.3 & Génération et validation des JWT \\
+    slowapi & $\geq$ 0.1.9 & Limitation de débit (rate limiting) sur les endpoints \\
+    structlog & $\geq$ 24.0 & Journalisation structurée en JSON \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{LLM et RAG}
+
+\begin{table}[H]
+  \centering
+  \caption{Technologies LLM et RAG}
+  \label{tab:tech_llm}
+  \begin{tabularx}{\textwidth}{l X}
+    \toprule
+    \textbf{Technologie} & \textbf{Rôle} \\
+    \midrule
+    Google Gemini 2.0 Flash & Fournisseur LLM principal~: génération de rapports et réponses RAG \\
+    Groq API (Llama-3.1-8b-instant) & Fournisseur LLM secondaire~: basculement automatique si Gemini indisponible \\
+    ChromaDB ($\geq$ 0.4) & Base de données vectorielle locale pour le système RAG \\
+    sentence-transformers ($\geq$ 2.0) & Génération d'embeddings sémantiques (modèle all-MiniLM-L6-v2) \\
+    googlesearch-python & Recherche OSINT DuckDuckGo pour l'enrichissement IA des IOC \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Frontend et déploiement}
+
+\begin{table}[H]
+  \centering
+  \caption{Technologies frontend et infrastructure}
+  \label{tab:tech_frontend}
+  \begin{tabularx}{\textwidth}{l l X}
+    \toprule
+    \textbf{Technologie} & \textbf{Version} & \textbf{Rôle} \\
+    \midrule
+    Next.js & 14 & Framework React pour le frontend avec rendu SSR/SSG \\
+    TypeScript & \textemdash & Typage statique du code JavaScript \\
+    Tailwind CSS & \textemdash & Framework CSS utilitaire pour le styling \\
+    @react-pdf/renderer & \textemdash & Génération de rapports PDF côté navigateur \\
+    Docker & 24+ & Containerisation des services \\
+    Docker Compose & v2+ & Orchestration multi-conteneurs \\
+    DigitalOcean Droplet & Ubuntu & Hébergement de la plateforme en production \\
+    GitHub Actions & \textemdash & Pipeline CI/CD automatisé (SCP + SSH deploy) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Conclusion}
+
+Ce chapitre a mis en lumière les lacunes fondamentales des approches actuelles d'analyse statique de malwares~: barrière de compétence en assembleur, fragmentation des outils, absence d'explication pédagogique et coûts temporels prohibitifs. Face à ces problèmes bien identifiés, le projet Hexplain propose une réponse intégrée, combinant un pipeline d'analyse complet, une couche LLM explicative et un chatbot RAG contextuel, le tout dans une architecture sécurisée et déployable à faible coût. Le chapitre suivant présente l'analyse des besoins formalisée et les diagrammes de conception qui ont guidé le développement du système.

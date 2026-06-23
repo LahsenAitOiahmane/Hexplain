@@ -1,5 +1,5 @@
 """
-MalwAIre — Health Check Schema.
+Hexplain — Health Check Schema.
 """
 
 from datetime import datetime

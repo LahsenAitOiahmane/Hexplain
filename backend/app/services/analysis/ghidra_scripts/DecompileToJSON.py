@@ -1,4 +1,4 @@
-# MalwAIre - Ghidra Decompilation Script (Jython)
+# Hexplain - Ghidra Decompilation Script (Jython)
 #
 # This script runs inside Ghidra's headless analyzer (Jython 2.7).
 # It decompiles the most relevant functions to pseudo-C and writes

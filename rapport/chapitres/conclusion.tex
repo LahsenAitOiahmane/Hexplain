@@ -1,0 +1,39 @@
+% =============================================================================
+% Conclusion générale
+% =============================================================================
+
+\chapter*{Conclusion générale}
+\addcontentsline{toc}{chapter}{Conclusion générale}
+\markboth{Conclusion générale}{Conclusion générale}
+
+Ce rapport de stage a présenté la conception, le développement et le déploiement de \textbf{Hexplain}, une plateforme d'analyse statique de binaires PE/ELF intégrant des modèles de langage de grande taille (LLM) pour la génération automatique de rapports de cybersécurité.
+
+\section*{Synthèse des travaux réalisés}
+
+Partant d'un constat simple mais fondamental --- la compréhension du code assembleur et des outils d'analyse statique constitue une barrière réelle à l'adoption de bonnes pratiques de cybersécurité --- nous avons conçu et développé une solution complète répondant à ce défi. Le pipeline Hexplain enchaîne neuf modules d'analyse automatisés~: extraction de métadonnées, analyse structurelle, détection d'API suspectes, extraction d'IOC, scan YARA, détection de capacités MITRE ATT\&CK via Capa, décompilation Ghidra/ILSpy, renseignements sur les menaces et scoring heuristique. Ces résultats, consolidés par un LLM (Gemini 2.0 Flash / Llama-3.1), donnent naissance à un rapport d'analyse pédagogique en langage naturel, accompagné d'un score de risque hybride (heuristique + IA) sur 100 points.
+
+La couche RAG (\textit{Retrieval-Augmented Generation}), fondée sur ChromaDB et le modèle \textit{sentence-transformers} all-MiniLM-L6-v2, offre en complément un chatbot pédagogique permettant à l'utilisateur de dialoguer interactivement avec le rapport généré, en posant des questions en langage naturel sur les comportements détectés. Des guardrails stricts garantissent que les réponses sont exclusivement ancrées dans les données du rapport, sans fabrication d'informations.
+
+Sur le plan de la sécurité --- préoccupation centrale quand on manipule des logiciels malveillants --- le système intègre des mécanismes robustes à chaque couche~: hachage Argon2id des mots de passe, JWT en cookies HttpOnly, protection CSRF par double-submit, isolation physique des binaires en quarantaine, validation en deux passes des fichiers, cloisonnement réseau Docker et limitation de débit des endpoints d'authentification. Aucun binaire analysé n'est jamais exécuté par la plateforme.
+
+L'ensemble a été déployé avec succès sur une infrastructure DigitalOcean Droplet via Docker Compose, avec un pipeline CI/CD GitHub Actions garantissant des déploiements automatisés et fiables.
+
+\section*{Valeur ajoutée et impact}
+
+Hexplain se distingue des solutions existantes par l'originalité de son positionnement~: il ne remplace pas l'analyste expert, mais le démultiplie. Pour l'analyste débutant, il fournit une explication pédagogique des sorties brutes qu'il n'aurait pas su interpréter seul. Pour l'analyste expérimenté, il automatise les tâches répétitives (lookup VT, compilation YARA, extraction d'IOC) et génère une première ébauche de rapport qu'il peut valider et enrichir en quelques minutes au lieu de plusieurs heures.
+
+Cette approche est particulièrement pertinente dans le contexte africain et des pays en développement, où les ressources humaines spécialisées en cybersécurité sont rares et les budgets pour les solutions commerciales souvent insuffisants. Hexplain démontre qu'une solution performante et sécurisée peut être déployée à faible coût, en s'appuyant sur des APIs gratuites et des outils open-source.
+
+\section*{Apports du stage}
+
+Ce stage a représenté une expérience formatrice à plusieurs niveaux. Sur le plan technique, il m'a permis d'acquérir une compréhension profonde de l'analyse statique de malwares --- un domaine que j'avais abordé en cours mais dont j'ai vraiment appréhendé la complexité au contact du code et des outils réels. Il m'a également permis de mettre en pratique l'ingénierie LLM dans un contexte professionnel concret, bien loin des tutoriels~: concevoir un prompt system rigoureux, gérer les guardrails, arbitrer entre qualité et coût d'inférence.
+
+Sur le plan humain et professionnel, travailler au sein d'AIOX Labs m'a confronté à la réalité d'un environnement de startup innovante~: l'autonomie dans les choix techniques, la nécessité de justifier ses décisions d'architecture, la gestion des blocages (intégration Ghidra dans Docker), et la satisfaction de voir une idée prendre forme jusqu'au déploiement en production.
+
+\section*{Perspectives}
+
+Les perspectives identifiées dans le Chapitre 6 ouvrent des horizons prometteurs~: migration vers PostgreSQL, architecture multi-workers, intégration d'un sandbox dynamique, support des macros Office, fine-tuning d'un LLM spécialisé en cybersécurité. Ces évolutions constituent une feuille de route claire pour un projet qui pourrait, à terme, évoluer vers une offre SaaS à destination des équipes SOC et des organisations souhaitant renforcer leurs capacités d'analyse de menaces sans investissement massif en expertise humaine.
+
+\vspace{1cm}
+
+\noindent Hexplain est la démonstration concrète qu'en combinant judicieusement l'analyse statique éprouvée, la puissance des LLM et une architecture sécurisée rigoureuse, il est possible de démocratiser la compréhension des logiciels malveillants et de rendre la cybersécurité avancée accessible à un public bien plus large que le cercle restreint des experts en rétro-ingénierie.

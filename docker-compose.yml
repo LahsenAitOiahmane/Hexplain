@@ -1,5 +1,5 @@
 # =============================================================================
-# MalwAIre — Docker Compose Orchestration
+# Hexplain — Docker Compose Orchestration
 #
 # Services:
 #   api    — FastAPI REST server (port 8000, localhost only)
@@ -7,8 +7,8 @@
 #   redis  — Message broker + result backend (internal only)
 #
 # Volumes:
-#   malwaire_quarantine — Uploaded files (noexec, never served)
-#   malwaire_data       — SQLite database
+#   Hexplain_quarantine — Uploaded files (noexec, never served)
+#   Hexplain_data       — SQLite database
 #
 # Security:
 #   - API bound to 127.0.0.1 (not 0.0.0.0 on host)
@@ -30,7 +30,7 @@ services:
     environment:
       - API_URL=http://api:8000
     networks:
-      - malwaire_net
+      - Hexplain_net
     depends_on:
       - api
 
@@ -39,7 +39,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: malwaire-api
+    container_name: Hexplain-api
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     ports:
       - "127.0.0.1:8000:8000"  # Localhost only — never 0.0.0.0 on host
@@ -50,7 +50,7 @@ services:
       - .env
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL=sqlite:///./data/malwaire.db
+      - DATABASE_URL=sqlite:///./data/Hexplain.db
       - QUARANTINE_DIR=/app/quarantine
       - DATA_DIR=/app/data
       # Sprint 2: Analysis settings (passed through from .env)
@@ -63,14 +63,14 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - malwaire_net
+      - Hexplain_net
 
   # --- Celery Worker ---
   worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: malwaire-worker
+    container_name: Hexplain-worker
     # Concurrency=1: analysis tasks are heavyweight (Ghidra uses ~1GB RAM)
     command: celery -A app.workers.celery_app:celery_app worker --loglevel=info --concurrency=1
     volumes:
@@ -80,7 +80,7 @@ services:
       - .env
     environment:
       - REDIS_URL=redis://redis:6379/0
-      - DATABASE_URL=sqlite:///./data/malwaire.db
+      - DATABASE_URL=sqlite:///./data/Hexplain.db
       - QUARANTINE_DIR=/app/quarantine
       - DATA_DIR=/app/data
       # Sprint 2: Analysis settings (passed through from .env)
@@ -95,7 +95,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - malwaire_net
+      - Hexplain_net
     extra_hosts:
       - "www.virustotal.com:34.54.88.138"
       - "mb-api.abuse.ch:34.111.17.235"
@@ -115,7 +115,7 @@ services:
   # --- Redis (broker + result backend) ---
   redis:
     image: redis:7-alpine
-    container_name: malwaire-redis
+    container_name: Hexplain-redis
     command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru
     # No ports exposed to host — internal network only
     healthcheck:
@@ -125,16 +125,16 @@ services:
       retries: 5
     restart: unless-stopped
     networks:
-      - malwaire_net
+      - Hexplain_net
     volumes:
-      - malwaire_redis:/data
+      - Hexplain_redis:/data
 
 # --- Named Volumes ---
 volumes:
-  malwaire_redis:
+  Hexplain_redis:
     driver: local
 
 # --- Network ---
 networks:
-  malwaire_net:
+  Hexplain_net:
     driver: bridge

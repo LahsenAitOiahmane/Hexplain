@@ -1,5 +1,5 @@
 """
-MalwAIre — Celery Task Definitions.
+Hexplain — Celery Task Definitions.
 
 Sprint 2: Real analysis pipeline replacing the Sprint 1 placeholder.
 Orchestrates PE/ELF parsing, string extraction, YARA, capa, Ghidra,
@@ -16,12 +16,12 @@ import structlog
 
 from app.workers.celery_app import celery_app
 
-logger = structlog.get_logger("malwaire.workers.tasks")
+logger = structlog.get_logger("Hexplain.workers.tasks")
 
 
 @celery_app.task(
     bind=True,
-    name="malwaire.process_file",
+    name="Hexplain.process_file",
     max_retries=1,
     default_retry_delay=30,
 )

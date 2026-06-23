@@ -1,5 +1,5 @@
 """
-MalwAIre — FastAPI Application Factory.
+Hexplain — FastAPI Application Factory.
 
 Creates and configures the FastAPI application with:
   - Security headers middleware (CSP, X-Frame-Options, etc.)
@@ -33,7 +33,7 @@ from app.api import auth, health, jobs, upload
 from app.core.config import settings
 from app.models.database import init_db
 
-logger = structlog.get_logger("malwaire.main")
+logger = structlog.get_logger("Hexplain.main")
 
 
 # ---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ logger = structlog.get_logger("malwaire.main")
 async def lifespan(app: FastAPI):
     """Application lifespan: startup and shutdown hooks."""
     # Startup
-    logger.info("starting_malwaire", version="0.1.0")
+    logger.info("starting_Hexplain", version="0.1.0")
     init_db()
     logger.info("database_initialized")
 
@@ -59,7 +59,7 @@ async def lifespan(app: FastAPI):
     yield
 
     # Shutdown
-    logger.info("shutting_down_malwaire")
+    logger.info("shutting_down_Hexplain")
 
 
 # ---------------------------------------------------------------------------

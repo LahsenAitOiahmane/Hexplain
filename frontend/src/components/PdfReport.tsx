@@ -144,7 +144,7 @@ export const PdfReport = ({ job, report }: PdfReportProps) => {
       {/* Page 1: Executive Summary & Risk */}
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <Text style={styles.title}>MalwAIre Analysis Report</Text>
+          <Text style={styles.title}>Hexplain Analysis Report</Text>
           <Text style={styles.subtitle}>File: {job?.file_name}</Text>
           <Text style={styles.subtitle}>SHA-256: {job?.file_hash_sha256}</Text>
         </View>
@@ -180,7 +180,7 @@ export const PdfReport = ({ job, report }: PdfReportProps) => {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Threat Intel & Capabilities</Text>
-          
+
           <View style={{ marginBottom: 10 }}>
             <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>AI Enriched Intelligence:</Text>
             <Text style={{ lineHeight: 1.4 }}>
@@ -226,16 +226,16 @@ export const PdfReport = ({ job, report }: PdfReportProps) => {
           <Text style={{ fontSize: 9, color: '#64748b', marginBottom: 10 }}>
             Note: To preserve document readability, only primary entry points and explicitly flagged malicious functions are included. Generic assembly dumps are excluded.
           </Text>
-          
+
           {keyFunctions.length > 0 ? (
             keyFunctions.map((f: any, i: number) => (
               <View key={i} style={styles.itemBlock}>
                 <Text style={styles.itemTitle}>{f.name}</Text>
                 <Text style={styles.itemText}>Pipeline: {f.pipeline} | Lines: {f.line_count || 0}</Text>
                 {f.decompiled && f.decompiled.trim() !== "" ? (
-                   <View style={styles.codeBlock}>
-                     <Text>{f.decompiled.substring(0, 1500)}{f.decompiled.length > 1500 ? "\n// ... [truncated for PDF export]" : ""}</Text>
-                   </View>
+                  <View style={styles.codeBlock}>
+                    <Text>{f.decompiled.substring(0, 1500)}{f.decompiled.length > 1500 ? "\n// ... [truncated for PDF export]" : ""}</Text>
+                  </View>
                 ) : null}
               </View>
             ))

@@ -1,5 +1,5 @@
 """
-MalwAIre — Capa Capability Analysis.
+Hexplain — Capa Capability Analysis.
 
 Runs Mandiant's capa tool to identify capabilities in PE/ELF binaries
 and maps them to MITRE ATT&CK tactics and techniques.
@@ -30,7 +30,7 @@ import time
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.capa_analyzer")
+logger = structlog.get_logger("Hexplain.analysis.capa_analyzer")
 
 # Timeout for capa analysis (seconds)
 _CAPA_TIMEOUT = 300

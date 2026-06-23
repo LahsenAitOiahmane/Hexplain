@@ -1,5 +1,5 @@
 """
-MalwAIre — Threat Intelligence Lookups.
+Hexplain — Threat Intelligence Lookups.
 
 Queries external threat intelligence services by file hash to check
 if the file is known-malicious:
@@ -22,7 +22,7 @@ import time
 import httpx
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.threat_intel")
+logger = structlog.get_logger("Hexplain.analysis.threat_intel")
 
 # HTTP timeout for external API calls (seconds)
 _HTTP_TIMEOUT = 30

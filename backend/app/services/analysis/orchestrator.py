@@ -1,5 +1,5 @@
 """
-MalwAIre — Analysis Pipeline Orchestrator.
+Hexplain — Analysis Pipeline Orchestrator.
 
 Calls each analysis module in sequence, catching exceptions per-module
 so partial results are preserved if any single tool fails. Assembles
@@ -26,7 +26,7 @@ import structlog
 
 from app.core.config import settings
 
-logger = structlog.get_logger("malwaire.analysis.orchestrator")
+logger = structlog.get_logger("Hexplain.analysis.orchestrator")
 
 
 def _detect_family(file_type: str) -> str:

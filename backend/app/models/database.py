@@ -1,5 +1,5 @@
 """
-MalwAIre — Database Engine and Session Factory.
+Hexplain — Database Engine and Session Factory.
 
 Uses synchronous SQLAlchemy 2.0 with SQLite for Sprint 1.
 Switching to Postgres later is a config change (DATABASE_URL), not a rewrite.

@@ -4,7 +4,7 @@ import time
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.dotnet_decompiler")
+logger = structlog.get_logger("Hexplain.analysis.dotnet_decompiler")
 
 def analyze_dotnet(file_path: str, timeout_seconds: int = 120) -> dict:
     """

@@ -1,5 +1,5 @@
 """
-MalwAIre — Ghidra Headless Decompilation.
+Hexplain — Ghidra Headless Decompilation.
 
 Invokes Ghidra's analyzeHeadless mode to decompile selected functions from
 PE/ELF binaries into pseudo-C code. A custom Ghidra script (Jython)
@@ -32,7 +32,7 @@ from pathlib import Path
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.ghidra_decompiler")
+logger = structlog.get_logger("Hexplain.analysis.ghidra_decompiler")
 
 
 def _find_analyze_headless(ghidra_dir: str) -> str | None:
@@ -105,7 +105,7 @@ def analyze_ghidra(
 
     # Create temp directory for Ghidra project and output
     # Security: temp dir is inside /tmp (container-local), cleaned up after
-    tmp_dir = tempfile.mkdtemp(prefix="malwaire_ghidra_")
+    tmp_dir = tempfile.mkdtemp(prefix="Hexplain_ghidra_")
     project_dir = os.path.join(tmp_dir, "project")
     output_file = os.path.join(tmp_dir, "decompiled_output.json")
 
@@ -117,7 +117,7 @@ def analyze_ghidra(
         cmd = [
             headless_bin,
             project_dir,              # Project location
-            "MalwAIreAnalysis",       # Project name
+            "HexplainAnalysis",       # Project name
             "-import", file_path,     # Import the binary (server-generated UUID path)
             "-postScript", script_name,
             str(max_functions),       # Script argument: max functions
@@ -132,7 +132,7 @@ def analyze_ghidra(
         cmd = [
             headless_bin,
             project_dir,
-            "MalwAIreAnalysis",
+            "HexplainAnalysis",
             "-import", file_path,
             "-postScript", script_name,
             str(max_functions),

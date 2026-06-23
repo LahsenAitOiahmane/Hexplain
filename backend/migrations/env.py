@@ -1,5 +1,5 @@
 """
-MalwAIre — Alembic Migration Environment.
+Hexplain — Alembic Migration Environment.
 
 Loads the SQLAlchemy engine and model metadata from the application
 so Alembic can auto-detect schema changes.

@@ -1,5 +1,5 @@
 """
-MalwAIre — File Metadata Extraction.
+Hexplain — File Metadata Extraction.
 
 Extracts extended metadata beyond Sprint 1's basic file info:
   - Shannon entropy of the entire file (packing/encryption indicator)
@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 
 import structlog
 
-logger = structlog.get_logger("malwaire.analysis.metadata")
+logger = structlog.get_logger("Hexplain.analysis.metadata")
 
 
 def _shannon_entropy(data: bytes) -> float:

@@ -1,5 +1,5 @@
 """
-MalwAIre — Static Analysis Pipeline (Sprint 2).
+Hexplain — Static Analysis Pipeline (Sprint 2).
 
 Package containing all analysis modules for PE/ELF binary inspection.
 Each module is independent and handles its own errors — the orchestrator

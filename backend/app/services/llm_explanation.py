@@ -1,5 +1,5 @@
 """
-MalwAIre — LLM Explanation Layer.
+Hexplain — LLM Explanation Layer.
 
 Takes the structured output from the static analysis pipeline, condenses it
 to fit within LLM context windows (and remove unnecessary details), and
@@ -15,7 +15,7 @@ import httpx
 import structlog
 from app.core.config import settings
 
-logger = structlog.get_logger("malwaire.llm_explanation")
+logger = structlog.get_logger("Hexplain.llm_explanation")
 
 class LLMProvider:
     def __init__(self):

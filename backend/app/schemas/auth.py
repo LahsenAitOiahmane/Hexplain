@@ -1,5 +1,5 @@
 """
-MalwAIre — Authentication Schemas.
+Hexplain — Authentication Schemas.
 
 Pydantic models for request validation and response serialization
 on auth endpoints. Uses strict types to prevent injection.

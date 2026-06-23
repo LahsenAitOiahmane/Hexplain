@@ -34,8 +34,8 @@ jobs:
             chmod -R 777 backend/data backend/quarantine
             
             # 1. Pre-deploy backup of the database
-            if [ -f backend/data/malwaire.db ]; then
-              cp backend/data/malwaire.db backend/data/malwaire.db.bak.$(date +%Y%m%d_%H%M%S)
+            if [ -f backend/data/Hexplain.db ]; then
+              cp backend/data/Hexplain.db backend/data/Hexplain.db.bak.$(date +%Y%m%d_%H%M%S)
             fi
             
             # Tag current stable images for potential rollback
