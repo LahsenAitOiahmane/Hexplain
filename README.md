@@ -308,7 +308,22 @@ The pipeline runs gracefully without any API keys — the LLM layer and threat i
 
 ---
 
+## Acknowledgements & Third-Party Licenses
+
+This project relies on several excellent open-source tools and libraries. Their respective licenses apply to their components:
+
+- **Ghidra** (National Security Agency) — [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- **Mandiant Capa** (FireEye/Mandiant) — [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- **LIEF** (Romain Thomas) — [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- **ChromaDB** — [Apache License 2.0](https://www.apache.org/licenses/LICENSE-2.0)
+- **YARA** (VirusTotal) — [BSD 3-Clause License](https://opensource.org/licenses/BSD-3-Clause)
+- **FastAPI**, **Next.js**, **React**, **Tailwind CSS** — [MIT License](https://opensource.org/licenses/MIT)
+
+---
+
 ## License
+
+This project is licensed under the [MIT License](LICENSE).
 
 Academic internship project — ENSA Marrakech, Filiere GCDSTE, 2025.
 Developed during internship at AIOX Labs, Rabat, Morocco.
