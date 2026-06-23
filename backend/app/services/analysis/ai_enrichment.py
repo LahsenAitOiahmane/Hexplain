@@ -21,18 +21,17 @@ def enrich_threat_intel(sha256: str, file_name: str, yara_matches: list, capa_ma
     # 1. Search the web for the hash and file name
     search_results = []
     try:
-        from duckduckgo_search import DDGS
-        with DDGS() as ddgs:
-            # Search for the hash
-            results = ddgs.text(f"{sha256} malware", max_results=3)
-            for r in results:
-                search_results.append(f"Source: {r.get('href')}\nTitle: {r.get('title')}\nBody: {r.get('body')}")
-            
-            # Search for the file name if we didn't get much from the hash
-            if len(search_results) < 2 and file_name and file_name != "unknown":
-                results_name = ddgs.text(f"{file_name} malware analysis", max_results=3)
-                for r in results_name:
-                    search_results.append(f"Source: {r.get('href')}\nTitle: {r.get('title')}\nBody: {r.get('body')}")
+        from googlesearch import search
+        # Search for the hash
+        results = search(f"{sha256} malware", num_results=3, advanced=True)
+        for r in results:
+            search_results.append(f"Source: {r.url}\nTitle: {r.title}\nBody: {r.description}")
+        
+        # Search for the file name if we didn't get much from the hash
+        if len(search_results) < 2 and file_name and file_name != "unknown":
+            results_name = search(f"{file_name} malware analysis", num_results=3, advanced=True)
+            for r in results_name:
+                search_results.append(f"Source: {r.url}\nTitle: {r.title}\nBody: {r.description}")
     except Exception as e:
         logger.error("ai_enrichment_search_error", error=str(e))
         search_results.append("Web search failed or no results found.")
