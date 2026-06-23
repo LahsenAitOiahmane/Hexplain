@@ -226,6 +226,39 @@ def run_analysis(
     )
     _notify("risk_assessment", "completed" if "error" not in score_result else "failed", score_result)
 
+    risk_score = score_result.get("score", 0.0) if isinstance(score_result, dict) else 0.0
+    risk_level = score_result.get("level", "unknown") if isinstance(score_result, dict) else "unknown"
+
+    # --- AI Enrichment ---
+    # Trigger if it's high/critical risk or YARA matched, but we have no popular tags from VT or similar
+    has_intel_tags = False
+    if threat_intel_result and isinstance(threat_intel_result, dict):
+        vt = threat_intel_result.get("virustotal")
+        if isinstance(vt, dict) and vt.get("tags"):
+            has_intel_tags = True
+            
+    is_malicious = risk_level in ["high", "critical"] or (isinstance(yara_result, dict) and yara_result.get("total_matches", 0) > 0)
+    
+    if is_malicious and not has_intel_tags:
+        from app.services.analysis.ai_enrichment import enrich_threat_intel
+        yara_matches = yara_result.get("matches", []) if isinstance(yara_result, dict) else []
+        capa_matches = capa_result.get("capabilities", []) if isinstance(capa_result, dict) else []
+        file_name_info = "unknown" # Orchestrator doesn't have the original filename easily available without changing signature, but wait!
+        
+        # Let's just use the hash and rules
+        ai_intel = _safe_call(
+            "ai_enrichment",
+            enrich_threat_intel,
+            sha256,
+            "unknown", # Or modify run_analysis to pass file_name, but we don't have it here. Let's pass "unknown".
+            yara_matches,
+            capa_matches
+        )
+        if "error" not in ai_intel:
+            # Inject it into threat_intel_result
+            if isinstance(threat_intel_result, dict):
+                threat_intel_result["ai_enriched"] = ai_intel
+
     pipeline_elapsed = round(time.monotonic() - pipeline_start, 2)
 
     # --- Assemble Report ---
@@ -242,9 +275,6 @@ def run_analysis(
         "risk_assessment": score_result,
         "pipeline_elapsed_seconds": pipeline_elapsed,
     }
-
-    risk_score = score_result.get("score", 0.0) if isinstance(score_result, dict) else 0.0
-    risk_level = score_result.get("level", "unknown") if isinstance(score_result, dict) else "unknown"
 
     logger.info(
         "pipeline_complete",

@@ -137,7 +137,24 @@ export default function ChatPage() {
   };
 
   const handleCopy = (msgId: string, content: string) => {
-    navigator.clipboard.writeText(content);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(content);
+    } else {
+      const textArea = document.createElement("textarea");
+      textArea.value = content;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback: Oops, unable to copy', err);
+      }
+      document.body.removeChild(textArea);
+    }
     setCopiedId(msgId);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -255,7 +272,7 @@ export default function ChatPage() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scroll pb-10">
+        <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6 custom-scroll pb-32">
 
           {messages.length === 0 && !loading && (
             <div className="max-w-2xl mx-auto text-center py-8 animate-fade-in">

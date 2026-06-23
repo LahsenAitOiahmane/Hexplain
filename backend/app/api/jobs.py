@@ -216,3 +216,93 @@ def get_report(
         report_data=report_data,
         created_at=report.created_at,
     )
+
+
+@router.get(
+    "/{job_id}/functions/{func_name}",
+    summary="Get JIT decompilation for a specific .NET class",
+)
+def get_function_decompilation(
+    job_id: str,
+    func_name: str,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Extracts the C# and IL code for a specific .NET class on demand.
+    """
+    import os
+    import subprocess
+    from app.core.config import settings
+
+    job = db.query(AnalysisJob).filter(AnalysisJob.id == job_id, AnalysisJob.user_id == current_user.id).first()
+    if not job:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+
+    file_path = os.path.join(settings.QUARANTINE_DIR, job.file_hash_sha256)
+    if not os.path.isfile(file_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Binary file not found in quarantine")
+
+    ilspy_bin = "/usr/local/bin/ilspycmd"
+    if not os.path.isfile(ilspy_bin):
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="ilspycmd not found on server")
+
+    import urllib.parse
+    decoded_func_name = urllib.parse.unquote(func_name)
+    
+    # Check if global decompilation was requested
+    if decoded_func_name == ".NET Full Decompilation" or decoded_func_name == "global":
+        cmd = [ilspy_bin, file_path]
+        il_cmd = [ilspy_bin, "--ilcode", file_path]
+    else:
+        cmd = [ilspy_bin, "-t", decoded_func_name, file_path]
+        il_cmd = [ilspy_bin, "-t", decoded_func_name, "--ilcode", file_path]
+
+    max_lines = 1000
+    timeout_seconds = 30
+
+    # Get C# Code
+    try:
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout_seconds)
+        code = result.stdout if result.returncode == 0 else f"Failed to decompile {decoded_func_name}"
+    except Exception as e:
+        code = f"Failed to decompile {decoded_func_name}: {e}"
+    
+    lines = code.split("\n")
+    truncated = len(lines) > max_lines
+    if truncated:
+        lines = lines[:max_lines]
+        lines.append(f"// ... truncated (exceeded {max_lines} line limit)")
+    formatted_code = "\n".join(lines)
+
+    # Get IL Code
+    il_code = []
+    try:
+        il_result = subprocess.run(il_cmd, capture_output=True, text=True, timeout=timeout_seconds)
+        if il_result.returncode == 0 and il_result.stdout:
+            il_lines = il_result.stdout.split("\n")
+            if len(il_lines) > max_lines:
+                il_lines = il_lines[:max_lines]
+                il_lines.append(f"// ... IL truncated (exceeded {max_lines} line limit)")
+            
+            for i, line in enumerate(il_lines):
+                if not line.strip():
+                    continue
+                il_code.append({
+                    "address": f"L{i}",
+                    "mnemonic": "IL",
+                    "operands": line
+                })
+    except Exception:
+        pass
+
+    return {
+        "name": decoded_func_name,
+        "address": decoded_func_name,
+        "decompiled": formatted_code,
+        "line_count": len(lines),
+        "truncated": truncated,
+        "assembly": il_code,
+        "pipeline": "dotnet"
+    }
