@@ -219,7 +219,7 @@ def get_report(
 
 
 @router.get(
-    "/{job_id}/functions/{func_name}",
+    "/{job_id}/functions/{func_name:path}",
     summary="Get JIT decompilation for a specific .NET class",
 )
 def get_function_decompilation(

@@ -24,10 +24,16 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 10,
-    color: '#64748b'
+    color: '#64748b',
+    marginBottom: 4
   },
   section: {
     marginBottom: 20,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#cbd5e1',
+    borderRadius: 6,
+    padding: 15
   },
   sectionTitle: {
     fontSize: 14,
@@ -104,6 +110,19 @@ const styles = StyleSheet.create({
   }
 });
 
+const stripMarkdown = (str: string) => {
+  if (!str) return "";
+  return str
+    .replace(/(\*\*|__)(.*?)\1/g, '$2') // bold
+    .replace(/(\*|_)(.*?)\1/g, '$2') // italic
+    .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // links
+    .replace(/#+\s?(.*)/g, '$1') // headers
+    .replace(/`([^`]+)`/g, '$1') // inline code
+    .replace(/^\s*-\s+/gm, '• ') // bullet points
+    .replace(/^\s*\d+\.\s+/gm, '• ') // numbered lists
+    .trim();
+};
+
 interface PdfReportProps {
   job: any;
   report: any;
@@ -140,7 +159,7 @@ export const PdfReport = ({ job, report }: PdfReportProps) => {
             </View>
           </View>
           <Text style={{ marginTop: 10, lineHeight: 1.5 }}>
-            {report?.summary || "No executive summary available."}
+            {stripMarkdown(report?.summary || "No executive summary available.")}
           </Text>
         </View>
 
@@ -151,7 +170,7 @@ export const PdfReport = ({ job, report }: PdfReportProps) => {
               <View key={i} style={styles.breakdownRow}>
                 <View style={{ flex: 1, paddingRight: 10 }}>
                   <Text style={{ fontWeight: 'bold', marginBottom: 2 }}>{item.signal.replace(/_/g, ' ')}</Text>
-                  <Text style={{ fontSize: 9, color: '#64748b' }}>{item.detail}</Text>
+                  <Text style={{ fontSize: 9, color: '#64748b' }}>{stripMarkdown(item.detail)}</Text>
                 </View>
                 <Text style={{ fontWeight: 'bold', color: '#b45309' }}>+{item.points} pt</Text>
               </View>
@@ -165,7 +184,7 @@ export const PdfReport = ({ job, report }: PdfReportProps) => {
           <View style={{ marginBottom: 10 }}>
             <Text style={{ fontWeight: 'bold', marginBottom: 4 }}>AI Enriched Intelligence:</Text>
             <Text style={{ lineHeight: 1.4 }}>
-              {repData.threat_intel?.ai_enriched?.summary || "No AI enriched threat intelligence available."}
+              {stripMarkdown(repData.threat_intel?.ai_enriched?.summary || "No AI enriched threat intelligence available.")}
             </Text>
           </View>
 

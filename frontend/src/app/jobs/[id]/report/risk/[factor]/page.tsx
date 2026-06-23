@@ -35,9 +35,9 @@ export default function RiskFactorPage() {
         
         if (item) {
           setRiskData(item);
-          if (repData.threat_intel?.virustotal?.scans) {
-            const scans = repData.threat_intel.virustotal.scans;
-            const malicious = Object.keys(scans).filter(k => scans[k].detected).map(k => ({ engine: k, result: scans[k].result }));
+          if (repData.threat_intel?.virustotal?.detected_by) {
+            const detectedBy = repData.threat_intel.virustotal.detected_by;
+            const malicious = detectedBy.map((engine: string) => ({ engine, result: "Malicious Detection" }));
             setVtScans(malicious);
           }
         } else {
