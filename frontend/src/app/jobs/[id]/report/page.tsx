@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 import ReactMarkdown from 'react-markdown';
 import { format, addDays } from "date-fns";
 import Link from "next/link";
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { PdfReport } from '@/components/PdfReport';
 
 export default function ReportPage() {
   const { id } = useParams();
@@ -37,10 +39,6 @@ export default function ReportPage() {
     document.body.appendChild(dlNode);
     dlNode.click();
     dlNode.remove();
-  };
-
-  const exportPDF = () => {
-    window.print();
   };
 
   useEffect(() => {
@@ -427,14 +425,24 @@ export default function ReportPage() {
               <FileText className="w-3.5 h-3.5" />
               Export JSON
             </button>
-            <button
-              onClick={exportPDF}
+            <PDFDownloadLink
+              document={<PdfReport job={job} report={report} />}
+              fileName={`Hexplain_Report_${job.file_hash_sha256.substring(0,8)}.pdf`}
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-all shadow-sm"
               style={{borderRadius:'4px'}}
             >
-              <Layout className="w-3.5 h-3.5" />
-              Export PDF
-            </button>
+              {({ loading }) =>
+                loading ? (
+                  <span className="flex items-center gap-1.5">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Preparing PDF...
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5">
+                    <Layout className="w-3.5 h-3.5" /> Export PDF
+                  </span>
+                )
+              }
+            </PDFDownloadLink>
           </div>
         </div>
 

@@ -230,16 +230,15 @@ def run_analysis(
     risk_level = score_result.get("level", "unknown") if isinstance(score_result, dict) else "unknown"
 
     # --- AI Enrichment ---
-    # Trigger if it's high/critical risk or YARA matched, but we have no popular tags from VT or similar
-    has_intel_tags = False
+    # Trigger if it's high/critical risk or YARA matched, but we have no specific threat intel matches
+    has_intel_matches = False
     if threat_intel_result and isinstance(threat_intel_result, dict):
-        vt = threat_intel_result.get("virustotal")
-        if isinstance(vt, dict) and vt.get("tags"):
-            has_intel_tags = True
+        if threat_intel_result.get("matches"):
+            has_intel_matches = True
             
     is_malicious = risk_level in ["high", "critical"] or (isinstance(yara_result, dict) and yara_result.get("total_matches", 0) > 0)
     
-    if is_malicious and not has_intel_tags:
+    if is_malicious and not has_intel_matches:
         from app.services.analysis.ai_enrichment import enrich_threat_intel
         yara_matches = yara_result.get("matches", []) if isinstance(yara_result, dict) else []
         capa_matches = capa_result.get("capabilities", []) if isinstance(capa_result, dict) else []

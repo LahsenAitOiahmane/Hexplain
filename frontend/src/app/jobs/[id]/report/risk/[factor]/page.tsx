@@ -15,6 +15,7 @@ export default function RiskFactorPage() {
   const [job, setJob] = useState<any>(null);
   const [error, setError] = useState("");
   const [riskData, setRiskData] = useState<any>(null);
+  const [vtScans, setVtScans] = useState<any[]>([]);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [explainLoading, setExplainLoading] = useState(false);
@@ -30,11 +31,15 @@ export default function RiskFactorPage() {
         const repData = reportRes.data.report_data || {};
         const breakdown = repData.risk_assessment?.breakdown || [];
         
-        // Find the risk factor by signal string
         const item = breakdown.find((r: any) => r.signal === decodedFactor || r.signal.replace(/_/g, ' ') === decodedFactor);
         
         if (item) {
           setRiskData(item);
+          if (repData.threat_intel?.virustotal?.scans) {
+            const scans = repData.threat_intel.virustotal.scans;
+            const malicious = Object.keys(scans).filter(k => scans[k].detected).map(k => ({ engine: k, result: scans[k].result }));
+            setVtScans(malicious);
+          }
         } else {
           setError(`Risk factor '${decodedFactor}' not found in this report.`);
         }
@@ -87,7 +92,7 @@ export default function RiskFactorPage() {
         </div>
       </div>
 
-      <div className="glass-panel p-8 relative overflow-hidden bg-white">
+      <div className="glass-panel p-8 relative overflow-hidden bg-white mb-6">
         <div className="absolute top-0 right-0 w-32 h-32 bg-amber-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/4 pointer-events-none" />
         
         <div className="flex flex-col md:flex-row gap-8 items-start relative z-10">
@@ -114,6 +119,22 @@ export default function RiskFactorPage() {
           </div>
         </div>
       </div>
+
+      {vtScans.length > 0 && (
+        <div className="glass-panel p-6 bg-slate-50">
+          <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2 pb-3 border-b border-slate-200">
+            Raw Evidence Context
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-96 overflow-y-auto custom-scroll pr-2">
+            {vtScans.map((scan, i) => (
+              <div key={i} className="bg-white p-3 border border-slate-200 shadow-sm rounded-md flex flex-col justify-between">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{scan.engine}</span>
+                <span className="text-xs font-mono font-bold text-red-600 break-all leading-snug">{scan.result}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Slide-out Explanation Drawer */}
       <div className={cn(

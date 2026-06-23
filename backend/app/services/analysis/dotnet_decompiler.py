@@ -40,14 +40,19 @@ def analyze_dotnet(file_path: str, timeout_seconds: int = 120) -> dict:
                     continue
                 if line.startswith("ICSharpCode") or line.startswith("ilspycmd"):
                     continue
-                # ilspycmd output often contains update warnings
                 if line.startswith("You are not using") or line.startswith("Latest version"):
                     continue
-                # Class names generally don't contain spaces. If there's a space, it's likely console noise.
-                if " " in line and "<Module>" not in line:
+                if "<Module>" in line:
                     continue
-                    
-                classes.append(line)
+                
+                # ilspycmd output might include prefixes like "class " or numbering.
+                # Extract the last token which should be the fully qualified type name.
+                parts = line.split()
+                if not parts:
+                    continue
+                
+                class_name = parts[-1]
+                classes.append(class_name)
         
         # If no classes found or it failed, fallback to global decompilation
         if not classes:
