@@ -431,7 +431,7 @@ export default function ReportPage() {
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold border border-indigo-200 text-indigo-700 bg-indigo-50 hover:bg-indigo-100 transition-all shadow-sm"
               style={{borderRadius:'4px'}}
             >
-              {({ loading }) =>
+              {(( { loading }: any ) =>
                 loading ? (
                   <span className="flex items-center gap-1.5">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" /> Preparing PDF...
@@ -441,7 +441,7 @@ export default function ReportPage() {
                     <Layout className="w-3.5 h-3.5" /> Export PDF
                   </span>
                 )
-              }
+              ) as any}
             </PDFDownloadLink>
           </div>
         </div>
