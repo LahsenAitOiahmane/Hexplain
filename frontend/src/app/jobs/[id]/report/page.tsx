@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useParams } from "next/navigation";
-import { Loader2, ShieldAlert, CheckCircle, AlertTriangle, MessageSquare, FileText, Layout, Cpu, Activity, ArrowRight, Zap, Download } from "lucide-react";
+import { Loader2, ShieldAlert, CheckCircle, AlertTriangle, MessageSquare, FileText, Layout, Cpu, Activity, ArrowRight, Zap, Download, Wand2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from 'react-markdown';
 import { format, addDays } from "date-fns";

@@ -63,6 +63,7 @@ export default function ChatPage() {
       }
     };
     fetchSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   // 2. Fetch Messages when Session changes
